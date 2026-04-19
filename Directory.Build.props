@@ -1,0 +1,18 @@
+<Project>
+  <!--
+    Dropbox スマートシンク対策:
+    obj (中間出力) をローカルの Temp フォルダに配置して、
+    Dropbox によるディレクトリ削除を防ぐ。
+    bin (ビルド出力) も同様にリダイレクトする。
+  -->
+  <PropertyGroup>
+    <BaseIntermediateOutputPath>$(TEMP)\AttacheCase5_build\$(MSBuildProjectName)\obj\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\</IntermediateOutputPath>
+    <!--
+      MSBuild 17.14+ は非文字列リソースに System.Resources.Extensions を要求するが、
+      .NET Framework 4.8 ランタイムにはこの DLL が無く実行時例外になる。
+      false を明示指定して従来の BinaryFormatter シリアライズを維持する。
+    -->
+    <GenerateResourceUsePreserializedResources>false</GenerateResourceUsePreserializedResources>
+  </PropertyGroup>
+</Project>

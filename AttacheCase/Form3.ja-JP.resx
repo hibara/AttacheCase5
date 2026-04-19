@@ -1,0 +1,1681 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="treeView1.Nodes" mimetype="application/x-microsoft.net.object.binary.base64">
+    <value>
+        AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj00LjAuMC4w
+        LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAAB1TeXN0
+        ZW0uV2luZG93cy5Gb3Jtcy5UcmVlTm9kZQsAAAAEVGV4dAtUb29sVGlwVGV4dAROYW1lCUlzQ2hlY2tl
+        ZApJbWFnZUluZGV4CEltYWdlS2V5ElNlbGVjdGVkSW1hZ2VJbmRleBBTZWxlY3RlZEltYWdlS2V5CkNo
+        aWxkQ291bnQJY2hpbGRyZW4wCWNoaWxkcmVuMQEBAQAAAQABAAQEAQgICB1TeXN0ZW0uV2luZG93cy5G
+        b3Jtcy5UcmVlTm9kZQIAAAAdU3lzdGVtLldpbmRvd3MuRm9ybXMuVHJlZU5vZGUCAAAAAgAAAAYDAAAA
+        BuS4gOiIrAYEAAAAAAYFAAAAC25vZGVHZW5lcmFsAP////8JBAAAAP////8JBAAAAAIAAAAJBwAAAAkI
+        AAAABQcAAAAdU3lzdGVtLldpbmRvd3MuRm9ybXMuVHJlZU5vZGUJAAAABFRleHQLVG9vbFRpcFRleHQE
+        TmFtZQlJc0NoZWNrZWQKSW1hZ2VJbmRleAhJbWFnZUtleRJTZWxlY3RlZEltYWdlSW5kZXgQU2VsZWN0
+        ZWRJbWFnZUtleQpDaGlsZENvdW50AQEBAAABAAEAAQgICAIAAAAGCQAAAA/jgqbjgqPjg7Pjg4njgqYJ
+        BAAAAAYLAAAACm5vZGVXaW5kb3cA/////wkEAAAA/////wkEAAAAAAAAAAUIAAAAHVN5c3RlbS5XaW5k
+        b3dzLkZvcm1zLlRyZWVOb2RlCQAAAARUZXh0C1Rvb2xUaXBUZXh0BE5hbWUJSXNDaGVja2VkCkltYWdl
+        SW5kZXgISW1hZ2VLZXkSU2VsZWN0ZWRJbWFnZUluZGV4EFNlbGVjdGVkSW1hZ2VLZXkKQ2hpbGRDb3Vu
+        dAEBAQAAAQABAAEICAgCAAAABg0AAAAP44OR44K544Ov44O844OJCQQAAAAGDwAAAA1ub2RlUGFzc3dv
+        cmRzAP////8JBAAAAP////8JBAAAAAAAAAAL
+</value>
+  </data>
+  <data name="treeView1.Nodes1" mimetype="application/x-microsoft.net.object.binary.base64">
+    <value>
+        AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj00LjAuMC4w
+        LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAAB1TeXN0
+        ZW0uV2luZG93cy5Gb3Jtcy5UcmVlTm9kZQsAAAAEVGV4dAtUb29sVGlwVGV4dAROYW1lCUlzQ2hlY2tl
+        ZApJbWFnZUluZGV4CEltYWdlS2V5ElNlbGVjdGVkSW1hZ2VJbmRleBBTZWxlY3RlZEltYWdlS2V5CkNo
+        aWxkQ291bnQJY2hpbGRyZW4wCWNoaWxkcmVuMQEBAQAAAQABAAQEAQgICB1TeXN0ZW0uV2luZG93cy5G
+        b3Jtcy5UcmVlTm9kZQIAAAAdU3lzdGVtLldpbmRvd3MuRm9ybXMuVHJlZU5vZGUCAAAAAgAAAAYDAAAA
+        BuS/neWtmAYEAAAAAAYFAAAACG5vZGVTYXZlAP////8JBAAAAP////8JBAAAAAIAAAAJBwAAAAkIAAAA
+        BQcAAAAdU3lzdGVtLldpbmRvd3MuRm9ybXMuVHJlZU5vZGUJAAAABFRleHQLVG9vbFRpcFRleHQETmFt
+        ZQlJc0NoZWNrZWQKSW1hZ2VJbmRleAhJbWFnZUtleRJTZWxlY3RlZEltYWdlSW5kZXgQU2VsZWN0ZWRJ
+        bWFnZUtleQpDaGlsZENvdW50AQEBAAABAAEAAQgICAIAAAAGCQAAAAnmmpflj7fljJYJBAAAAAYLAAAA
+        C25vZGVFbmNyeXB0AP////8JBAAAAP////8JBAAAAAAAAAAFCAAAAB1TeXN0ZW0uV2luZG93cy5Gb3Jt
+        cy5UcmVlTm9kZQkAAAAEVGV4dAtUb29sVGlwVGV4dAROYW1lCUlzQ2hlY2tlZApJbWFnZUluZGV4CElt
+        YWdlS2V5ElNlbGVjdGVkSW1hZ2VJbmRleBBTZWxlY3RlZEltYWdlS2V5CkNoaWxkQ291bnQBAQEAAAEA
+        AQABCAgIAgAAAAYNAAAADOW+qeWPt+OBmeOCiwkEAAAABg8AAAALbm9kZURlY3J5cHQA/////wkEAAAA
+        /////wkEAAAAAAAAAAs=
+</value>
+  </data>
+  <data name="treeView1.Nodes2" mimetype="application/x-microsoft.net.object.binary.base64">
+    <value>
+        AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj00LjAuMC4w
+        LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAAB1TeXN0
+        ZW0uV2luZG93cy5Gb3Jtcy5UcmVlTm9kZQkAAAAEVGV4dAtUb29sVGlwVGV4dAROYW1lCUlzQ2hlY2tl
+        ZApJbWFnZUluZGV4CEltYWdlS2V5ElNlbGVjdGVkSW1hZ2VJbmRleBBTZWxlY3RlZEltYWdlS2V5CkNo
+        aWxkQ291bnQBAQEAAAEAAQABCAgIAgAAAAYDAAAABuWJiumZpAYEAAAAAAYFAAAACm5vZGVEZWxldGUA
+        /////wkEAAAA/////wkEAAAAAAAAAAs=
+</value>
+  </data>
+  <data name="treeView1.Nodes3" mimetype="application/x-microsoft.net.object.binary.base64">
+    <value>
+        AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj00LjAuMC4w
+        LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAAB1TeXN0
+        ZW0uV2luZG93cy5Gb3Jtcy5UcmVlTm9kZQkAAAAEVGV4dAtUb29sVGlwVGV4dAROYW1lCUlzQ2hlY2tl
+        ZApJbWFnZUluZGV4CEltYWdlS2V5ElNlbGVjdGVkSW1hZ2VJbmRleBBTZWxlY3RlZEltYWdlS2V5CkNo
+        aWxkQ291bnQBAQEAAAEAAQABCAgIAgAAAAYDAAAABuWcp+e4rgYEAAAAAAYFAAAADG5vZGVDb21wcmVz
+        cwD/////CQQAAAD/////CQQAAAAAAAAACw==
+</value>
+  </data>
+  <data name="treeView1.Nodes4" mimetype="application/x-microsoft.net.object.binary.base64">
+    <value>
+        AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj00LjAuMC4w
+        LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAAB1TeXN0
+        ZW0uV2luZG93cy5Gb3Jtcy5UcmVlTm9kZQkAAAAEVGV4dAtUb29sVGlwVGV4dAROYW1lCUlzQ2hlY2tl
+        ZApJbWFnZUluZGV4CEltYWdlS2V5ElNlbGVjdGVkSW1hZ2VJbmRleBBTZWxlY3RlZEltYWdlS2V5CkNo
+        aWxkQ291bnQBAQEAAAEAAQABCAgIAgAAAAYDAAAAEuOCt+OCueODhuODoOioreWumgYEAAAAAAYFAAAA
+        Cm5vZGVTeXN0ZW0A/////wkEAAAA/////wkEAAAAAAAAAAs=
+</value>
+  </data>
+  <data name="treeView1.Nodes5" mimetype="application/x-microsoft.net.object.binary.base64">
+    <value>
+        AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj00LjAuMC4w
+        LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAAB1TeXN0
+        ZW0uV2luZG93cy5Gb3Jtcy5UcmVlTm9kZQkAAAAEVGV4dAtUb29sVGlwVGV4dAROYW1lCUlzQ2hlY2tl
+        ZApJbWFnZUluZGV4CEltYWdlS2V5ElNlbGVjdGVkSW1hZ2VJbmRleBBTZWxlY3RlZEltYWdlS2V5CkNo
+        aWxkQ291bnQBAQEAAAEAAQABCAgIAgAAAAYDAAAAFuioreWumuOBruS/neWtmC/lvqnlhYMGBAAAAAAG
+        BQAAABhub2RlU2V0dGluZ3NJbXBvcnRFeHBvcnQA/////wkEAAAA/////wkEAAAAAAAAAAs=
+</value>
+  </data>
+  <data name="treeView1.Nodes6" mimetype="application/x-microsoft.net.object.binary.base64">
+    <value>
+        AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj00LjAuMC4w
+        LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAAB1TeXN0
+        ZW0uV2luZG93cy5Gb3Jtcy5UcmVlTm9kZQ4AAAAEVGV4dAtUb29sVGlwVGV4dAROYW1lCUlzQ2hlY2tl
+        ZApJbWFnZUluZGV4CEltYWdlS2V5ElNlbGVjdGVkSW1hZ2VJbmRleBBTZWxlY3RlZEltYWdlS2V5CkNo
+        aWxkQ291bnQJY2hpbGRyZW4wCWNoaWxkcmVuMQljaGlsZHJlbjIJY2hpbGRyZW4zCWNoaWxkcmVuNAEB
+        AQAAAQABAAQEBAQEAQgICB1TeXN0ZW0uV2luZG93cy5Gb3Jtcy5UcmVlTm9kZQIAAAAdU3lzdGVtLldp
+        bmRvd3MuRm9ybXMuVHJlZU5vZGUCAAAAHVN5c3RlbS5XaW5kb3dzLkZvcm1zLlRyZWVOb2RlAgAAAB1T
+        eXN0ZW0uV2luZG93cy5Gb3Jtcy5UcmVlTm9kZQIAAAAdU3lzdGVtLldpbmRvd3MuRm9ybXMuVHJlZU5v
+        ZGUCAAAAAgAAAAYDAAAAD+mrmOW6puOBquioreWumgYEAAAAAAYFAAAADG5vZGVBZHZhbmNlZAD/////
+        CQQAAAD/////CQQAAAAFAAAACQcAAAAJCAAAAAkJAAAACQoAAAAJCwAAAAUHAAAAHVN5c3RlbS5XaW5k
+        b3dzLkZvcm1zLlRyZWVOb2RlCQAAAARUZXh0C1Rvb2xUaXBUZXh0BE5hbWUJSXNDaGVja2VkCkltYWdl
+        SW5kZXgISW1hZ2VLZXkSU2VsZWN0ZWRJbWFnZUluZGV4EFNlbGVjdGVkSW1hZ2VLZXkKQ2hpbGRDb3Vu
+        dAEBAQAAAQABAAEICAgCAAAABgwAAAAb44OR44K544Ov44O844OJ44OV44Kh44Kk44OrCQQAAAAGDgAA
+        ABBub2RlUGFzc3dvcmRGaWxlAP////8JBAAAAP////8JBAAAAAAAAAAFCAAAAB1TeXN0ZW0uV2luZG93
+        cy5Gb3Jtcy5UcmVlTm9kZQkAAAAEVGV4dAtUb29sVGlwVGV4dAROYW1lCUlzQ2hlY2tlZApJbWFnZUlu
+        ZGV4CEltYWdlS2V5ElNlbGVjdGVkSW1hZ2VJbmRleBBTZWxlY3RlZEltYWdlS2V5CkNoaWxkQ291bnQB
+        AQEAAAEAAQABCAgIAgAAAAYQAAAAG+ODkeOCueODr+ODvOODieWFpeWKm+WItumZkAkEAAAABhIAAAAW
+        bm9kZVBhc3N3b3JkSW5wdXRMaW1pdAD/////CQQAAAD/////CQQAAAAAAAAABQkAAAAdU3lzdGVtLldp
+        bmRvd3MuRm9ybXMuVHJlZU5vZGUJAAAABFRleHQLVG9vbFRpcFRleHQETmFtZQlJc0NoZWNrZWQKSW1h
+        Z2VJbmRleAhJbWFnZUtleRJTZWxlY3RlZEltYWdlSW5kZXgQU2VsZWN0ZWRJbWFnZUtleQpDaGlsZENv
+        dW50AQEBAAABAAEAAQgICAIAAAAGFAAAABvjg4fjg7zjgr/jga7jgrXjg6vjg5njg7zjgrgJBAAAAAYW
+        AAAAD25vZGVTYWx2YWdlRGF0YQD/////CQQAAAD/////CQQAAAAAAAAABQoAAAAdU3lzdGVtLldpbmRv
+        d3MuRm9ybXMuVHJlZU5vZGUJAAAABFRleHQLVG9vbFRpcFRleHQETmFtZQlJc0NoZWNrZWQKSW1hZ2VJ
+        bmRleAhJbWFnZUtleRJTZWxlY3RlZEltYWdlSW5kZXgQU2VsZWN0ZWRJbWFnZUtleQpDaGlsZENvdW50
+        AQEBAAABAAEAAQgICAIAAAAGGAAAAA/mi6HlvLXlrZDlgb3oo4UJBAAAAAYaAAAAEW5vZGVDYW1vdWZs
+        YWdlRXh0AP////8JBAAAAP////8JBAAAAAAAAAAFCwAAAB1TeXN0ZW0uV2luZG93cy5Gb3Jtcy5UcmVl
+        Tm9kZQkAAAAEVGV4dAtUb29sVGlwVGV4dAROYW1lCUlzQ2hlY2tlZApJbWFnZUluZGV4CEltYWdlS2V5
+        ElNlbGVjdGVkSW1hZ2VJbmRleBBTZWxlY3RlZEltYWdlS2V5CkNoaWxkQ291bnQBAQEAAAEAAQABCAgI
+        AgAAAAYcAAAAD+mWi+eZuuODouODvOODiQkEAAAABh4AAAAPbm9kZURldmVsb3BtZW50AP////8JBAAA
+        AP////8JBAAAAAAAAAAL
+</value>
+  </data>
+  <data name="treeView1.Nodes7" mimetype="application/x-microsoft.net.object.binary.base64">
+    <value>
+        AAEAAAD/////AQAAAAAAAAAMAgAAAFdTeXN0ZW0uV2luZG93cy5Gb3JtcywgVmVyc2lvbj00LjAuMC4w
+        LCBDdWx0dXJlPW5ldXRyYWwsIFB1YmxpY0tleVRva2VuPWI3N2E1YzU2MTkzNGUwODkFAQAAAB1TeXN0
+        ZW0uV2luZG93cy5Gb3Jtcy5UcmVlTm9kZQkAAAAEVGV4dAtUb29sVGlwVGV4dAROYW1lCUlzQ2hlY2tl
+        ZApJbWFnZUluZGV4CEltYWdlS2V5ElNlbGVjdGVkSW1hZ2VJbmRleBBTZWxlY3RlZEltYWdlS2V5CkNo
+        aWxkQ291bnQBAQEAAAEAAQABCAgIAgAAAAYDAAAAD+ODqeOCpOOCu+ODs+OCuQYEAAAAAAYFAAAAC25v
+        ZGVMaWNlbnNlAP////8JBAAAAP////8JBAAAAAAAAAAL
+</value>
+  </data>
+  <data name="buttonRestoreDefaultSettings.Text" xml:space="preserve">
+    <value>初期設定に戻す</value>
+  </data>
+  <data name="comboBoxThemeColor.Items" xml:space="preserve">
+    <value>自動</value>
+  </data>
+  <data name="comboBoxThemeColor.Items1" xml:space="preserve">
+    <value>ライト</value>
+  </data>
+  <data name="comboBoxThemeColor.Items2" xml:space="preserve">
+    <value>ダーク</value>
+  </data>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="labelThemeColor.Size" type="System.Drawing.Size, System.Drawing">
+    <value>27, 16</value>
+  </data>
+  <data name="labelThemeColor.Text" xml:space="preserve">
+    <value>色:</value>
+  </data>
+  <data name="label7.Size" type="System.Drawing.Size, System.Drawing">
+    <value>131, 16</value>
+  </data>
+  <data name="label7.Text" xml:space="preserve">
+    <value>ファイル / フォルダー</value>
+  </data>
+  <data name="checkBoxShowDialogWhenMultipleFiles.Size" type="System.Drawing.Size, System.Drawing">
+    <value>264, 20</value>
+  </data>
+  <data name="checkBoxShowDialogWhenMultipleFiles.Text" xml:space="preserve">
+    <value>複数ある場合は警告ダイアログを出す</value>
+  </data>
+  <data name="checkBoxShowDialogWhenExeFile.Size" type="System.Drawing.Size, System.Drawing">
+    <value>359, 20</value>
+  </data>
+  <data name="checkBoxShowDialogWhenExeFile.Text" xml:space="preserve">
+    <value>実行ファイル(*.exe)を含むときは警告ダイアログを出す</value>
+  </data>
+  <data name="checkBoxNoHidePassword.Size" type="System.Drawing.Size, System.Drawing">
+    <value>248, 20</value>
+  </data>
+  <data name="checkBoxNoHidePassword.Text" xml:space="preserve">
+    <value>パスワード文字列を隠さず入力する</value>
+  </data>
+  <data name="checkBoxAskEncDecode.Size" type="System.Drawing.Size, System.Drawing">
+    <value>340, 20</value>
+  </data>
+  <data name="checkBoxAskEncDecode.Text" xml:space="preserve">
+    <value>内容にかかわらず暗号化か復号かを問い合わせる</value>
+  </data>
+  <data name="checkBoxOpenFile.Size" type="System.Drawing.Size, System.Drawing">
+    <value>279, 20</value>
+  </data>
+  <data name="checkBoxOpenFile.Text" xml:space="preserve">
+    <value>復号後に、関連付けられたファイルを開く</value>
+  </data>
+  <data name="checkBoxEndToExit.Size" type="System.Drawing.Size, System.Drawing">
+    <value>251, 20</value>
+  </data>
+  <data name="checkBoxEndToExit.Text" xml:space="preserve">
+    <value>処理後にアタッシェケースを終了する</value>
+  </data>
+  <data name="tabPageGeneralOption.Text" xml:space="preserve">
+    <value>一般</value>
+  </data>
+  <data name="checkBoxEnablePassStrengthMeter.Size" type="System.Drawing.Size, System.Drawing">
+    <value>222, 19</value>
+  </data>
+  <data name="checkBoxEnablePassStrengthMeter.Text" xml:space="preserve">
+    <value>パスワード強度メーターを表示する</value>
+  </data>
+  <data name="buttonInputDecryptionPassword.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAHISURBVEhLvVS7bsJAEHSc1PBBIEEPhfMtfAUlgi+g
+        pebVuaGkw0JCICEQih1e4o0FYqPZ5Ay5CyagS1Ya7e3N7M7ZOtsgIuMvoWzohrJxL65FwMsN90LMk3Dm
+        5YZ7cdNAYwTDuZAMLMMw3n84yaPALOvSwK1UKrTdbmmxWNB0OmVgvdlsaLfbcZY56A+HA51Op2A4ol6v
+        Y/0mDJ5ArFYr8jyPer0eOY7D6Ha7NBqNyHVdzqgFBx306IPJpQHia80GJgqI0VgoFCiZTDLy+Tw1m03e
+        R0YtOOiwjz48SZjBMwqcKJfLkWmagRjrbDZLtm1zljno0YfXFWbwgqLdbvPJhFAgFotRuVymeDyucIlE
+        gvtms9nvDCzLUoakUik2SKfTCgc9+ubzeagBv6J+v0+lUomi0WggjkQiVCwWqdFocJY56NG3XC5DDfgW
+        TSYT6nQ6VKvVKJPJMKrVKrVaLd5HRi046LCPvv1+f9sA9xzi4XDI1xEYDAZ8RcfjMWfUgoMOevTduqYI
+        FyfCSdbrNT8ygDU+Mt/3Ocsc9Mfj8dqH5l0avOLLEyINwKxvvwodIYZ/Fpr/pvITnA3E4lH8l4ESAS83
+        6IayoRsfP8rjeK0kpTsAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="buttonInputEncryptionPassword.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAHISURBVEhLvVS7bsJAEHSc1PBBIEEPhfMtfAUlgi+g
+        pebVuaGkw0JCICEQih1e4o0FYqPZ5Ay5CyagS1Ya7e3N7M7ZOtsgIuMvoWzohrJxL65FwMsN90LMk3Dm
+        5YZ7cdNAYwTDuZAMLMMw3n84yaPALOvSwK1UKrTdbmmxWNB0OmVgvdlsaLfbcZY56A+HA51Op2A4ol6v
+        Y/0mDJ5ArFYr8jyPer0eOY7D6Ha7NBqNyHVdzqgFBx306IPJpQHia80GJgqI0VgoFCiZTDLy+Tw1m03e
+        R0YtOOiwjz48SZjBMwqcKJfLkWmagRjrbDZLtm1zljno0YfXFWbwgqLdbvPJhFAgFotRuVymeDyucIlE
+        gvtms9nvDCzLUoakUik2SKfTCgc9+ubzeagBv6J+v0+lUomi0WggjkQiVCwWqdFocJY56NG3XC5DDfgW
+        TSYT6nQ6VKvVKJPJMKrVKrVaLd5HRi046LCPvv1+f9sA9xzi4XDI1xEYDAZ8RcfjMWfUgoMOevTduqYI
+        FyfCSdbrNT8ygDU+Mt/3Ocsc9Mfj8dqH5l0avOLLEyINwKxvvwodIYZ/Fpr/pvITnA3E4lH8l4ESAS83
+        6IayoRsfP8rjeK0kpTsAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="checkBoxDobyMemorizedPassword.Size" type="System.Drawing.Size, System.Drawing">
+    <value>301, 17</value>
+  </data>
+  <data name="checkBoxDobyMemorizedPassword.Text" xml:space="preserve">
+    <value>暗号/復号時に確認無しに記憶パスワードで実行する</value>
+  </data>
+  <data name="checkBoxMyDecodePasswordKeep.Size" type="System.Drawing.Size, System.Drawing">
+    <value>182, 20</value>
+  </data>
+  <data name="checkBoxMyDecodePasswordKeep.Text" xml:space="preserve">
+    <value>復号時のパスワード保存</value>
+  </data>
+  <data name="checkBoxMyEncodePasswordKeep.Size" type="System.Drawing.Size, System.Drawing">
+    <value>198, 20</value>
+  </data>
+  <data name="checkBoxMyEncodePasswordKeep.Text" xml:space="preserve">
+    <value>暗号化時のパスワード保存</value>
+  </data>
+  <data name="tabPagePasswordOption.Text" xml:space="preserve">
+    <value>パスワード</value>
+  </data>
+  <data name="checkBoxNoMaximizedInTabletMode.Font" type="System.Drawing.Font, System.Drawing">
+    <value>MS UI Gothic, 11.25pt</value>
+  </data>
+  <data name="checkBoxNoMaximizedInTabletMode.Size" type="System.Drawing.Size, System.Drawing">
+    <value>418, 19</value>
+  </data>
+  <data name="checkBoxNoMaximizedInTabletMode.Text" xml:space="preserve">
+    <value>PCがタブレットモードで動作しているとき、最大化モードで起動しない</value>
+  </data>
+  <data name="checkBoxTurnOnAllIMEs.Size" type="System.Drawing.Size, System.Drawing">
+    <value>409, 20</value>
+  </data>
+  <data name="checkBoxTurnOnAllIMEs.Text" xml:space="preserve">
+    <value>パスワード入力用のすべてのテキストボックスでIMEをオンにする</value>
+  </data>
+  <data name="label1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>261, 16</value>
+  </data>
+  <data name="label1.Text" xml:space="preserve">
+    <value>※アタッシェケースの再起動が必要です。</value>
+  </data>
+  <data name="checkBoxNoMultipleInstance.Size" type="System.Drawing.Size, System.Drawing">
+    <value>235, 20</value>
+  </data>
+  <data name="checkBoxNoMultipleInstance.Text" xml:space="preserve">
+    <value>アタッシェケースを複数起動しない</value>
+  </data>
+  <data name="checkBoxWindowForeground.Size" type="System.Drawing.Size, System.Drawing">
+    <value>264, 20</value>
+  </data>
+  <data name="checkBoxWindowForeground.Text" xml:space="preserve">
+    <value>デスクトップでウィンドウを最前面にする</value>
+  </data>
+  <data name="checkBoxMainWindowMinimize.Size" type="System.Drawing.Size, System.Drawing">
+    <value>192, 20</value>
+  </data>
+  <data name="checkBoxMainWindowMinimize.Text" xml:space="preserve">
+    <value>処理中は常に最小化する</value>
+  </data>
+  <data name="checkBoxTaskTrayIcon.Size" type="System.Drawing.Size, System.Drawing">
+    <value>159, 20</value>
+  </data>
+  <data name="checkBoxTaskTrayIcon.Text" xml:space="preserve">
+    <value>タスクバーに表示する</value>
+  </data>
+  <data name="checkBoxTaskBarHide.Size" type="System.Drawing.Size, System.Drawing">
+    <value>276, 20</value>
+  </data>
+  <data name="checkBoxTaskBarHide.Text" xml:space="preserve">
+    <value>タスクバーに表示することなく最小化する</value>
+  </data>
+  <data name="tabPageWindowOption.Text" xml:space="preserve">
+    <value>ウィンドウ</value>
+  </data>
+  <data name="checkBoxAskSelfExecutableFileExceed4GiB.Size" type="System.Drawing.Size, System.Drawing">
+    <value>439, 20</value>
+  </data>
+  <data name="checkBoxAskSelfExecutableFileExceed4GiB.Text" xml:space="preserve">
+    <value>自己実行可能形式ファイルが 4GiB を超えそうなとき問い合わせる</value>
+  </data>
+  <data name="labelAnnotationOfOver4GiB.Size" type="System.Drawing.Size, System.Drawing">
+    <value>431, 12</value>
+  </data>
+  <data name="labelAnnotationOfOver4GiB.Text" xml:space="preserve">
+    <value>(※実行ファイルとして起動しない可能性がありますが、暗号化ファイルとして復号はできます)</value>
+  </data>
+  <data name="checkBoxAllowSelfExecutableFileLargerThan4GiB.Size" type="System.Drawing.Size, System.Drawing">
+    <value>429, 20</value>
+  </data>
+  <data name="checkBoxAllowSelfExecutableFileLargerThan4GiB.Text" xml:space="preserve">
+    <value>自己実行形式ファイルで 4GiB を超えるサイズの作成を許可する</value>
+  </data>
+  <data name="label4.Text" xml:space="preserve">
+    <value>.NET Framework 4.6.2がインストールされていない古いOS（Windows7, Vista, XPなど）でも確実に復号できますが、サポート外です。</value>
+  </data>
+  <data name="pictureBox1.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAFeSURBVDhPtZI/KIRxGMc/xCnJFQuSDO9gQCbSKWU0
+        3CCJuriLDBKlDDZSYpEymSy3KItSBm5Ql1LnT9yg1BmcIndH7/AuRz89v96r168ud4OnvvX0PL/vp+/b
+        88I/ViXQA/S7fVlVBUwAb8A7EHZnJZU8HAdyJ1Hs2AE28AmESoFIVImcuTq1HJUJ5kU3McuRGdAHVJgm
+        bzUC17vr2GIcDDQrkfQ7azpJAvCbpkL5gI3FaWyVxla5yLe/3qdE0stsPqIhq0C1aZZY7cBL6qI44OFc
+        A56AFhNQA2wuzbrmIgBReExDVswUTUDqMf434PJYA26BhoJZTjM5FPCYRdmRL/Uxp7Sk9+y6OjRkuPCD
+        1QFH+9sGoEgCkXuRKFArgDbgNZs0AMYZvbt0QgOegVYBhAZ6sfe2fuvs0HLSyWBeJL25l08GpgSwAMSB
+        O+C+RMlb8SwLoBMYBWbKlHi6fwBm+BgOErBcOAAAAABJRU5ErkJggg==
+</value>
+  </data>
+  <data name="checkBoxOutputSelfExeForOlderOS.Size" type="System.Drawing.Size, System.Drawing">
+    <value>291, 16</value>
+  </data>
+  <data name="checkBoxOutputSelfExeForOlderOS.Text" xml:space="preserve">
+    <value>古いOSでも復号できるように自己実行ファイルを出力する</value>
+  </data>
+  <data name="checkBoxEncryptionSameFileTypeBefore.Size" type="System.Drawing.Size, System.Drawing">
+    <value>262, 20</value>
+  </data>
+  <data name="checkBoxEncryptionSameFileTypeBefore.Text" xml:space="preserve">
+    <value>前に使ったファイルタイプで暗号化する</value>
+  </data>
+  <data name="radioButtonNotSpecified.Size" type="System.Drawing.Size, System.Drawing">
+    <value>126, 20</value>
+  </data>
+  <data name="radioButtonNotSpecified.Text" xml:space="preserve">
+    <value>特に指定しない</value>
+  </data>
+  <data name="radioButtonEncryptionFileTypeRsa.Size" type="System.Drawing.Size, System.Drawing">
+    <value>321, 20</value>
+  </data>
+  <data name="radioButtonEncryptionFileTypeRsa.Text" xml:space="preserve">
+    <value>公開鍵暗号形式 ( RSA: *.atcpub, *.atcpvt )</value>
+  </data>
+  <data name="radioButtonEncryptionFileTypeEXE.Size" type="System.Drawing.Size, System.Drawing">
+    <value>292, 20</value>
+  </data>
+  <data name="radioButtonEncryptionFileTypeEXE.Text" xml:space="preserve">
+    <value>アタッシェケースの自己実行形式  ( *.exe )</value>
+  </data>
+  <data name="radioButtonEncryptionFileTypeATC.Size" type="System.Drawing.Size, System.Drawing">
+    <value>270, 20</value>
+  </data>
+  <data name="radioButtonEncryptionFileTypeATC.Text" xml:space="preserve">
+    <value>アタッシェケースのファイルタイプ ( *.atc )</value>
+  </data>
+  <data name="pictureAtcExeFile.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAOcSURBVEhLtZV7TFNXHMcPz2AYtphFSZyziRgyF0sT
+        /9gwRiGErAhLmGTj8Qdi0YgxCIgBlYfGksAIEJpYmLKiVnR2d5UhtMV/jNNE/tBEa5RHG/BRefVSy+M/
+        /vmac6Q33Fu8kmw7ySc39zx+n985555zCfmXBYAsciWKEHKFEOImhIyvwmNCSKs0oBS5co0muAZkJYGy
+        jhCyQQKio6MxMjICl8sVxODgYEBAZyIdG7NS0LVKVgyFQoGlpSXU19cjOztbwGw2g+f5oP4SzAEBIiIi
+        EBUVFQQV1NTUQKPRQKlUCqSmpiIzMxOhoaEsWEhICMLCwhAZGcnG0eey5DQTlJSUwOl0rgmLxcJmcSB7
+        H3ptv2LsLYcXo90wXT2DRE088vLy0NfXFxDYmCA9PR1tbW0wGAyy0D50XwwXK8DPOYKYmu1HTm4akpKS
+        xILW1lYsLi5+lo6ODhws3A+v3864/9CIspO5qDtfBPdrjtV5pv/GVlWcWJCVlYXa2lrU1dXJolKpcO/B
+        Rcz4beypjFWw2aekpCBRk8CC07Zzep1YUF5ejvn5eSwsLHwSr9eL2Fglpnx3MOPvg+7wj2hvbxfaMzIy
+        YLmtZ21czwWxoKysDHNzc7L4fD7ExHyBCb4H0+97cez4T+zzDbTTmXA9etZ2y3ouWOD3+2WhS7RTHY/x
+        CQum3vfgyfNObP5qIwoKCtgS/6D9Du94K2urPJsb+Hw/CkpLS1mGn4LuDw3uHDZh0mcVeOm6BuPlk7h+
+        qxoeL8fqRl9dx6a4WCYIDw+3CwJ6MleDHjQWfOh3TM7+JYvrVTdS03axGYkEdIloMLqRK4NXV1djp3ob
+        ng11YmL2TwHncCeOFGei/XI5/nnUhrv3mqBv0CF++xZUVFSA4zjxHhQVFaG/vx82m02gsLBwOfglvOMt
+        IkbGruCbHSpotVokJCRArVYjJycHXV1dbKzRaBQLdDod7HY7HA4Hg15mNJunQ7/Bw//BeD19Awd+3ovH
+        z43s/dTpX1hiAwMDAoHxVVVVYkFxcTGam5vR0tLCaGpqgkK5Hr2OCxifMMPtuQoPfxMthqP4fve3OHRE
+        i+TkZOj1emFMABqnsrJSLKBr7Xa7RdC75+utcUjUbGeZv5npxrPhDlbX0NAQ1H8ljY2NYkF+fj6sVmsQ
+        JpOJXXD0lB7UpbHg9LaU9pNCV2RZwK7ryeWX/4M9VPAlIeQEIYT7D6GZ7/ncT39NRfqTl/IBS+K+V+OI
+        llQAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="pictureBoxRsaKeys.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        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
+        TkSuQmCC
+</value>
+  </data>
+  <data name="pictureBoxAtcFile.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAASZSURBVEhLtZXrT5NnGIf9BzQeoglZ5IwFKceW0nMr
+        DKYBxzRZVCYuTqfb6KAM2Cp0UDrmDsJUJmBEzT44t+hAkUOMTGJgweyDU8RjKaUt6L9xLc/TloPAtg/u
+        w5U3eZ/3/V33fT/v065Sq1NXrQSQCLQCQytwCTAA4tllWRL6iqC1ra2Fmhob9fVVNDRUS5zOKurqKmlt
+        bSYsWRL8XwWjNtthDh7cw61bPdy+fZ2hoR5u3rxKbe3HNDVVCEHg1dBFAiAKcANXlmG0vPwQx4/Xi6DR
+        hePp6DiByzUnePW9CNuEwH3uXDsulwO3uw63uz58rcPp/JyCAjN795bQ2fkdLS2NuFy1OByVFBe/ic32
+        Lvf+OsOU7wyBYDvjD0/R3d2M2/2FLGpi4oFsQ1ZpMmmxWk3k51vYts2E1WrEaNSh1WowmQzk5ZkxGrXk
+        5qpQqTJxOPYyM9vJi5dnlzAy+hX79hXy4MFYSFBRcQSz2YDFYpGYTCaMRiMGgwGdTifJzc1FrVaTlZXF
+        /rLtzMy2M/sixMhIE7911zLpPT13b2ioAZ9vPCSorDwqq7dareTl5cmr2SwqNqLX69FqtWg0mjnBwICD
+        mdk2gsHTlNveRqFQkJSUhFqdxu1hp1wTBAJ/zAsiHfxbuEajYtr/A8GZU/zya+VceEJCAnFxcezcqZdr
+        wZmTBII98yMScxbBK4VnZ2eTkZFBfr6OQLBF0ty8b1F4TEwMCkV8eP0E/sDP8wKxoSJ4pfDMzEzS09PJ
+        ysrAO3Wcaf+3XLlqWxS+efNmSkq0cm3a/w3T/isRwYcYDFoZ/E/hSqWSmtoSpnzN+KZDVFcXERsbS3R0
+        NBpNKsPD1fimv5Zrfv+deYFer5HBy4WL0YjwqqoiJr2NeKcErjBNjIzWMDBo4+mzBqZ8bsngoJ1A4OG8
+        QKfTyE9RkJOTg0qlkpsqwkX1dnsRnskv8XhDTE4JGhbQGMZF30A5+/fvIBicCAns9qMYDLmycsFCgejA
+        XiXCj+Hx1uHx1ksePXHgatrFua4D3P2zhnv3HfQP2qipLUapTKG0dCfB4KOI4CNMptD8BZGDJUT2qmKe
+        eY7hmazDM1mPZ9IpO7g/7qCgQCc7FIhxiqIiHDjwznwHC/dAnN7I1/RZ9S6ee0TFDXi8jUw8dtLe8QEe
+        rxuvr5kbfdWLTrzYt9TUVLnpRUVGAoHwSRY/ySpVaBxiLKIC8fD5C+/z3OMIV+/k8ZN6St97i+9PlPH7
+        cDU7dljk8yI0Pj6eqKgo1q9fz5o1aygszF0oOIRKlUFaWppEvJCcnExaWgqXLu/h0worY3cP8/jpJ9wZ
+        OYhCEUtMzBts2rSJjRs3smHDBtatW8fatWtl+OrVqyks1OD3hwV2+xGsVh0Wix6rVY/ZLEaVg06nRqvN
+        RqPJpKzMxPjEEVxN28nM3Ep6ejJK5Ra2bk0kJSUBhSJOipOSoklMjKa0tHBOcLKrq42LF1vp7T3PwMBP
+        9PdflPT1XaCv7zw3bnTR29tF/0Ab16+flVy71klPTwfd3e1hzoT5UTI2dpmXL71SsEVIlvlDfx3sFoL/
+        lSU3Xjd/AyKEkODoYhMzAAAAAElFTkSuQmCC
+</value>
+  </data>
+  <data name="groupBox5.Text" xml:space="preserve">
+    <value>常に選択する暗号化ファイルのタイプ：</value>
+  </data>
+  <data name="tabPageSaveOption.Text" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="buttonSaveEncryptedFileToFolder.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAD4SURBVDhPpdJBaoQwGIbhH1yJxYIbBws9g6ioSI8j
+        xYtIT+BAbyF4l5BFIJsssslWUAJ/STLIaFdhAu8u30MWAXj17Pt+BAAJAJSXPp7vXDuNkyTBoihOZVmG
+        APB5HR47rbUZ5wDwOwwDaq1PjeNogB8A+L50e2whDMMQp2nCeZ5x27ZTy7Jg3/f/StPUwDcDvMdxjOu6
+        etV1nQG+DBAEQYB5nnsVRZEB3kApZRBUSnnVtq17gZTSAlJKr5qmcYAQwgJCCK/qunYA59wCnHOvqqpy
+        AGPMAowxrw6AUmoBSqlXZVk6gBBiAUKIV+abPwN3g3h2f2xfO38GBTG4uA2/cAAAAABJRU5ErkJggg==
+</value>
+  </data>
+  <data name="checkBoxAutoName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>225, 20</value>
+  </data>
+  <data name="checkBoxAutoName.Text" xml:space="preserve">
+    <value>暗号化ファイル名を自動で設定</value>
+  </data>
+  <data name="checkBoxExtInAtcFileName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>234, 20</value>
+  </data>
+  <data name="checkBoxExtInAtcFileName.Text" xml:space="preserve">
+    <value>暗号化ファイルに拡張子を含める</value>
+  </data>
+  <data name="checkBoxKeepTimeStamp.Size" type="System.Drawing.Size, System.Drawing">
+    <value>381, 20</value>
+  </data>
+  <data name="checkBoxKeepTimeStamp.Text" xml:space="preserve">
+    <value>オリジナルのファイルとフォルダーのタイムスタンプを保持する</value>
+  </data>
+  <data name="radioButtonFilesOneByOne.Size" type="System.Drawing.Size, System.Drawing">
+    <value>276, 20</value>
+  </data>
+  <data name="radioButtonFilesOneByOne.Text" xml:space="preserve">
+    <value>フォルダー内のファイルを一つずつ暗号化</value>
+  </data>
+  <data name="radioButtonAllFilePack.Size" type="System.Drawing.Size, System.Drawing">
+    <value>217, 20</value>
+  </data>
+  <data name="radioButtonAllFilePack.Text" xml:space="preserve">
+    <value>複数のファイルを一つにまとめる</value>
+  </data>
+  <data name="radioButtonNormal.Size" type="System.Drawing.Size, System.Drawing">
+    <value>58, 20</value>
+  </data>
+  <data name="radioButtonNormal.Text" xml:space="preserve">
+    <value>通常</value>
+  </data>
+  <data name="groupBox1.Text" xml:space="preserve">
+    <value>複数ファイルの場合：</value>
+  </data>
+  <data name="checkBoxConfirmSameFileName.Size" type="System.Drawing.Size, System.Drawing">
+    <value>346, 20</value>
+  </data>
+  <data name="checkBoxConfirmSameFileName.Text" xml:space="preserve">
+    <value>同じ名前のファイルがあるときは上書きの確認をする</value>
+  </data>
+  <data name="checkBoxSaveToSameFldr.Size" type="System.Drawing.Size, System.Drawing">
+    <value>294, 20</value>
+  </data>
+  <data name="checkBoxSaveToSameFldr.Text" xml:space="preserve">
+    <value>暗号化ファイルは常に同じ場所に保存する</value>
+  </data>
+  <data name="tabPageSaveEncryptOption.Text" xml:space="preserve">
+    <value>暗号化</value>
+  </data>
+  <data name="buttonSaveDecryptedFileToFolder.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAD4SURBVDhPpdJBaoQwGIbhH1yJxYIbBws9g6ioSI8j
+        xYtIT+BAbyF4l5BFIJsssslWUAJ/STLIaFdhAu8u30MWAXj17Pt+BAAJAJSXPp7vXDuNkyTBoihOZVmG
+        APB5HR47rbUZ5wDwOwwDaq1PjeNogB8A+L50e2whDMMQp2nCeZ5x27ZTy7Jg3/f/StPUwDcDvMdxjOu6
+        etV1nQG+DBAEQYB5nnsVRZEB3kApZRBUSnnVtq17gZTSAlJKr5qmcYAQwgJCCK/qunYA59wCnHOvqqpy
+        AGPMAowxrw6AUmoBSqlXZVk6gBBiAUKIV+abPwN3g3h2f2xfO38GBTG4uA2/cAAAAABJRU5ErkJggg==
+</value>
+  </data>
+  <data name="checkBoxSameTimeStamp.Size" type="System.Drawing.Size, System.Drawing">
+    <value>368, 20</value>
+  </data>
+  <data name="checkBoxSameTimeStamp.Text" xml:space="preserve">
+    <value>ファイル、フォルダーのタイムスタンプを復号時に合わせる</value>
+  </data>
+  <data name="checkBoxfNoParentFldr.Size" type="System.Drawing.Size, System.Drawing">
+    <value>247, 20</value>
+  </data>
+  <data name="checkBoxfNoParentFldr.Text" xml:space="preserve">
+    <value>復号時に親フォルダーを生成しない</value>
+  </data>
+  <data name="checkBoxDecryptConfirmOverwrite.Size" type="System.Drawing.Size, System.Drawing">
+    <value>231, 20</value>
+  </data>
+  <data name="checkBoxDecryptConfirmOverwrite.Text" xml:space="preserve">
+    <value>同名ファイルの上書きを確認する</value>
+  </data>
+  <data name="checkBoxDecodeToSameFldr.Size" type="System.Drawing.Size, System.Drawing">
+    <value>371, 20</value>
+  </data>
+  <data name="checkBoxDecodeToSameFldr.Text" xml:space="preserve">
+    <value>復号したファイル/フォルダーは常に同じ場所に保存する</value>
+  </data>
+  <data name="tabPageSaveDecryptOption.Text" xml:space="preserve">
+    <value>復号</value>
+  </data>
+  <data name="buttonSaveZipFileToFolder.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAD4SURBVDhPpdJBaoQwGIbhH1yJxYIbBws9g6ioSI8j
+        xYtIT+BAbyF4l5BFIJsssslWUAJ/STLIaFdhAu8u30MWAXj17Pt+BAAJAJSXPp7vXDuNkyTBoihOZVmG
+        APB5HR47rbUZ5wDwOwwDaq1PjeNogB8A+L50e2whDMMQp2nCeZ5x27ZTy7Jg3/f/StPUwDcDvMdxjOu6
+        etV1nQG+DBAEQYB5nnsVRZEB3kApZRBUSnnVtq17gZTSAlJKr5qmcYAQwgJCCK/qunYA59wCnHOvqqpy
+        AGPMAowxrw6AUmoBSqlXZVk6gBBiAUKIV+abPwN3g3h2f2xfO38GBTG4uA2/cAAAAABJRU5ErkJggg==
+</value>
+  </data>
+  <data name="checkBoxZipConfirmOverwrite.Size" type="System.Drawing.Size, System.Drawing">
+    <value>231, 20</value>
+  </data>
+  <data name="checkBoxZipConfirmOverwrite.Text" xml:space="preserve">
+    <value>同名ファイルの上書きを確認する</value>
+  </data>
+  <data name="checkBoxZipToSameFldr.Size" type="System.Drawing.Size, System.Drawing">
+    <value>326, 20</value>
+  </data>
+  <data name="checkBoxZipToSameFldr.Text" xml:space="preserve">
+    <value>生成したZIPファイルは常に同じ場所に保存する</value>
+  </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="panelSaveZipOption.Visible" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="tabPageSaveZipOption.Text" xml:space="preserve">
+    <value>パスワードZIP</value>
+  </data>
+  <data name="pictureBoxEnabled.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        vAAADrwBlbxySQAAAXVJREFUSEvllD9rwkAYh38aSIy6+CdYEDNowKJgwUKRKFgcTSnWLmI3CxZrwVKw
+        g06FroVOrp36DQr9eG95g5fhlIq9dPKBhxvuzf1yufcCHBJHAF7W47+wap+3CcA3gEt5MgxosVzQYDAg
+        0zQ5aC4XqELz57nv+G5MlmVxyJtcpALNHmeB04cplY/LHLICUJaLZXQApzukyf1kw2arSdFolIOG8qIC
+        nQuy2exOR7ejrXoXnjiXpbw4YycSCRreDJXsXfX8lwDwvhEQj8epf91XlkOKxSKHfAA4CwJ4e12vG5q1
+        kxppmsZBph8Qi8Wo0+mEpuM4FIlEOEDzAwzDINd1lW00GuIcuHWd4BPpuk71el3JarUqOmnr5eNEnvzV
+        SqWyVdu2xV14khfeByqVShumUile+AuAJz+wL1QoFALz+Txxc6x3b8nFf4FyuZxvJpMRbfgqF6lA6XSa
+        ksmkaMGxXKDKirsNwCeAljwZBvzHna3HA+IHdfxcNAKvBAoAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="pictureBoxDisabled.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        vAAADrwBlbxySQAAAatJREFUSEvllNlKAmEYhoUg6AKCjjoKuoCgo+4g6AK6gE6DoKPg1WlxXDDEjWiF
+        VoyosLASS6UykjBEs4WkhRYwKEgoCuKLb0qpX6lsPKoXHubge+d74Gfm12j+TQBUAZD4Kc5KEgCutYCP
+        ACwBaBLnqgOAnl7uKXkYI1nWs6hd7KgKCx6ebxWu0qdkd9hYYhF7vw4LMo83Oe4y1zTlHmeJC0Ct2P8U
+        AOUA6r6BbjPXeawGV0iSdCxqFvcq4eVccDht35K+Oy9ILBEhg1FmSYe4nwXVJrORLtMpVRydxMnpsrPE
+        micwmox0cnWgmtRFkibdYywZAVD/QWCgo7N4yVjyL5AkSSyqUAR8fnvH0ZIx65kmrVbLgrI3gUGm3f1t
+        1ewkwjQw1Jf9dGtyRyQb9BSJb6gisOUjs8VU+Od7N/LwSzajgYLMe2eos6uTO23i7h+HBaGIL4+R8UFe
+        vAigUXynqLDAH/bmWA55yGrrzZ53pdgvOixYWV9QmPW6SS/38PJusffrsMAbnKNR9zDpdMrd0yJ2VIWP
+        wtmvXNETABrEueq837it/BRnfzuvaoH2RFMG9BoAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="label3.Text" xml:space="preserve">
+    <value>ゼロ：</value>
+  </data>
+  <data name="label2.Text" xml:space="preserve">
+    <value>ランダム：</value>
+  </data>
+  <data name="groupBoxCompleteDelete.Text" xml:space="preserve">
+    <value>完全削除する書き込み回数</value>
+  </data>
+  <data name="radioButtonCompleteErase.Size" type="System.Drawing.Size, System.Drawing">
+    <value>90, 20</value>
+  </data>
+  <data name="radioButtonCompleteErase.Text" xml:space="preserve">
+    <value>完全削除</value>
+  </data>
+  <data name="radioButtonSendToTrash.Size" type="System.Drawing.Size, System.Drawing">
+    <value>105, 20</value>
+  </data>
+  <data name="radioButtonSendToTrash.Text" xml:space="preserve">
+    <value>ゴミ箱へ送る</value>
+  </data>
+  <data name="radioNormalDelete.Size" type="System.Drawing.Size, System.Drawing">
+    <value>90, 20</value>
+  </data>
+  <data name="radioNormalDelete.Text" xml:space="preserve">
+    <value>通常削除</value>
+  </data>
+  <data name="groupBoxAdvancedDeleteOption.Text" xml:space="preserve">
+    <value>高度な削除設定：</value>
+  </data>
+  <data name="checkBoxConfirmToDeleteAfterDecryption.Size" type="System.Drawing.Size, System.Drawing">
+    <value>281, 20</value>
+  </data>
+  <data name="checkBoxConfirmToDeleteAfterDecryption.Text" xml:space="preserve">
+    <value>復号後に削除確認メッセージを表示する</value>
+  </data>
+  <data name="checkBoxDecryptShowDeleteChkBox.Location" type="System.Drawing.Point, System.Drawing">
+    <value>39, 45</value>
+  </data>
+  <data name="checkBoxDecryptShowDeleteChkBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>335, 20</value>
+  </data>
+  <data name="checkBoxDecryptShowDeleteChkBox.Text" xml:space="preserve">
+    <value>メインウィンドウに削除のチェックボックスを表示する</value>
+  </data>
+  <data name="checkBoxDelEncFile.Size" type="System.Drawing.Size, System.Drawing">
+    <value>251, 20</value>
+  </data>
+  <data name="checkBoxDelEncFile.Text" xml:space="preserve">
+    <value>復号後に暗号化ファイルを削除する</value>
+  </data>
+  <data name="groupBox3.Text" xml:space="preserve">
+    <value>復号：</value>
+  </data>
+  <data name="checkBoxConfirmToDeleteAfterEncryption.Size" type="System.Drawing.Size, System.Drawing">
+    <value>297, 20</value>
+  </data>
+  <data name="checkBoxConfirmToDeleteAfterEncryption.Text" xml:space="preserve">
+    <value>暗号化後に削除確認メッセージを表示する</value>
+  </data>
+  <data name="checkBoxEncryptShowDeleteChkBox.Location" type="System.Drawing.Point, System.Drawing">
+    <value>39, 45</value>
+  </data>
+  <data name="checkBoxEncryptShowDeleteChkBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>335, 20</value>
+  </data>
+  <data name="checkBoxEncryptShowDeleteChkBox.Text" xml:space="preserve">
+    <value>メインウィンドウに削除のチェックボックスを表示する</value>
+  </data>
+  <data name="checkBoxDelOrgFile.Size" type="System.Drawing.Size, System.Drawing">
+    <value>267, 20</value>
+  </data>
+  <data name="checkBoxDelOrgFile.Text" xml:space="preserve">
+    <value>暗号化完了後に元ファイルを削除する</value>
+  </data>
+  <data name="groupBox2.Text" xml:space="preserve">
+    <value>暗号化：</value>
+  </data>
+  <data name="tabPageDelete.Text" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="checkBoxCompressionOption.Size" type="System.Drawing.Size, System.Drawing">
+    <value>85, 20</value>
+  </data>
+  <data name="checkBoxCompressionOption.Text" xml:space="preserve">
+    <value>圧縮する</value>
+  </data>
+  <data name="tabPageCompressOption.Text" xml:space="preserve">
+    <value>圧縮</value>
+  </data>
+  <data name="pictureBoxCheckmarkMyIcon.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAANpSURBVEhLvVVbS1RRGF29DAiW0Eum9OZ/CMrHsIvm
+        aHnJKafx8hgEPfXQS2AI1UMRFEphdyPpqmaOOpPOzPYyzgiFZQgFFUVlklRCJqz4zj7nzJkzowVBCz44
+        nHP2Wt9e3/ftDSjgX4LkqpGxwBU5UKiHQjsUJqGwDAWaz/JOvuW4SdMFVoJCCxRmTcLVQv5pcS9fGQoF
+        UAhaBIVjYHEcrEiATVNgcxKsmASLx8FC+SdqRsxYU+CmS4cmfyrE60bB0gTYLKRWJMGmBNgwDgZGwYNR
+        cHsEXBsGMWwIPUUIhW7aFMzM88fA+qSL3BQQcv8I6AuCtd1gbS9YFQQ3DJoispOs0J4bma9E3hjX5LU9
+        4L7buXzxUfFMNMA9t8GqfnBtyLQroyYKHijMiECGLWaINQEF1j0GvdfAzngrLcx+nmRdt4clT0BEDAHh
+        8jgFfEJeMJZJ7LTmQAhGtoErRVxa/mkL9Dw7z+p7encFMbu7fE6BDnm5Na7J3NE4qQsqnpe2g+plj02+
+        sPiFtZfXs6Zb/7Nl3BbocAoY/V6T0GSNEzpjKw7GdFErboDH7pTb5IL28FGWX9XfA2Oaw54Ph8ASYmAg
+        rn2ufwL6BswIgvsegZW3QO/5XH5aeGeTv59/xbILHtseI7mkLbDkFFiQ6vsUuH8IrH4AHg/vMIop2ZVd
+        AkvOgtdGUoUVnHjoM3YlichODTunsgtMS/W9ZguejvgMgnfzszwXPMydrXmsPlnEpV+pwj5/O85dbbC9
+        l+xFoCa1gzSL2jACbh4C63tzOfc9ZYPg2+JXvv4wk/bucGcxKzv1jq3speOkUbIV2Sc7yB8EG/ryeGni
+        CL/++JRG6ER4uoulF/UUS/YyI1ZLS6tna1MPophBCNw2AFbdASs7cnhu8FBaUQXS/w1Xiri3CzwQ1h1n
+        ZS9DapK7Bk0QQ4vYJONeM6AL7b0Oo0tOPWrimzlt0d2pM6y4qSdaOs7K3p/Ux4wpkPX4XmMcVBFwgxR7
+        WHeHCInX0k1SfP/99azrA/0RfTZJ9nJ2bUxZs8JhJ1DYZBzXMXBdFNw1qomkkDIPdf36WXyXwkr2ZYm0
+        zKcNjlXhvHBiYGEM3KrA3aN6UoXYO2FeOClinfkfLxwnFFrtK1MOMHekiOWfVvfyv0PmpW+Rpl367mX/
+        Fb8BoKCqtilOTaAAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="pictureBoxCheckmark03.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAANpSURBVEhLvVVbS1RRGF29DAiW0Eum9OZ/CMrHsIvm
+        aHnJKafx8hgEPfXQS2AI1UMRFEphdyPpqmaOOpPOzPYyzgiFZQgFFUVlklRCJqz4zj7nzJkzowVBCz44
+        nHP2Wt9e3/ftDSjgX4LkqpGxwBU5UKiHQjsUJqGwDAWaz/JOvuW4SdMFVoJCCxRmTcLVQv5pcS9fGQoF
+        UAhaBIVjYHEcrEiATVNgcxKsmASLx8FC+SdqRsxYU+CmS4cmfyrE60bB0gTYLKRWJMGmBNgwDgZGwYNR
+        cHsEXBsGMWwIPUUIhW7aFMzM88fA+qSL3BQQcv8I6AuCtd1gbS9YFQQ3DJoispOs0J4bma9E3hjX5LU9
+        4L7buXzxUfFMNMA9t8GqfnBtyLQroyYKHijMiECGLWaINQEF1j0GvdfAzngrLcx+nmRdt4clT0BEDAHh
+        8jgFfEJeMJZJ7LTmQAhGtoErRVxa/mkL9Dw7z+p7encFMbu7fE6BDnm5Na7J3NE4qQsqnpe2g+plj02+
+        sPiFtZfXs6Zb/7Nl3BbocAoY/V6T0GSNEzpjKw7GdFErboDH7pTb5IL28FGWX9XfA2Oaw54Ph8ASYmAg
+        rn2ufwL6BswIgvsegZW3QO/5XH5aeGeTv59/xbILHtseI7mkLbDkFFiQ6vsUuH8IrH4AHg/vMIop2ZVd
+        AkvOgtdGUoUVnHjoM3YlichODTunsgtMS/W9ZguejvgMgnfzszwXPMydrXmsPlnEpV+pwj5/O85dbbC9
+        l+xFoCa1gzSL2jACbh4C63tzOfc9ZYPg2+JXvv4wk/bucGcxKzv1jq3speOkUbIV2Sc7yB8EG/ryeGni
+        CL/++JRG6ER4uoulF/UUS/YyI1ZLS6tna1MPophBCNw2AFbdASs7cnhu8FBaUQXS/w1Xiri3CzwQ1h1n
+        ZS9DapK7Bk0QQ4vYJONeM6AL7b0Oo0tOPWrimzlt0d2pM6y4qSdaOs7K3p/Ux4wpkPX4XmMcVBFwgxR7
+        WHeHCInX0k1SfP/99azrA/0RfTZJ9nJ2bUxZs8JhJ1DYZBzXMXBdFNw1qomkkDIPdf36WXyXwkr2ZYm0
+        zKcNjlXhvHBiYGEM3KrA3aN6UoXYO2FeOClinfkfLxwnFFrtK1MOMHekiOWfVvfyv0PmpW+Rpl367mX/
+        Fb8BoKCqtilOTaAAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="pictureBoxCheckmark02.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAANpSURBVEhLvVVbS1RRGF29DAiW0Eum9OZ/CMrHsIvm
+        aHnJKafx8hgEPfXQS2AI1UMRFEphdyPpqmaOOpPOzPYyzgiFZQgFFUVlklRCJqz4zj7nzJkzowVBCz44
+        nHP2Wt9e3/ftDSjgX4LkqpGxwBU5UKiHQjsUJqGwDAWaz/JOvuW4SdMFVoJCCxRmTcLVQv5pcS9fGQoF
+        UAhaBIVjYHEcrEiATVNgcxKsmASLx8FC+SdqRsxYU+CmS4cmfyrE60bB0gTYLKRWJMGmBNgwDgZGwYNR
+        cHsEXBsGMWwIPUUIhW7aFMzM88fA+qSL3BQQcv8I6AuCtd1gbS9YFQQ3DJoispOs0J4bma9E3hjX5LU9
+        4L7buXzxUfFMNMA9t8GqfnBtyLQroyYKHijMiECGLWaINQEF1j0GvdfAzngrLcx+nmRdt4clT0BEDAHh
+        8jgFfEJeMJZJ7LTmQAhGtoErRVxa/mkL9Dw7z+p7encFMbu7fE6BDnm5Na7J3NE4qQsqnpe2g+plj02+
+        sPiFtZfXs6Zb/7Nl3BbocAoY/V6T0GSNEzpjKw7GdFErboDH7pTb5IL28FGWX9XfA2Oaw54Ph8ASYmAg
+        rn2ufwL6BswIgvsegZW3QO/5XH5aeGeTv59/xbILHtseI7mkLbDkFFiQ6vsUuH8IrH4AHg/vMIop2ZVd
+        AkvOgtdGUoUVnHjoM3YlichODTunsgtMS/W9ZguejvgMgnfzszwXPMydrXmsPlnEpV+pwj5/O85dbbC9
+        l+xFoCa1gzSL2jACbh4C63tzOfc9ZYPg2+JXvv4wk/bucGcxKzv1jq3speOkUbIV2Sc7yB8EG/ryeGni
+        CL/++JRG6ER4uoulF/UUS/YyI1ZLS6tna1MPophBCNw2AFbdASs7cnhu8FBaUQXS/w1Xiri3CzwQ1h1n
+        ZS9DapK7Bk0QQ4vYJONeM6AL7b0Oo0tOPWrimzlt0d2pM6y4qSdaOs7K3p/Ux4wpkPX4XmMcVBFwgxR7
+        WHeHCInX0k1SfP/99azrA/0RfTZJ9nJ2bUxZs8JhJ1DYZBzXMXBdFNw1qomkkDIPdf36WXyXwkr2ZYm0
+        zKcNjlXhvHBiYGEM3KrA3aN6UoXYO2FeOClinfkfLxwnFFrtK1MOMHekiOWfVvfyv0PmpW+Rpl367mX/
+        Fb8BoKCqtilOTaAAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="pictureBoxCheckmark01.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAANpSURBVEhLvVVbS1RRGF29DAiW0Eum9OZ/CMrHsIvm
+        aHnJKafx8hgEPfXQS2AI1UMRFEphdyPpqmaOOpPOzPYyzgiFZQgFFUVlklRCJqz4zj7nzJkzowVBCz44
+        nHP2Wt9e3/ftDSjgX4LkqpGxwBU5UKiHQjsUJqGwDAWaz/JOvuW4SdMFVoJCCxRmTcLVQv5pcS9fGQoF
+        UAhaBIVjYHEcrEiATVNgcxKsmASLx8FC+SdqRsxYU+CmS4cmfyrE60bB0gTYLKRWJMGmBNgwDgZGwYNR
+        cHsEXBsGMWwIPUUIhW7aFMzM88fA+qSL3BQQcv8I6AuCtd1gbS9YFQQ3DJoispOs0J4bma9E3hjX5LU9
+        4L7buXzxUfFMNMA9t8GqfnBtyLQroyYKHijMiECGLWaINQEF1j0GvdfAzngrLcx+nmRdt4clT0BEDAHh
+        8jgFfEJeMJZJ7LTmQAhGtoErRVxa/mkL9Dw7z+p7encFMbu7fE6BDnm5Na7J3NE4qQsqnpe2g+plj02+
+        sPiFtZfXs6Zb/7Nl3BbocAoY/V6T0GSNEzpjKw7GdFErboDH7pTb5IL28FGWX9XfA2Oaw54Ph8ASYmAg
+        rn2ufwL6BswIgvsegZW3QO/5XH5aeGeTv59/xbILHtseI7mkLbDkFFiQ6vsUuH8IrH4AHg/vMIop2ZVd
+        AkvOgtdGUoUVnHjoM3YlichODTunsgtMS/W9ZguejvgMgnfzszwXPMydrXmsPlnEpV+pwj5/O85dbbC9
+        l+xFoCa1gzSL2jACbh4C63tzOfc9ZYPg2+JXvv4wk/bucGcxKzv1jq3speOkUbIV2Sc7yB8EG/ryeGni
+        CL/++JRG6ER4uoulF/UUS/YyI1ZLS6tna1MPophBCNw2AFbdASs7cnhu8FBaUQXS/w1Xiri3CzwQ1h1n
+        ZS9DapK7Bk0QQ4vYJONeM6AL7b0Oo0tOPWrimzlt0d2pM6y4qSdaOs7K3p/Ux4wpkPX4XmMcVBFwgxR7
+        WHeHCInX0k1SfP/99azrA/0RfTZJ9nJ2bUxZs8JhJ1DYZBzXMXBdFNw1qomkkDIPdf36WXyXwkr2ZYm0
+        zKcNjlXhvHBiYGEM3KrA3aN6UoXYO2FeOClinfkfLxwnFFrtK1MOMHekiOWfVvfyv0PmpW+Rpl367mX/
+        Fb8BoKCqtilOTaAAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="pictureBoxCheckmark00.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAANpSURBVEhLvVVbS1RRGF29DAiW0Eum9OZ/CMrHsIvm
+        aHnJKafx8hgEPfXQS2AI1UMRFEphdyPpqmaOOpPOzPYyzgiFZQgFFUVlklRCJqz4zj7nzJkzowVBCz44
+        nHP2Wt9e3/ftDSjgX4LkqpGxwBU5UKiHQjsUJqGwDAWaz/JOvuW4SdMFVoJCCxRmTcLVQv5pcS9fGQoF
+        UAhaBIVjYHEcrEiATVNgcxKsmASLx8FC+SdqRsxYU+CmS4cmfyrE60bB0gTYLKRWJMGmBNgwDgZGwYNR
+        cHsEXBsGMWwIPUUIhW7aFMzM88fA+qSL3BQQcv8I6AuCtd1gbS9YFQQ3DJoispOs0J4bma9E3hjX5LU9
+        4L7buXzxUfFMNMA9t8GqfnBtyLQroyYKHijMiECGLWaINQEF1j0GvdfAzngrLcx+nmRdt4clT0BEDAHh
+        8jgFfEJeMJZJ7LTmQAhGtoErRVxa/mkL9Dw7z+p7encFMbu7fE6BDnm5Na7J3NE4qQsqnpe2g+plj02+
+        sPiFtZfXs6Zb/7Nl3BbocAoY/V6T0GSNEzpjKw7GdFErboDH7pTb5IL28FGWX9XfA2Oaw54Ph8ASYmAg
+        rn2ufwL6BswIgvsegZW3QO/5XH5aeGeTv59/xbILHtseI7mkLbDkFFiQ6vsUuH8IrH4AHg/vMIop2ZVd
+        AkvOgtdGUoUVnHjoM3YlichODTunsgtMS/W9ZguejvgMgnfzszwXPMydrXmsPlnEpV+pwj5/O85dbbC9
+        l+xFoCa1gzSL2jACbh4C63tzOfc9ZYPg2+JXvv4wk/bucGcxKzv1jq3speOkUbIV2Sc7yB8EG/ryeGni
+        CL/++JRG6ER4uoulF/UUS/YyI1ZLS6tna1MPophBCNw2AFbdASs7cnhu8FBaUQXS/w1Xiri3CzwQ1h1n
+        ZS9DapK7Bk0QQ4vYJONeM6AL7b0Oo0tOPWrimzlt0d2pM6y4qSdaOs7K3p/Ux4wpkPX4XmMcVBFwgxR7
+        WHeHCInX0k1SfP/99azrA/0RfTZJ9nJ2bUxZs8JhJ1DYZBzXMXBdFNw1qomkkDIPdf36WXyXwkr2ZYm0
+        zKcNjlXhvHBiYGEM3KrA3aN6UoXYO2FeOClinfkfLxwnFFrtK1MOMHekiOWfVvfyv0PmpW+Rpl367mX/
+        Fb8BoKCqtilOTaAAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="label10.Size" type="System.Drawing.Size, System.Drawing">
+    <value>67, 13</value>
+  </data>
+  <data name="label10.Text" xml:space="preserve">
+    <value>プリセット00</value>
+  </data>
+  <data name="pictureBoxIcon00.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        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
+</value>
+  </data>
+  <data name="labelPreset03.Size" type="System.Drawing.Size, System.Drawing">
+    <value>67, 13</value>
+  </data>
+  <data name="labelPreset03.Text" xml:space="preserve">
+    <value>プリセット03</value>
+  </data>
+  <data name="labelPreset02.Size" type="System.Drawing.Size, System.Drawing">
+    <value>67, 13</value>
+  </data>
+  <data name="labelPreset02.Text" xml:space="preserve">
+    <value>プリセット02</value>
+  </data>
+  <data name="labelPreset01.Size" type="System.Drawing.Size, System.Drawing">
+    <value>67, 13</value>
+  </data>
+  <data name="labelPreset01.Text" xml:space="preserve">
+    <value>プリセット01</value>
+  </data>
+  <data name="buttonLoadIconFile.Text" xml:space="preserve">
+    <value>アイコンファイルを読み込む</value>
+  </data>
+  <data name="pictureBoxMyIcon.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAIISURBVGhD7ZrNSsQwFIWPoG7cuhHB11CfQBTxB/EB
+        VHTv2t83r3w4IW3MTaOZTtsxB66MTptzvrlpBhLVNI3Wob5/rIMqyNT030A2JG1J2pV0LOlU0vnAhcfR
+        whNvMtjKANmUtCfpUdK7pFdJH5I+By488MIT7/1FljhQDwifxKWkt4jRqosM14tMP5UAgR6Il8igYxVZ
+        yES2rgwQ2sd0inWCv9Hye0kXkbldWozJ2HhY/mTrTjEDhPY9GYPQ3p3kfC0TYzI2HnjFYMjWnWIGCCsF
+        D1kIcRBt63DCC88Qhmxk9DJAWGJpbdiJVUI44XkV5OE1Gb0MENbw9hLLjbR6LOHdBiEbGb0MEB66divv
+        RuqGE94sAO1MZPTKBGHJG+LBzhXeTK9ikO5NeboJxmgX7/1W6UwVpF8VxFA6UwXp1+xAbo16jgC44r3w
+        eleW0pmWABKGLC1L6UwVxCsMUlqW0pkqiFcYpLQspTNVEK9w+Zzt8mtpdl+IliqIoXSmCtKvCmIonSkT
+        ZAqbD+yrFYOMvR3E9ujDX0CmvkHHlulJ5woDZA5bpoedqwyQ2CY2v4+1iR3LkrWJbR0rMMCqjxVCCIps
+        2527DJCcgx4evqEOehh7KQc9iE9l9kdvTmtxGOoEPa1kXo51PI130fG0U/gPA2eRub3s4nuCJRZPHuw4
+        gFMmyPRVQSamL4cVxbSp+hhPAAAAAElFTkSuQmCC
+</value>
+  </data>
+  <data name="pictureBoxMyIcon.InitialImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAIISURBVGhD7ZrNSsQwFIWPoG7cuhHB11CfQBTxB/EB
+        VHTv2t83r3w4IW3MTaOZTtsxB66MTptzvrlpBhLVNI3Wob5/rIMqyNT030A2JG1J2pV0LOlU0vnAhcfR
+        whNvMtjKANmUtCfpUdK7pFdJH5I+By488MIT7/1FljhQDwifxKWkt4jRqosM14tMP5UAgR6Il8igYxVZ
+        yES2rgwQ2sd0inWCv9Hye0kXkbldWozJ2HhY/mTrTjEDhPY9GYPQ3p3kfC0TYzI2HnjFYMjWnWIGCCsF
+        D1kIcRBt63DCC88Qhmxk9DJAWGJpbdiJVUI44XkV5OE1Gb0MENbw9hLLjbR6LOHdBiEbGb0MEB66divv
+        RuqGE94sAO1MZPTKBGHJG+LBzhXeTK9ikO5NeboJxmgX7/1W6UwVpF8VxFA6UwXp1+xAbo16jgC44r3w
+        eleW0pmWABKGLC1L6UwVxCsMUlqW0pkqiFcYpLQspTNVEK9w+Zzt8mtpdl+IliqIoXSmCtKvCmIonSkT
+        ZAqbD+yrFYOMvR3E9ujDX0CmvkHHlulJ5woDZA5bpoedqwyQ2CY2v4+1iR3LkrWJbR0rMMCqjxVCCIps
+        2527DJCcgx4evqEOehh7KQc9iE9l9kdvTmtxGOoEPa1kXo51PI130fG0U/gPA2eRub3s4nuCJRZPHuw4
+        gFMmyPRVQSamL4cVxbSp+hhPAAAAAElFTkSuQmCC
+</value>
+  </data>
+  <data name="pictureBoxIcon03.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        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
+</value>
+  </data>
+  <data name="pictureBoxIcon02.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        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
+        hn6E/wL3x8aU7FRZpQAAAABJRU5ErkJggg==
+</value>
+  </data>
+  <data name="pictureBoxIcon01.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        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
+</value>
+  </data>
+  <data name="groupBox8.Text" xml:space="preserve">
+    <value>アタッシェケースファイルのアイコン変更：</value>
+  </data>
+  <data name="buttonOpenSendToFolder.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAGVSURBVDhPzZIxS0JRFMf/gzr1BVyC9xVcRBcHaXnw
+        DIc2FUFsEWpQAgmkpUHFsRZpCtcmR6fASXSSBw95FJqogykqKk/hxDnkoyIUmjrwg3Pgnh/3nnOBfxdu
+        t/shEolMotHoLBQKDTwez7OmaQMANwDOABx9a7As6xuqqr7SZ/T7fcrn85I3Gg0ql8vkcrkuvp7nuALw
+        AoAYv99Pm81GmkzTpHA4TNlslorFIqVSKXI6nZc/BS+dTocsyxLi8Tgtl0tarVY0m83IMAxqNpuk6zpV
+        KhUWPAE4B6DsBLTdbm1isRhNp1NhMpnQYrEQOOr1Onm9Xkomk6QoCt9YEcF6vRZGoxH5fD7KZDK/wk9I
+        JBKCpmksuBbBfD4XqtUqlUolu94HPw3AmwjG47GQy+WoVqvZ9T4KhQIL7kQwHA4Fnniv17PrfQQCARac
+        iKDb7Qqqqtr5PtrtNjkcDhY4WfDearXk6rwB3v0heE4AHk3TlDXesgSAkU6nZTiHCAaDLDg1DAPQdV0A
+        cAzgfvcjD3Bv9+2Sv/IB9/o7wCZd+NQAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="buttonAddSendToFolder.Text" xml:space="preserve">
+    <value>「送る」フォルダーにショートカットを作成</value>
+  </data>
+  <data name="label11.Size" type="System.Drawing.Size, System.Drawing">
+    <value>244, 16</value>
+  </data>
+  <data name="label11.Text" xml:space="preserve">
+    <value>※ 別のアプリケーションが起動します。</value>
+  </data>
+  <data name="buttonUnAssociateAtcFiles.Text" xml:space="preserve">
+    <value>暗号化ファイル（*.atc）の関連付けを解除する</value>
+  </data>
+  <data name="buttonAssociateAtcFiles.Text" xml:space="preserve">
+    <value>暗号化ファイル（*.atc）をアタッシェケースに関連付ける</value>
+  </data>
+  <data name="groupBox7.Text" xml:space="preserve">
+    <value>関連付け設定：</value>
+  </data>
+  <data name="tabPageSystem.Text" xml:space="preserve">
+    <value>システム</value>
+  </data>
+  <data name="comboBoxAlwaysReadIniFile.Items" xml:space="preserve">
+    <value>設定ファイル「_AtcCase.ini」を読み込まない</value>
+  </data>
+  <data name="comboBoxAlwaysReadIniFile.Items1" xml:space="preserve">
+    <value>常に設定ファイル「_AtcCase.ini」を読み込む</value>
+  </data>
+  <data name="checkBoxShowDialogToConfirmToReadIniFileAlways.Size" type="System.Drawing.Size, System.Drawing">
+    <value>334, 20</value>
+  </data>
+  <data name="checkBoxShowDialogToConfirmToReadIniFileAlways.Text" xml:space="preserve">
+    <value>毎回、確認のためのダイアログ ボックスを表示する</value>
+  </data>
+  <data name="label15.Size" type="System.Drawing.Size, System.Drawing">
+    <value>378, 16</value>
+  </data>
+  <data name="label15.Text" xml:space="preserve">
+    <value>※設定ファイルの読み込みはセキュリティ上のリスクがあります</value>
+  </data>
+  <data name="buttonDiscardIniSetting.Text" xml:space="preserve">
+    <value>一時的な設定を破棄し、レジストリから設定を読み込む</value>
+  </data>
+  <data name="buttonReplaceCurrentByTemporary.Text" xml:space="preserve">
+    <value>一時的な設定を現在の設定に置き換える</value>
+  </data>
+  <data name="buttonImportCurrentConf.Text" xml:space="preserve">
+    <value>INIファイルから現在の設定として読み込む</value>
+  </data>
+  <data name="buttonExportCurrentConf.Text" xml:space="preserve">
+    <value>現在の設定をINIファイルへ保存</value>
+  </data>
+  <data name="groupBox9.Text" xml:space="preserve">
+    <value>設定のインポートとエクスポート：</value>
+  </data>
+  <data name="tabPageSettingsImportExport.Text" xml:space="preserve">
+    <value>設定の保存/復元</value>
+  </data>
+  <data name="checkBoxPasswordFilePriority.Size" type="System.Drawing.Size, System.Drawing">
+    <value>333, 16</value>
+  </data>
+  <data name="checkBoxPasswordFilePriority.Text" xml:space="preserve">
+    <value>記憶パスワードも設定されているとき、パスワードファイルを優先する</value>
+  </data>
+  <data name="checkBoxDoByPasswordFile.Size" type="System.Drawing.Size, System.Drawing">
+    <value>298, 16</value>
+  </data>
+  <data name="checkBoxDoByPasswordFile.Text" xml:space="preserve">
+    <value>暗号化/復号時、確認無しにパスワードファイルで実行する</value>
+  </data>
+  <data name="buttonOpenFileDialogForDecryption.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAGVSURBVDhPzZIxS0JRFMf/gzr1BVyC9xVcRBcHaXnw
+        DIc2FUFsEWpQAgmkpUHFsRZpCtcmR6fASXSSBw95FJqogykqKk/hxDnkoyIUmjrwg3Pgnh/3nnOBfxdu
+        t/shEolMotHoLBQKDTwez7OmaQMANwDOABx9a7As6xuqqr7SZ/T7fcrn85I3Gg0ql8vkcrkuvp7nuALw
+        AoAYv99Pm81GmkzTpHA4TNlslorFIqVSKXI6nZc/BS+dTocsyxLi8Tgtl0tarVY0m83IMAxqNpuk6zpV
+        KhUWPAE4B6DsBLTdbm1isRhNp1NhMpnQYrEQOOr1Onm9Xkomk6QoCt9YEcF6vRZGoxH5fD7KZDK/wk9I
+        JBKCpmksuBbBfD4XqtUqlUolu94HPw3AmwjG47GQy+WoVqvZ9T4KhQIL7kQwHA4Fnniv17PrfQQCARac
+        iKDb7Qqqqtr5PtrtNjkcDhY4WfDearXk6rwB3v0heE4AHk3TlDXesgSAkU6nZTiHCAaDLDg1DAPQdV0A
+        cAzgfvcjD3Bv9+2Sv/IB9/o7wCZd+NQAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="buttonOpenFileDialogForEncryption.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAGVSURBVDhPzZIxS0JRFMf/gzr1BVyC9xVcRBcHaXnw
+        DIc2FUFsEWpQAgmkpUHFsRZpCtcmR6fASXSSBw95FJqogykqKk/hxDnkoyIUmjrwg3Pgnh/3nnOBfxdu
+        t/shEolMotHoLBQKDTwez7OmaQMANwDOABx9a7As6xuqqr7SZ/T7fcrn85I3Gg0ql8vkcrkuvp7nuALw
+        AoAYv99Pm81GmkzTpHA4TNlslorFIqVSKXI6nZc/BS+dTocsyxLi8Tgtl0tarVY0m83IMAxqNpuk6zpV
+        KhUWPAE4B6DsBLTdbm1isRhNp1NhMpnQYrEQOOr1Onm9Xkomk6QoCt9YEcF6vRZGoxH5fD7KZDK/wk9I
+        JBKCpmksuBbBfD4XqtUqlUolu94HPw3AmwjG47GQy+WoVqvZ9T4KhQIL7kQwHA4Fnniv17PrfQQCARac
+        iKDb7Qqqqtr5PtrtNjkcDhY4WfDearXk6rwB3v0heE4AHk3TlDXesgSAkU6nZTiHCAaDLDg1DAPQdV0A
+        cAzgfvcjD3Bv9+2Sv/IB9/o7wCZd+NQAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="checkBoxNoErrMsgOnPassFile.Size" type="System.Drawing.Size, System.Drawing">
+    <value>282, 16</value>
+  </data>
+  <data name="checkBoxNoErrMsgOnPassFile.Text" xml:space="preserve">
+    <value>パスワードファイルがなくともエラーメッセージを表示しない</value>
+  </data>
+  <data name="checkBoxCheckPassFileDecrypt.Size" type="System.Drawing.Size, System.Drawing">
+    <value>308, 20</value>
+  </data>
+  <data name="checkBoxCheckPassFileDecrypt.Text" xml:space="preserve">
+    <value>復号時にパスワードファイルを自動チェックする</value>
+  </data>
+  <data name="checkBoxCheckPassFile.Size" type="System.Drawing.Size, System.Drawing">
+    <value>308, 20</value>
+  </data>
+  <data name="checkBoxCheckPassFile.Text" xml:space="preserve">
+    <value>暗号時にパスワードファイルを自動チェックする</value>
+  </data>
+  <data name="checkBoxAllowPassFile.Size" type="System.Drawing.Size, System.Drawing">
+    <value>322, 20</value>
+  </data>
+  <data name="checkBoxAllowPassFile.Text" xml:space="preserve">
+    <value>パスワードファイルのドラッグ＆ドロップを許可する</value>
+  </data>
+  <data name="label5.Text" xml:space="preserve">
+    <value>もし設定ミスなどしたとき、重要なデータを失うことがあります。
+ヘルプファイルなどをよく参照し、十分な注意を払って設定してください。</value>
+  </data>
+  <data name="pictureBox5.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAFeSURBVDhPtZI/KIRxGMc/xCnJFQuSDO9gQCbSKWU0
+        3CCJuriLDBKlDDZSYpEymSy3KItSBm5Ql1LnT9yg1BmcIndH7/AuRz89v96r168ud4OnvvX0PL/vp+/b
+        88I/ViXQA/S7fVlVBUwAb8A7EHZnJZU8HAdyJ1Hs2AE28AmESoFIVImcuTq1HJUJ5kU3McuRGdAHVJgm
+        bzUC17vr2GIcDDQrkfQ7azpJAvCbpkL5gI3FaWyVxla5yLe/3qdE0stsPqIhq0C1aZZY7cBL6qI44OFc
+        A56AFhNQA2wuzbrmIgBReExDVswUTUDqMf434PJYA26BhoJZTjM5FPCYRdmRL/Uxp7Sk9+y6OjRkuPCD
+        1QFH+9sGoEgCkXuRKFArgDbgNZs0AMYZvbt0QgOegVYBhAZ6sfe2fuvs0HLSyWBeJL25l08GpgSwAMSB
+        O+C+RMlb8SwLoBMYBWbKlHi6fwBm+BgOErBcOAAAAABJRU5ErkJggg==
+</value>
+  </data>
+  <data name="tabPagePasswordFileOption.Text" xml:space="preserve">
+    <value>パスワードファイル</value>
+  </data>
+  <data name="label6.Size" type="System.Drawing.Size, System.Drawing">
+    <value>155, 16</value>
+  </data>
+  <data name="label6.Text" xml:space="preserve">
+    <value>※空白だと拡張子無し</value>
+  </data>
+  <data name="checkBoxAddCamoExt.Size" type="System.Drawing.Size, System.Drawing">
+    <value>315, 20</value>
+  </data>
+  <data name="checkBoxAddCamoExt.Text" xml:space="preserve">
+    <value>暗号化ファイルの拡張子偽装（ピリオドを含む）</value>
+  </data>
+  <data name="tabPageCamouflageExtOption.Text" xml:space="preserve">
+    <value>拡張子偽装</value>
+  </data>
+  <data name="labelTimes.Size" type="System.Drawing.Size, System.Drawing">
+    <value>24, 16</value>
+  </data>
+  <data name="labelTimes.Text" xml:space="preserve">
+    <value>回</value>
+  </data>
+  <data name="groupBox10.Text" xml:space="preserve">
+    <value>暗号化ファイルにパスワード入力制限をかける</value>
+  </data>
+  <data name="label9.Text" xml:space="preserve">
+    <value>これらの設定はアタッシェケースではなく、ファイル自体に設定されます。</value>
+  </data>
+  <data name="checkBoxBroken.Size" type="System.Drawing.Size, System.Drawing">
+    <value>328, 20</value>
+  </data>
+  <data name="checkBoxBroken.Text" xml:space="preserve">
+    <value>その回数を間違えたら暗号化ファイルを破壊する</value>
+  </data>
+  <data name="pictureBox6.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAFeSURBVDhPtZI/KIRxGMc/xCnJFQuSDO9gQCbSKWU0
+        3CCJuriLDBKlDDZSYpEymSy3KItSBm5Ql1LnT9yg1BmcIndH7/AuRz89v96r168ud4OnvvX0PL/vp+/b
+        88I/ViXQA/S7fVlVBUwAb8A7EHZnJZU8HAdyJ1Hs2AE28AmESoFIVImcuTq1HJUJ5kU3McuRGdAHVJgm
+        bzUC17vr2GIcDDQrkfQ7azpJAvCbpkL5gI3FaWyVxla5yLe/3qdE0stsPqIhq0C1aZZY7cBL6qI44OFc
+        A56AFhNQA2wuzbrmIgBReExDVswUTUDqMf434PJYA26BhoJZTjM5FPCYRdmRL/Uxp7Sk9+y6OjRkuPCD
+        1QFH+9sGoEgCkXuRKFArgDbgNZs0AMYZvbt0QgOegVYBhAZ6sfe2fuvs0HLSyWBeJL25l08GpgSwAMSB
+        O+C+RMlb8SwLoBMYBWbKlHi6fwBm+BgOErBcOAAAAABJRU5ErkJggg==
+</value>
+  </data>
+  <data name="tabPagePasswordInputLimitOption.Text" xml:space="preserve">
+    <value>パスワード入力制限</value>
+  </data>
+  <data name="label14.Text" xml:space="preserve">
+    <value>※「ファイルのハッシュ値が異なります」のエラーメッセージが出て処理が停まってしまう場合に有効です。ただし、エラー以降のファイルが正しく復号されるかは保証されません。</value>
+  </data>
+  <data name="checkBoxSalvageIgnoreHashCheck.Size" type="System.Drawing.Size, System.Drawing">
+    <value>261, 20</value>
+  </data>
+  <data name="checkBoxSalvageIgnoreHashCheck.Text" xml:space="preserve">
+    <value>ファイルのハッシュ値チェックを無視する</value>
+  </data>
+  <data name="label13.Text" xml:space="preserve">
+    <value>※ディレクトリ除いてすべてのファイルを復号するので、確実にサルベージできます。
+同じファイル名が存在する場合は、自動で番号を振ることで重複を避けます。</value>
+  </data>
+  <data name="checkBoxSalvageIntoSameDirectory.Size" type="System.Drawing.Size, System.Drawing">
+    <value>359, 20</value>
+  </data>
+  <data name="checkBoxSalvageIntoSameDirectory.Text" xml:space="preserve">
+    <value>すべてのファイルを同じ階層のディレクトリーに復号する</value>
+  </data>
+  <data name="label12.Text" xml:space="preserve">
+    <value>※一つずつ親フォルダを確認、生成しながら復号していくので、時間がかかります。暗号化ファイル内部にあるファイルリストの不整合によるエラーでの処理中止を抑止します。</value>
+  </data>
+  <data name="checkBoxSalvageToCreateParentFolderOneByOne.Size" type="System.Drawing.Size, System.Drawing">
+    <value>354, 20</value>
+  </data>
+  <data name="checkBoxSalvageToCreateParentFolderOneByOne.Text" xml:space="preserve">
+    <value>一つずつ親フォルダーを確認、生成しながら復号する</value>
+  </data>
+  <data name="tabPageSalvageDataOption.Text" xml:space="preserve">
+    <value>データのサルベージ</value>
+  </data>
+  <data name="tabPageLicense.Text" xml:space="preserve">
+    <value>ライセンス</value>
+  </data>
+  <data name="checkBoxDeveloperConsole.Size" type="System.Drawing.Size, System.Drawing">
+    <value>234, 20</value>
+  </data>
+  <data name="checkBoxDeveloperConsole.Text" xml:space="preserve">
+    <value>開発コンソールウィンドウを開く(&amp;O)</value>
+  </data>
+  <data name="tabPageDevelopment.Text" xml:space="preserve">
+    <value>開発モード</value>
+  </data>
+  <data name="toolStripMenuItemOnlineHelp.Size" type="System.Drawing.Size, System.Drawing">
+    <value>185, 22</value>
+  </data>
+  <data name="toolStripMenuItemOnlineHelp.Text" xml:space="preserve">
+    <value>オンラインヘルプ</value>
+  </data>
+  <data name="toolStripMenuItemCmdReference.Size" type="System.Drawing.Size, System.Drawing">
+    <value>185, 22</value>
+  </data>
+  <data name="toolStripMenuItemCmdReference.Text" xml:space="preserve">
+    <value>コマンドラインレファレンス</value>
+  </data>
+  <data name="contextMenuStrip2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>186, 48</value>
+  </data>
+  <data name="pictureBoxCommandLineIcon.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        vAAADrwBlbxySQAAAINJREFUOE+t0jsKhTAQhWEXJ65EsU6huMmsIRAIpEiRJk2ayDQD3nN9HHTgJ0Iy
+        X2XXfTHGmHaVzL/zMXCWAn0/wOVdsqPAOM3NWkslOwos69ZqrVSyA0ApRR/cfQMgF0wA5JypAEgpUQEQ
+        Y6QCIIRABYD3ngoA5xzVAfj9TZ+mwJvZAUEVdREFx+wwAAAAAElFTkSuQmCC
+</value>
+  </data>
+  <data name="pictureBoxIniFileIcon.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        vAAADrwBlbxySQAAActJREFUOE91k9lLQlEQxvsrq+ei1zYqsrLFFq0sJIo2i/Z9p8SCsv1BLWiRVgQp
+        BKEefPBFkInf0LldqS583HvmnPPNN9/MLSiwPUPDI+LzDXxjUEZGxywsLa+I/eyvh8vxeFze3t8tvLy8
+        ytPTsyISiUq9o/F/EkeDUzKZjORyuTzYn6ura6mtq/+bxBCk02k5PDzSwxBks9m8d3D/QNbWN36TQJBM
+        JvVAIBCUufkFJQGxWEwJDBYWl2Rre+eHZHcvoCa1uTqkydmiKh4eHrXmmdk5GfdPyN3dvSoEkGAs95SA
+        i2x8fHzmZYII2Sjw+yd1bUgAyZRgZXVN6zIbkWhUFZi1x9OjpUBghxpK7fScVhGcmp5ReX39Prm4uNQY
+        b9ZIRqWBErCBTFNCS6tLEomEhELHahYxs9fe0SmpVMqCEjibWy3HCeKu19uvBt7c3mqMtqKKPTplYM2E
+        2+1WtwmSjSlEOlmJQUhr7VMKLAJ8IBMZcZxvLlI73jDS/B+UZofVBdg5QP2w0vOTk1Pp6fUqutzdOmD8
+        K3ZQvjVMJaVlEg6HtZSNzS31hdZi5unZuSpDzb8EqCivqJSKyiopLCpWmLVBVXWNKjSgS1+0gMtTrxR4
+        qgAAAABJRU5ErkJggg==
+</value>
+  </data>
+  <data name="pictureBoxRegistryIcon.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABGdBTUEAALGPC/xhBQAAAAlwSFlzAAAO
+        vAAADrwBlbxySQAAAaBJREFUOE+Vk8FLAlEQxv3nzK5evIY3PSwkoQSVaKXZKTWVzDATkw4VmOtBM1wx
+        0kiPXsWTIHjxIHiRiW9sXqtg0IOPdWZnfzPve0+L5R8rFI7Q49Oz0vFJiNZr/lzZbI7MK5m6WgJAjsYu
+        lUA/DZ1ROHLOwm8BLBYLJQag+KPdVlS88Pr2aTweq8LRaMQgAcznc1YimfoFSBICAB9JPBwOye3W6Mgf
+        4AkvojHWwaF/FTCbzVhmAOLBYEAul3uzYcXiA7Va72Q0m6wt2zY1GgZ1Op+sarVGDoeDu8fjCRa2xB9v
+        mgBjS4wJkBOPoG6vR+l0ZrkFdEHhZDJhCWA6nXLc7/cVQGowKXxRE6AYzkMCQCFiM0BqGoaxBGDhPOFD
+        Pl9gWa02us3dUeG+yPF15oY9QDOpgQ87TufmU0CXdQ/MNdgCIAqAcTE2JMcIIYZhu549dScgXa+QpnlW
+        Aegk3QSA+KvbXQEgpwByD+r1N06W9Qrfg3JZp1LphfcNL+x2O9Ve6+qfCN807cdELFwMJCC5dYFgkKfx
+        en0cAyAxnsh9A60ctVQbePI2AAAAAElFTkSuQmCC
+</value>
+  </data>
+  <data name="buttonApply.Text" xml:space="preserve">
+    <value>適用(&amp;A)</value>
+  </data>
+  <data name="buttonCancel.Text" xml:space="preserve">
+    <value>キャンセル(&amp;C)</value>
+  </data>
+  <data name="fileNameToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>143, 22</value>
+  </data>
+  <data name="fileNameToolStripMenuItem.Text" xml:space="preserve">
+    <value>ファイル名</value>
+  </data>
+  <data name="extensionToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>143, 22</value>
+  </data>
+  <data name="extensionToolStripMenuItem.Text" xml:space="preserve">
+    <value>拡張子</value>
+  </data>
+  <data name="toolStripMenuItem1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>140, 6</value>
+  </data>
+  <data name="dateToolStripMenuItem.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAARFSURBVDhPhZJZTONVFMbv6LjEdXwZjQ/GB5agEDtO
+        ZZphs8wUAaUDDGFgKFCWmQHtsPXhD2JAiPJiEMM2QMO+qYSdMkhLWmgtW8sS9h1MnMjDRIYHRWP8zLm2
+        Jfqg/+TLae+953e/e85hugkb05lsTG+ysf/6xsxzTE/6n3NsdMLKdBO2LN2ETdBNWAWDwfCTwWBc0pts
+        go5kXyeNTliF78ZnhRHjjKA3mBoNBgNGDZbPtWNTwqDOInCgpq2bdKRp60ZdazeOj48Pf3zwYOuLqmZU
+        NX6N2uYu1Nh1r+lbVDd+g8r6ThhNUzMnJyeoqGv5oeQrDb681wTG2HmWnf8Zy8wrPs7MK8Jd4VNsbm4e
+        m8zmhz5SGeJSP8KH6k+Qrs5Hek4+0nI+xp2sPNzOFFBeVbt/eHiIiKiYR+9fj0WySk1ABQuKiGWyazd+
+        uyqPxpWwKKhUd39OSFQevfra6xD7ShEQEo6A4Gvwd+g9OfyCwhAqj/hFEISHru4ev3uIxPCRfUDADuZ2
+        QcIuv3sVV0LD4e0XCP/AIHi9JYKbx5u4KPHFxcsBTol9KPpzXfKTQuLjCzePNyB6R4KXzr/yJ2PMwFwv
+        XGJh4ZHY3d3F2toaVlZWsLy8jKWlJczPz2Nubu4fkbSwsMDj4uIiPz85OYkXz537gzukL/pmHPb29rC9
+        vY319XWsrq7yJKvViqmpKS5KmpmZ4ero6MDo6CiH0lmbzYa3xeJfGWPxHJiQnIqDgwPs7OxAr9dDqVTC
+        z88PIpEI0dHRqK6uxtjYGJqamlBeXg53d3eUlJRgdnaWu1xYWMT1GzHHjLGXOTDp1h3s7+9zh21tbVAo
+        FCgtLeUKDQ2Fi4sL6urqEBkZCS8vL7i6uqKwsBA0h+TYarMhPinlEWPsMSeQ3G1sbPBamUwmjIyMcHhU
+        VBTEYjEqKyvR3NyMhoYGDszNzYVWq8X4+Di+t1igUCYT8HGCceDW1havB9WFgGlpaTyRlJGRgdraWg6r
+        r6/nazk5Oeju7ua1NBqNUCQmEfCsE0juqLPUCHpKWVkZdxEcHAyJRIKCggLU1NRwOS7p7OzE0NAQdDod
+        4v4GPuEEOjprsVh4Y+h2aoJareY1JMcVFRX8IgKmp6fzkvT39/Py3ExQEvBJJ5DcUf2ys7N5l4uKivhv
+        cufp6Yni4mJez8DAQA709vbmE9Db24vh4WEH8CknkNzRGFBiSEgIZDIZpFIp5HI5X9NoNFCpVEhJSeGR
+        HGdlZXGgVjuMuH8DaThpgKlr9ISenh5eo9bWVrS0tHC1t7fzoaZIe11dXRgcHMTw/fuOppw+mZoxPT0N
+        s9nMh5ieQYf7+vq4C4pUL4cGBgb42FBDqOb2OTztsjL1NhJTbtEGdQyx8YmIUSQgJi7+VPSfK57vk+gs
+        5SQkpx4555Axdsaus9w2Y88wxp5jjD3PGHvBHkm0RnrWHunc0/Ycyj3zF4v4bfiicj93AAAAAElFTkSu
+        QmCC
+</value>
+  </data>
+  <data name="dateToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>143, 22</value>
+  </data>
+  <data name="dateToolStripMenuItem.Text" xml:space="preserve">
+    <value>日付</value>
+  </data>
+  <data name="ToolStripMenuItemLowerCase.Size" type="System.Drawing.Size, System.Drawing">
+    <value>131, 22</value>
+  </data>
+  <data name="ToolStripMenuItemLowerCase.Text" xml:space="preserve">
+    <value>小文字のみ</value>
+  </data>
+  <data name="ToolStripMenuItemUpperCase.Size" type="System.Drawing.Size, System.Drawing">
+    <value>131, 22</value>
+  </data>
+  <data name="ToolStripMenuItemUpperCase.Text" xml:space="preserve">
+    <value>大文字のみ</value>
+  </data>
+  <data name="ToolStripMenuItemAlphabet.Size" type="System.Drawing.Size, System.Drawing">
+    <value>134, 22</value>
+  </data>
+  <data name="ToolStripMenuItemAlphabet.Text" xml:space="preserve">
+    <value>アルファベット</value>
+  </data>
+  <data name="ToolStripMenuItemNumbers.Size" type="System.Drawing.Size, System.Drawing">
+    <value>134, 22</value>
+  </data>
+  <data name="ToolStripMenuItemNumbers.Text" xml:space="preserve">
+    <value>数字</value>
+  </data>
+  <data name="ToolStripMenuItemSymbols.Size" type="System.Drawing.Size, System.Drawing">
+    <value>134, 22</value>
+  </data>
+  <data name="ToolStripMenuItemSymbols.Text" xml:space="preserve">
+    <value>記号</value>
+  </data>
+  <data name="ToolStripMenuItemrandomNumber.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAMnSURBVDhPlZTbK+xRFMfXIy+n5IEHdymXRA4JJVPz
+        RmIKSaJOlPKgHMYtJJdRhGQyJJdyv4YyTCIluScKxbx59S98T9/VjDPG6HRWrWbPWnt/fmvv9d1bAMj/
+        uoiYRMTB3y8578C/XESiMjMzYbfbkZuby4DBJ1BEikRkRUSqXb82EUn2AbRYrVY4nU4sLCwwsOKVl3BO
+        qqurw+bmJpqbmzE/Pw8uItQH8P3+/h5DQ0O4u7tDSkoKg1GeQMvExASen5/x8vKCh4cHXF1dYXd3l9lX
+        nfHXqvnB6+trhIaGYn19HQ0NDZxn/lJhb2+vwiYnJ5GUlITExERmf3sBHYSMjo4yh/r6eiwvL+uHPYE0
+        c1dXl365oKCAUSO38QklEpWWlobLy0ucnJxgf38fOzs72NjYQGFhIdcUfQJ2dHTg7OwMeXl5jA65mkJp
+        0Dm2cxeLi4tandu55fb2do61OR/A1tZWLC0tISwsDISzMQ6HQ+UxPT0NPz8//c/mcb5rndFgMGB2dlbh
+        n4CNjY1aHRv09vaG29tbWCwWsKrT01NUVVUhJycHwcHBXBXgWvdDRM4SEhIYs3oCLa6yFcazjIiIcFdi
+        ZkcPDg60UtdW3Wbu7+9HTU0NYx9nWM3A2NgY/P398fT0hIuLC4SHh38AQ0JCVEZ7e3uMvYvIT1fOwcZ0
+        dnbqXM8KeTt4+M6WlhbV5NHREdra2lTo29vbODw8REVFBVec5ufng5U1NTWpFrnGG+g2K6sljOKem5vD
+        1NSUArkwIyMDAwMDeHx8xMjIiFZ8fn6uevQFjEpPT1dx87ySk5OZVdkEBQWhu7sbkZGRqkGz2cychYJe
+        W1tDbW2tT6CxtLQUNzc3uhUR6fHI/eI22RAeR3FxMccUv2N4eFgV4AsYwG4eHx+r9kpKShRAT01NRV9f
+        H+Li4rC6uur+4FV8fDxmZmZQWVnpE0jrKS8v1/u5tbWlt4JSsdlsGBwcRFZWFkwmk3Z8fHxcc3yVysrK
+        vgXS+CC8xsbGgrcgOztbHwuXXHgMAxwbjUbExMQgOjoagYGBzAd8B3QbHweeE5268zb3A0JXGP0Pg6bB
+        6xf8mGAAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="ToolStripMenuItemrandomNumber.Size" type="System.Drawing.Size, System.Drawing">
+    <value>143, 22</value>
+  </data>
+  <data name="ToolStripMenuItemrandomNumber.Text" xml:space="preserve">
+    <value>ランダム文字列</value>
+  </data>
+  <data name="ToolStripMenuItemserialNumber.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABGdBTUEAALGPC/xhBQAAABl0RVh0U29m
+        dHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAJGSURBVDhPrZRPSyphFMYHdNNsFLR0nCKkZaugz1Bg
+        9A0EFypt3bRx50LBTSsjRFEX7hIVEizQIFFQESNRwT+VirZQGfoGT5wDiVj3ypW7eHiZmfP+3vM+55wR
+        AAj/U8Le3h52d3dhMplgMBig0+mg0WiwtbUFlUr1ubphnQQCKYrC6nQ6uLm54fXt7Q2CIPw7cHt7G9Pp
+        FNlslgCsp6cntFqtzYBarRaTyQSNRgP5fJ6BBK9Wq5sBRVHEYDDgK3a7XQYmEgl8eyvLMoxGI/R6PXtL
+        8Wq1GqugBVClUrFnzWYTz8/PDIzH4wxa9rZUKvE6n885ZhW0ANLHer2OSqWCYrHIweFwGDs7O5jNZri/
+        v+d3+/v7rJeXl/VAAiWTSVxeXnKw1WoFefvx8QGfzwev17vIPhAIrAcSLBQK4eLiAk6nEw6Hg70ajUYY
+        Dofo9/uw2+1sw3fhVkHLQOU3kfG9Xg/tdhtut5sbP5VK4ejoiMGyLCuSJCl6vV7RarWKKIq0R/lxwtJJ
+        7Nf19TVnRNeORCI4ODjA+/s7H/Tw8IBarYbX11cWxf0ALQPL5TJcLhcsFgtOT09xcnLCrVQoFGA2m+H3
+        +3mlQRiPx+uBj4+PXOW7uzuk02n2WpIkPiiTyfBAUOZXV1fcUmuBv4l+GjSW1GoejwfHx8ecIT3/Ffgn
+        qdXqT2ohAlDGNpuN240afyMgzTdNUiwW46sHg0GcnZ0hl8ttDry9vcX5+TkX6/DwENFolD3dGEibqWVo
+        /S4W/VA2Bq4Wallf9736exYGxyMAAAAASUVORK5CYII=
+</value>
+  </data>
+  <data name="ToolStripMenuItemserialNumber.Size" type="System.Drawing.Size, System.Drawing">
+    <value>143, 22</value>
+  </data>
+  <data name="ToolStripMenuItemserialNumber.Text" xml:space="preserve">
+    <value>連番</value>
+  </data>
+  <data name="contextMenuStrip1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>144, 120</value>
+  </data>
+  <data name="$this.Icon" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        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
+        AAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAACAAQAAAB8AAAAAAAAAAAAAgCAAAP/gAAD/4AAAKAAAABAA
+        AAAgAAAAAQAgAAAAAABABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB2dnRaYV5evVNTU9ZTU1PWICAgrHh2
+        dHBVVVS8Uk9Px0ZGRrwWFhZ9d3V1gFNPT8RST0/HODY2rQAAAFB2dnRaqKam/728vP+1tLP/tbSz/0hH
+        Rv+zsrL/sbCw/66trP+ko6P/QkJC6ry7uv+vrq7/rq2s/5iWlv8zMzO3eHV1lsfHxv/s7Oz/3t7e/97e
+        3v94dnX/5+fn/+Tk5P/e3t7/zMzL/3Jwb/z39/f/4ODg/97e3v+0s7P/VVBQ1Hh1dZbHx8b/7e3t/+Dg
+        4P/g4OD/eHZ1/+fn5//l5eX/4ODg/87Nzf9ycG/89/f3/+Li4v/g4OD/tbS0/1VQUNR4dXWWx8fG//j4
+        +P/09PT/9PT0/3h2df/n5+f/9vb2//T09P/e3t7/c3Jy9ff39//09PT/9PT0/8HAwP9mY2Oxd3d3PJiW
+        lf+op6b/pKKi/6Siov9HRUX/oaCf/6alpP+koqL/nJua/0lJSeyuraz/pKKi/6Siov+Uk5L/KionvHh1
+        dZbHx8b/8fHx/+jo6P/o6Oj/eHZ1/9/f3//t7e3/6Ojo/9TU1P94dnX//////+jo6P/o6Oj/wMC//1lU
+        VN94dXWWx8fG//Pz8//r6+v/6+vr/3h2df/f39//8PDw/+vr6//X1tb/eHZ1///////r6+v/6+vr/8LC
+        wf9ZVFTfeHV1lsfHxv/5+fn/9fX1//X19f94dnX/39/f//b29v/09PT/3t7e/3h2df///////Pz8//z8
+        /P/Nzcz/cG1tsXZ2dFqopqb/xMPD/8HAv//BwL//SEdG/8C/v//Kycn/ycjI/7q6uf9JSUnsk5GR/5OR
+        kf+TkZH/iYiH/3d3dzx4dXWWx8fG//n5+f/09PT/9PT0/3h2df/n5+f/9vb2//T09P/e3t7/ZmRk93h4
+        czNhXV0/Qj8/XEI/P1wZGRk9eHV1lsfHxv/6+vr/9/f3//f39/94dnX/5+fn//j4+P/39/f/4eDg/2Zk
+        ZPeAfn3/k5GQ/5GQj/+RkI//fnx7/3h1dZbHx8b//v7+//7+/v/+/v7/eHZ1/+fn5//+/v7//v7+/+bm
+        5v91c2/XoJ6e//39/f/5+fn/+fn5/5aVlP92dnYtiIaF/5ORkf+TkZH/k5GR/3h1dZaHhYT/ioiH/4qI
+        h/+HhYT/dnZ0aaCenv/+/v7//Pz8//z8/P+XlpX/AAAAAHd3dx54eHMzeHhzM3h4czMAAAAAdnZ2HHh4
+        eCJ4eHgidnZ2HHZ2c0ugnp7/////////////////mJaV/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAB3d3ceiIaF/66trP+uraz/rq2s/4WDgv+AAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIQAAAD/wAAA
+</value>
+  </data>
+  <data name="$this.Text" xml:space="preserve">
+    <value>動作設定</value>
+  </data>
+</root>

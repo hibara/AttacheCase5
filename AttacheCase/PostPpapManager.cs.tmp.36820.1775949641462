@@ -1,0 +1,621 @@
+﻿//----------------------------------------------------------------------
+// SPDX-License-Identifier: GPL-3.0-or-later OR LicenseRef-AttacheCase-Commercial
+// Copyright (c) 2016-2026 HiBARA Software, LLC 
+// Dual-licensed (GPLv3+ / Commercial). Third-party components remain under their own licenses (see THIRD_PARTY_NOTICES.md).
+// デュアルライセンス: GPLv3+ または商用ライセンス（詳細: DUAL-LICENSING.md / COMMERCIAL-LICENSE.md）
+//----------------------------------------------------------------------
+using Newtonsoft.Json;
+using Org.BouncyCastle.Crypto.Generators;
+using Org.BouncyCastle.Crypto.Kems;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Pkcs;                    // PrivateKeyInfoFactory
+using Org.BouncyCastle.Pqc.Crypto.Utilities;    // PqcPrivateKeyFactory
+using Org.BouncyCastle.Security;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Resources = AttacheCase.Properties.Resources;
+
+namespace AttacheCase
+{
+  /// <summary>
+  /// ver.5 ファイルフォーマット仕様の公開鍵暗号アルゴリズム識別子定数。
+  /// データ構造.xlsx「公開鍵暗号アルゴリズム識別子」フィールド (offset 26) に対応。
+  /// </summary>
+  public static class PkaAlgorithmId
+  {
+    /// <summary>なし（パスワード方式）</summary>
+    public const byte None = 0x00;
+
+    /// <summary>RSA-2048-OAEP-SHA256 ― 後方互換のみ・非推奨</summary>
+    public const byte Rsa2048 = 0x01;
+
+    /// <summary>RSA-4096-OAEP-SHA256</summary>
+    public const byte Rsa4096 = 0x02;
+
+    /// <summary>ML-KEM-768 単体（将来予約）</summary>
+    public const byte MlKem768 = 0x10;
+
+    /// <summary>RSA-2048 + ML-KEM-768 ハイブリッド</summary>
+    public const byte Rsa2048MlKem768 = 0x11;
+
+    /// <summary>RSA-4096 + ML-KEM-768 ハイブリッド ★推奨デフォルト</summary>
+    public const byte Rsa4096MlKem768 = 0x12;
+  }
+
+  public class PostPpapManager
+  {
+    /// <summary>
+    /// 新規登録・暗号化時のデフォルトアルゴリズム。
+    /// RSA-4096 + ML-KEM-768 ハイブリッド (0x12) を常に使用する。
+    /// </summary>
+    public const byte DefaultAlgorithmId = PkaAlgorithmId.Rsa4096MlKem768;
+
+    private static readonly string DataDir = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        "AttacheCase", "PostPPAP");
+
+    private static readonly string AccountsPath = Path.Combine(DataDir, "accounts.json");
+
+    private const string KeyServerBaseUrl = "https://attachecase-key-server.m-229.workers.dev";
+
+    // RSA キーサイズ。
+    // 0x02 (RSA-4096 単体) および 0x12 (RSA-4096 + ML-KEM-768) 共通。
+    // 0x01 (RSA-2048) は後方互換読み込みのみで、新規生成には使わない。
+    private const int RsaKeySize = 4096;
+
+    //======================================================================
+    // アカウント管理
+    //======================================================================
+
+    public static bool HasAccounts => LoadAccounts().Count > 0;
+
+    /// <summary>後方互換</summary>
+    public static bool IsRegistered => HasAccounts;
+
+    public static List<PostPpapKeyInfo> LoadAccounts()
+    {
+      EnsureDataDir();
+      if (!File.Exists(AccountsPath))
+        return new List<PostPpapKeyInfo>();
+      var json = File.ReadAllText(AccountsPath, Encoding.UTF8);
+      return JsonConvert.DeserializeObject<List<PostPpapKeyInfo>>(json)
+             ?? new List<PostPpapKeyInfo>();
+    }
+
+    public static void SaveAccounts(List<PostPpapKeyInfo> accounts)
+    {
+      EnsureDataDir();
+      File.WriteAllText(AccountsPath,
+          JsonConvert.SerializeObject(accounts, Formatting.Indented),
+          Encoding.UTF8);
+    }
+
+    /// <summary>後方互換: 最初のアカウント情報を返す。</summary>
+    public static PostPpapKeyInfo LoadKeyInfo()
+    {
+      var accounts = LoadAccounts();
+      return accounts.Count > 0 ? accounts[0] : null;
+    }
+
+    //======================================================================
+    // 秘密鍵の読み込み
+    //======================================================================
+
+    /// <summary>
+    /// 指定アカウントの RSA 秘密鍵を DPAPI 復号して返す。使用後は必ず Dispose すること。
+    /// </summary>
+    public static RSACryptoServiceProvider LoadPrivateKey(PostPpapKeyInfo account)
+    {
+      if (string.IsNullOrEmpty(account.EncryptedPrivateKey))
+        throw new InvalidOperationException("RSA 秘密鍵が見つかりません。再登録が必要です。");
+
+      var encrypted = Convert.FromBase64String(account.EncryptedPrivateKey);
+      var blob = ProtectedData.Unprotect(encrypted, null, DataProtectionScope.CurrentUser);
+      try
+      {
+        var rsa = new RSACryptoServiceProvider();
+        rsa.PersistKeyInCsp = false;
+        rsa.ImportCspBlob(blob);
+        return rsa;
+      }
+      finally
+      {
+        Array.Clear(blob, 0, blob.Length);
+      }
+    }
+
+    /// <summary>後方互換: 最初のアカウントの RSA 秘密鍵を返す。</summary>
+    public static RSACryptoServiceProvider LoadPrivateKey()
+    {
+      var accounts = LoadAccounts();
+      if (accounts.Count == 0)
+        throw new InvalidOperationException("RSA 秘密鍵が見つかりません。再登録が必要です。");
+      return LoadPrivateKey(accounts[0]);
+    }
+
+    /// <summary>
+    /// 指定アカウントの ML-KEM-768 秘密鍵を DPAPI 復号して返す。
+    /// ハイブリッドモード (0x11, 0x12) のアカウントのみ有効。
+    /// </summary>
+    public static MLKemPrivateKeyParameters LoadMlKemPrivateKey(PostPpapKeyInfo account)
+    {
+      if (string.IsNullOrEmpty(account.MlKemEncryptedPrivateKey))
+        throw new InvalidOperationException("ML-KEM 秘密鍵が見つかりません。再登録が必要です。");
+
+      var encrypted = Convert.FromBase64String(account.MlKemEncryptedPrivateKey);
+      var blob = ProtectedData.Unprotect(encrypted, null, DataProtectionScope.CurrentUser);
+      try
+      {
+        // PKCS#8 DER 形式から復元する
+        return (MLKemPrivateKeyParameters)PqcPrivateKeyFactory.CreateKey(blob);
+      }
+      finally
+      {
+        Array.Clear(blob, 0, blob.Length);
+      }
+    }
+
+    //======================================================================
+    // 登録フロー
+    //======================================================================
+
+    /// <summary>
+    /// 登録を開始する。algorithmId を省略した場合は DefaultAlgorithmId (0x12) を使用。
+    /// 戻り値は (pollToken, account)。account はメモリ上のみで、
+    /// メール認証完了後に AwaitVerificationAsync 内で accounts.json に保存される。
+    /// </summary>
+    public static async Task<(string PollToken, PostPpapKeyInfo Account)> StartRegistrationAsync(
+        string email,
+        byte algorithmId = DefaultAlgorithmId)
+    {
+      if (string.IsNullOrWhiteSpace(email))
+        throw new ArgumentException(Resources.ErrorEnterEmailAddress, nameof(email));
+
+      EnsureDataDir();
+
+      // ── RSA 鍵ペア生成 ────────────────────────────────────────────────
+      byte[] rsaPrivateKeyBlob;
+      string modulusB64, exponentB64;
+
+      using (var rsa = new RSACryptoServiceProvider(RsaKeySize))
+      {
+        rsa.PersistKeyInCsp = false;
+        var pubParams = rsa.ExportParameters(false);
+        modulusB64 = Convert.ToBase64String(pubParams.Modulus);
+        exponentB64 = Convert.ToBase64String(pubParams.Exponent);
+        rsaPrivateKeyBlob = rsa.ExportCspBlob(true);
+      }
+
+      // ── ML-KEM-768 鍵ペア生成（ハイブリッドモードのみ） ──────────────
+      byte[] mlkemPublicKeyBytes = null;
+      byte[] mlkemPrivateKeyBytes = null;
+      string mlkemPublicKeyB64 = null;
+
+      bool isHybrid = algorithmId == PkaAlgorithmId.Rsa2048MlKem768
+                   || algorithmId == PkaAlgorithmId.Rsa4096MlKem768;
+
+      if (isHybrid)
+      {
+        var gen = new MLKemKeyPairGenerator();
+        var param = new MLKemKeyGenerationParameters(
+          new SecureRandom(), MLKemParameters.ml_kem_768);  // ← 小文字・アンダースコア区切り
+        gen.Init(param);
+
+        var keyPair = gen.GenerateKeyPair();
+        var mlkemPub = (MLKemPublicKeyParameters)keyPair.Public;
+        var mlkemPriv = (MLKemPrivateKeyParameters)keyPair.Private;
+        
+        mlkemPublicKeyBytes = mlkemPub.GetEncoded();
+        // GetEncoded() は生バイトではなく PKCS#8 DER 形式で保存する
+        mlkemPrivateKeyBytes = PrivateKeyInfoFactory.CreatePrivateKeyInfo(mlkemPriv).GetDerEncoded();
+        mlkemPublicKeyB64 = Convert.ToBase64String(mlkemPublicKeyBytes);
+      }
+
+      // ── フィンガープリント生成 ─────────────────────────────────────────
+      var rsaModulusBytes = Convert.FromBase64String(modulusB64);
+      var fingerprint = ComputeFingerprint(rsaModulusBytes, mlkemPublicKeyBytes);
+
+      // ── メールハッシュ ─────────────────────────────────────────────────
+      var normalizedEmail = email.ToLowerInvariant().Trim();
+      var emailHash = ComputeEmailHash(normalizedEmail);
+
+      // ── サーバへ登録要求 ───────────────────────────────────────────────
+      var pollToken = await RequestRegistrationAsync(
+          email, modulusB64, exponentB64, fingerprint,
+          algorithmId, mlkemPublicKeyB64);
+
+      // ── 秘密鍵を DPAPI で暗号化して保存 ──────────────────────────────
+      var encRsaBlob = ProtectedData.Protect(
+          rsaPrivateKeyBlob, null, DataProtectionScope.CurrentUser);
+      Array.Clear(rsaPrivateKeyBlob, 0, rsaPrivateKeyBlob.Length);
+
+      string mlkemEncB64 = null;
+      if (mlkemPrivateKeyBytes != null)
+      {
+        var encMlkem = ProtectedData.Protect(
+            mlkemPrivateKeyBytes, null, DataProtectionScope.CurrentUser);
+        mlkemEncB64 = Convert.ToBase64String(encMlkem);
+        Array.Clear(mlkemPrivateKeyBytes, 0, mlkemPrivateKeyBytes.Length);
+      }
+
+      var account = new PostPpapKeyInfo
+      {
+        Email = normalizedEmail,
+        EmailHash = emailHash,
+        Modulus = modulusB64,
+        Exponent = exponentB64,
+        Fingerprint = fingerprint,
+        AlgorithmId = algorithmId,
+        MlKemPublicKey = mlkemPublicKeyB64,
+        EncryptedPrivateKey = Convert.ToBase64String(encRsaBlob),
+        MlKemEncryptedPrivateKey = mlkemEncB64,
+        RegisteredAt = DateTime.UtcNow,
+        // DeviceToken はメール認証完了後にサーバから受け取る（AwaitVerificationAsync で保存）
+      };
+
+      return (pollToken, account);
+    }
+
+    /// <summary>
+    /// メール認証の完了を待つ。認証完了時にサーバから deviceToken を受け取り、
+    /// pendingAccount を accounts.json に保存する。
+    /// 認証が完了しなかった場合は accounts.json には何も書き込まない。
+    /// </summary>
+    /// <param name="pollToken">StartRegistrationAsync から返されたポーリングトークン</param>
+    /// <param name="pendingAccount">StartRegistrationAsync で生成された未認証アカウント</param>
+    /// <param name="timeoutMinutes">タイムアウト（分）</param>
+    /// <param name="cancellationToken">キャンセルトークン</param>
+    public static async Task<bool> AwaitVerificationAsync(
+        string pollToken,
+        PostPpapKeyInfo pendingAccount,
+        int timeoutMinutes = 10,
+        CancellationToken cancellationToken = default(CancellationToken))
+    {
+      if (pendingAccount == null)
+        throw new ArgumentNullException(nameof(pendingAccount));
+
+      var deadline = DateTime.UtcNow.AddMinutes(timeoutMinutes);
+      while (DateTime.UtcNow < deadline)
+      {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var result = await GetRegistrationStatusAsync(pollToken);
+
+        switch (result.Status)
+        {
+          case "verified":
+            // 認証成功: deviceToken をセットし、初めて accounts.json に保存
+            if (!string.IsNullOrEmpty(result.DeviceToken))
+            {
+              pendingAccount.DeviceToken = result.DeviceToken;
+            }
+            var accounts = LoadAccounts();
+            accounts.RemoveAll(a =>
+                string.Equals(a.EmailHash, pendingAccount.EmailHash, StringComparison.OrdinalIgnoreCase));
+            accounts.Add(pendingAccount);
+            SaveAccounts(accounts);
+            return true;
+
+          case "expired":
+            return false;
+        }
+
+        await Task.Delay(3000, cancellationToken);
+      }
+      return false;
+    }
+
+    //======================================================================
+    // 公開鍵検索
+    //======================================================================
+
+    /// <summary>
+    /// メールアドレスからキーサーバー上の公開鍵を検索する。
+    /// 見つかった場合は PostPpapKeyInfo を返す。見つからなければ null を返す。
+    /// 
+    /// 検索リクエストに自デバイスの情報を付与し、サーバ側で lastSeen を
+    /// 自動更新する（24時間に1回）。独立したハートビートAPIを呼ぶ必要がない。
+    /// </summary>
+    public static async Task<PostPpapKeyInfo> LookupPublicKeyAsync(
+        string email,
+        CancellationToken cancellationToken = default(CancellationToken))
+    {
+      if (string.IsNullOrWhiteSpace(email))
+        throw new ArgumentException(Resources.ErrorEnterEmailAddress, nameof(email));
+
+      var normalizedEmail = email.ToLowerInvariant().Trim();
+      var emailHash = ComputeEmailHash(normalizedEmail);
+
+      // 自デバイスの情報を取得（lastSeen 自動更新用）
+      var myAccount = LoadKeyInfo();
+
+      using (var client = new System.Net.Http.HttpClient())
+      {
+        client.Timeout = TimeSpan.FromSeconds(15);
+
+        // 自デバイスの情報をヘッダーに付与（サーバ側で lastSeen を自動更新）
+        if (myAccount != null
+            && !string.IsNullOrEmpty(myAccount.EmailHash)
+            && !string.IsNullOrEmpty(myAccount.Fingerprint)
+            && !string.IsNullOrEmpty(myAccount.DeviceToken))
+        {
+          client.DefaultRequestHeaders.Add("X-My-EmailHash", myAccount.EmailHash);
+          client.DefaultRequestHeaders.Add("X-My-Fingerprint", myAccount.Fingerprint);
+          client.DefaultRequestHeaders.Add("X-My-DeviceToken", myAccount.DeviceToken);
+        }
+
+        var response = await client.GetAsync(
+            KeyServerBaseUrl + "/api/keys/" + emailHash, cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+          throw new InvalidOperationException(string.Format(Resources.ErrorServerStatus, response.StatusCode));
+
+        var json = await response.Content.ReadAsStringAsync();
+        dynamic result = JsonConvert.DeserializeObject(json);
+
+        if (result.ok != true)
+          return null;
+
+        bool registered = result.data.registered;
+        if (!registered)
+          return null;
+
+        // 最新の鍵エントリを使用（lastSeen 降順で最初のもの）
+        var keys = result.data.keys;
+        string modulus = null;
+        string exponent = null;
+        string fingerprint = null;
+        string registeredAt = null;
+        string mlkemPubKey = null;
+        byte algorithmId = PkaAlgorithmId.None;
+
+        foreach (var key in keys)
+        {
+          modulus = (string)key.modulus;
+          exponent = (string)key.exponent;
+          fingerprint = (string)key.fingerprint;
+          registeredAt = (string)key.registeredAt;
+
+          if (key.mlkemPublicKey != null)
+            mlkemPubKey = (string)key.mlkemPublicKey;
+          if (key.algorithmId != null)
+            algorithmId = (byte)key.algorithmId;
+        }
+
+        if (modulus == null)
+          return null;
+
+        // Post-PPAP ではハイブリッド暗号（0x12）のみ対応。
+        // サーバから ML-KEM 公開鍵が取得できない場合は暗号化不可とする。
+        bool isHybrid = algorithmId == PkaAlgorithmId.Rsa4096MlKem768
+                     || algorithmId == PkaAlgorithmId.Rsa2048MlKem768;
+        if (!isHybrid || string.IsNullOrEmpty(mlkemPubKey))
+          throw new InvalidOperationException(Resources.ErrorRecipientNoHybridSupport);
+
+        return new PostPpapKeyInfo
+        {
+          Email = normalizedEmail,
+          EmailHash = emailHash,
+          Modulus = modulus,
+          Exponent = exponent,
+          Fingerprint = fingerprint,
+          AlgorithmId = algorithmId,
+          MlKemPublicKey = mlkemPubKey,
+          RegisteredAt = DateTime.TryParse(registeredAt, out var dt) ? dt : DateTime.UtcNow,
+        };
+      }
+    }
+
+    //======================================================================
+    // ハートビート（独立版）
+    //======================================================================
+
+    /// <summary>
+    /// サーバ上の自デバイスの lastSeen を更新する。
+    /// 通常は LookupPublicKeyAsync 内で自動更新されるため、
+    /// このメソッドを直接呼ぶ必要はない。
+    /// deviceToken が未設定（旧バージョンで登録済み）の場合は何もしない。
+    /// </summary>
+    public static async Task SendHeartbeatAsync(
+        PostPpapKeyInfo account,
+        CancellationToken cancellationToken = default(CancellationToken))
+    {
+      if (account == null)
+        throw new ArgumentNullException(nameof(account));
+
+      // deviceToken が未設定の場合はスキップ（旧バージョンとの互換性）
+      if (string.IsNullOrEmpty(account.DeviceToken))
+        return;
+      if (string.IsNullOrEmpty(account.EmailHash) || string.IsNullOrEmpty(account.Fingerprint))
+        return;
+
+      var payload = JsonConvert.SerializeObject(new
+      {
+        fingerprint = account.Fingerprint,
+        deviceToken = account.DeviceToken,
+      });
+
+      using (var client = new System.Net.Http.HttpClient())
+      {
+        client.Timeout = TimeSpan.FromSeconds(10);
+        var content = new System.Net.Http.StringContent(
+            payload, Encoding.UTF8, "application/json");
+
+        // エラーが発生してもアプリの動作を止めない（ベストエフォート）
+        try
+        {
+          await client.PostAsync(
+              KeyServerBaseUrl + "/api/keys/" + account.EmailHash + "/heartbeat",
+              content,
+              cancellationToken);
+        }
+        catch
+        {
+          // ハートビートの失敗は無視する（次回リトライすればよい）
+        }
+      }
+    }
+
+    //======================================================================
+    // ユーティリティ
+    //======================================================================
+
+    /// <summary>
+    /// フィンガープリント生成。仕様: SHA-256 ハッシュの先頭 8 バイトを 16 進文字列で返す。
+    /// RSA 単体:  SHA-256(RSA modulus)
+    /// ハイブリッド: SHA-256(RSA modulus || ML-KEM public key)
+    /// </summary>
+    private static string ComputeFingerprint(
+        byte[] rsaModulusBytes, byte[] mlkemPublicKeyBytes = null)
+    {
+      using var sha256 = SHA256.Create();
+
+      byte[] hash;
+      if (mlkemPublicKeyBytes != null && mlkemPublicKeyBytes.Length > 0)
+      {
+        // 両公開鍵を連結してハッシュ
+        var combined = new byte[rsaModulusBytes.Length + mlkemPublicKeyBytes.Length];
+        Buffer.BlockCopy(rsaModulusBytes, 0, combined, 0, rsaModulusBytes.Length);
+        Buffer.BlockCopy(mlkemPublicKeyBytes, 0, combined, rsaModulusBytes.Length, mlkemPublicKeyBytes.Length);
+        hash = sha256.ComputeHash(combined);
+        Array.Clear(combined, 0, combined.Length);
+      }
+      else
+      {
+        hash = sha256.ComputeHash(rsaModulusBytes);
+      }
+
+      // 先頭 8 バイト = 16 文字の hex 文字列（旧実装は誤って 16 バイト=32 文字だった）
+      var sb = new StringBuilder(16);
+      for (var i = 0; i < 8; i++)
+        sb.Append(hash[i].ToString("x2"));
+      return sb.ToString();
+    }
+
+    private static string ComputeEmailHash(string email)
+    {
+      using var sha256 = SHA256.Create();
+      var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(email));
+      var sb = new StringBuilder(64);
+      foreach (var b in hash)
+        sb.Append(b.ToString("x2"));
+      return sb.ToString();
+    }
+
+    private static void EnsureDataDir()
+    {
+      if (!Directory.Exists(DataDir))
+        Directory.CreateDirectory(DataDir);
+    }
+
+    private static async Task<string> RequestRegistrationAsync(
+        string email, string modulus, string exponent, string fingerprint,
+        byte algorithmId, string mlkemPublicKey)
+    {
+      // mlkemPublicKey は RSA 単体モード (0x01, 0x02) では null になる
+      // ※ キーサーバ側も algorithmId / mlkemPublicKey フィールドの受け入れ対応が必要
+      var payload = JsonConvert.SerializeObject(new
+      {
+        email,
+        modulus,
+        exponent,
+        fingerprint,
+        algorithmId,
+        mlkemPublicKey,
+      });
+
+      using var client = new System.Net.Http.HttpClient();
+      client.Timeout = TimeSpan.FromSeconds(30);
+      var content = new System.Net.Http.StringContent(
+          payload, Encoding.UTF8, "application/json");
+
+      var response = await client.PostAsync(
+          KeyServerBaseUrl + "/api/register/initiate", content);
+
+      var json = await response.Content.ReadAsStringAsync();
+      dynamic result = JsonConvert.DeserializeObject(json);
+
+      if (!response.IsSuccessStatusCode || result?.ok != true)
+      {
+        string errorCode = null;
+        try { errorCode = (string)result?.error; } catch { }
+        throw new InvalidOperationException(
+            ServerErrorToMessage(errorCode, (int)response.StatusCode));
+      }
+
+      return (string)result.data.pollToken;
+    }
+
+    /// <summary>
+    /// ポーリングの戻り値。status と deviceToken を返す。
+    /// </summary>
+    private class RegistrationStatusResult
+    {
+      public string Status { get; set; }
+      public string DeviceToken { get; set; }
+    }
+
+    private static async Task<RegistrationStatusResult> GetRegistrationStatusAsync(string pollToken)
+    {
+      using var client = new System.Net.Http.HttpClient();
+      client.Timeout = TimeSpan.FromSeconds(10);
+      var response = await client.GetAsync(
+          KeyServerBaseUrl + "/api/register/status/" + pollToken);
+
+      if (!response.IsSuccessStatusCode)
+        return new RegistrationStatusResult { Status = "pending" };
+
+      var json = await response.Content.ReadAsStringAsync();
+      dynamic result = JsonConvert.DeserializeObject(json);
+
+      string deviceToken = null;
+      try { deviceToken = (string)result.data.deviceToken; } catch { }
+
+      return new RegistrationStatusResult
+      {
+        Status = (string)result.data.status,
+        DeviceToken = deviceToken,
+      };
+    }
+
+    /// <summary>
+    /// サーバーの error コードをユーザー向けメッセージに変換する。
+    /// </summary>
+    private static string ServerErrorToMessage(string errorCode, int httpStatus)
+    {
+      switch (errorCode)
+      {
+        // ── レート制限 ────────────────────────────────
+        case "rate_limited":
+          return Resources.ErrorRateLimited;
+        case "service_busy":
+          return Resources.ErrorServiceBusy;
+
+        // ── バリデーション ─────────────────────────────
+        case "missing_fields":
+          return Resources.ErrorMissingFields;
+        case "invalid_email":
+          return Resources.ErrorInvalidEmail;
+        case "invalid_fingerprint":
+        case "invalid_modulus":
+        case "invalid_exponent":
+        case "invalid_algorithm":
+        case "missing_mlkem_key":
+        case "invalid_mlkem_key":
+          return Resources.ErrorInvalidKeyData;
+
+        // ── 重複 ──────────────────────────────────────
+        case "already_registered":
+          return Resources.ErrorAlreadyRegistered;
+
+        default:
+          return string.Format(Resources.ErrorServerGeneric, httpStatus);
+      }
+    }
+  }
+}
