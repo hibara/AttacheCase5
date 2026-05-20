@@ -99,8 +99,21 @@ namespace AttacheCase
       labelCopyright.Text = ApplicationInfo.CopyrightHolder;
 
       // レジストレーションコードのチェック
+      // まずレジストリ(AttacheCase5\Registration)から読み込み、見つからなければ
+      // _AtcCase.ini 由来の一時設定 (AppSettings.RegistrationCodeString) をフォールバックとして利用する。
+      // これにより INI 一時設定モードでも、レジストリを汚染することなく商用ライセンスを画面に表示できる。
       var lcr = new LicenseRegister();
-      if (lcr.GetCommercialLicense())
+      var isLicensed = lcr.GetCommercialLicense();
+      if (isLicensed == false)
+      {
+        var staged = AppSettings.Instance.RegistrationCodeString;
+        if (string.IsNullOrEmpty(staged) == false)
+        {
+          lcr = new LicenseRegister(staged);
+          isLicensed = lcr.Decrypt(false);
+        }
+      }
+      if (isLicensed)
       {
         // 商用ライセンス適用
         // Commercial license applicable
@@ -166,7 +179,7 @@ namespace AttacheCase
     {
       if (pictureBoxProgressCircle.Image == pictureBoxExclamationMark.Image)
       {
-        System.Diagnostics.Process.Start("https://hibara.org/software/attachecase/");
+        System.Diagnostics.Process.Start("https://hibara.jp/software/attachecase/");
         this.Close();
         return;
       }
@@ -321,7 +334,7 @@ namespace AttacheCase
 
     private void linkLabelPurchase_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
     {
-      System.Diagnostics.Process.Start("https://hibara.org/software/attachecase/buy/");
+      System.Diagnostics.Process.Start("https://hibara.jp/software/attachecase/buy/");
     }
 
     // 商用ライセンスの削除メニュー

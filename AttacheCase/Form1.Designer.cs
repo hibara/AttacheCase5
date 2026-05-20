@@ -92,10 +92,12 @@ namespace AttacheCase
       this.pictureBoxEncryption = new System.Windows.Forms.PictureBox();
       this.buttonEncryptCancel = new System.Windows.Forms.Button();
       this.labelPassword = new System.Windows.Forms.Label();
+      this.textBoxPassword = new AttacheCase.CustomControl.EyeDelayPasswordTextBox();
       this.tabPageEncryptConfirm = new System.Windows.Forms.TabPage();
       this.panelEncryptConfirm = new System.Windows.Forms.Panel();
       this.labelPasswordStrengthConfirm = new System.Windows.Forms.Label();
       this.pictureBoxPassStrengthMeterConfirm = new System.Windows.Forms.PictureBox();
+      this.textBoxRePassword = new AttacheCase.CustomControl.EyeDelayPasswordTextBox();
       this.pictureBoxEncryptConfirmBackButton = new System.Windows.Forms.PictureBox();
       this.pictureBoxCheckPasswordValidation = new System.Windows.Forms.PictureBox();
       this.panelSidebarEncryptConfirm = new System.Windows.Forms.Panel();
@@ -109,6 +111,8 @@ namespace AttacheCase
       this.labelInputPasswordAgain = new System.Windows.Forms.Label();
       this.tabPageDecrypt = new System.Windows.Forms.TabPage();
       this.panelDecrypt = new System.Windows.Forms.Panel();
+      this.roundedBorderLabelSalvageMode = new AttacheCase.RoundedBorderLabel();
+      this.textBoxDecryptPassword = new AttacheCase.CustomControl.EyeDelayPasswordTextBox();
       this.pictureBoxDecryptBackButton = new System.Windows.Forms.PictureBox();
       this.panelSidebarDecrypt = new System.Windows.Forms.Panel();
       this.labelDecryption = new System.Windows.Forms.Label();
@@ -155,8 +159,8 @@ namespace AttacheCase
       this.pictureBoxPostPpapPage = new System.Windows.Forms.PictureBox();
       this.tabPagePostPpapMain = new System.Windows.Forms.TabPage();
       this.panelPostPpapMain = new System.Windows.Forms.Panel();
-      this.labelRegisteredMailAddress = new System.Windows.Forms.Label();
       this.pictureBoxMailAddress = new System.Windows.Forms.PictureBox();
+      this.labelRegisteredMailAddress = new System.Windows.Forms.Label();
       this.pictureBoxInvalid = new System.Windows.Forms.PictureBox();
       this.pictureBoxKey = new System.Windows.Forms.PictureBox();
       this.pictureBoxLockIcon = new System.Windows.Forms.PictureBox();
@@ -173,6 +177,7 @@ namespace AttacheCase
       this.labelPostPpapMain = new System.Windows.Forms.Label();
       this.pictureBoxPostPpapMain = new System.Windows.Forms.PictureBox();
       this.panelPublicDragAndDrop = new System.Windows.Forms.Panel();
+      this.labelPasswordSharingIfRegistered = new System.Windows.Forms.Label();
       this.tabPageProgressState = new System.Windows.Forms.TabPage();
       this.panelProgressState = new System.Windows.Forms.Panel();
       this.pictureBoxProgressStateBackButton = new System.Windows.Forms.PictureBox();
@@ -207,10 +212,6 @@ namespace AttacheCase
       this.toolTipZxcvbnWarning = new System.Windows.Forms.ToolTip(this.components);
       this.toolTipZxcvbnSuggestions = new System.Windows.Forms.ToolTip(this.components);
       this.saveFileDialog2 = new System.Windows.Forms.SaveFileDialog();
-      this.labelPasswordSharingIfRegistered = new System.Windows.Forms.Label();
-      this.textBoxPassword = new AttacheCase.CustomControl.EyeDelayPasswordTextBox();
-      this.textBoxRePassword = new AttacheCase.CustomControl.EyeDelayPasswordTextBox();
-      this.textBoxDecryptPassword = new AttacheCase.CustomControl.EyeDelayPasswordTextBox();
       this.statusStrip1.SuspendLayout();
       this.menuStrip1.SuspendLayout();
       this.panelOuter.SuspendLayout();
@@ -604,6 +605,7 @@ namespace AttacheCase
       resources.ApplyResources(this.labelPasswordStrength, "labelPasswordStrength");
       this.labelPasswordStrength.ForeColor = System.Drawing.Color.Gray;
       this.labelPasswordStrength.Name = "labelPasswordStrength";
+      this.labelPasswordStrength.TextChanged += new System.EventHandler(this.labelPasswordStrength_TextChanged);
       // 
       // checkBoxDeleteOriginalFileAfterEncryption
       // 
@@ -617,6 +619,7 @@ namespace AttacheCase
       resources.ApplyResources(this.pictureBoxPassStrengthMeter, "pictureBoxPassStrengthMeter");
       this.pictureBoxPassStrengthMeter.Name = "pictureBoxPassStrengthMeter";
       this.pictureBoxPassStrengthMeter.TabStop = false;
+      this.pictureBoxPassStrengthMeter.LocationChanged += new System.EventHandler(this.pictureBoxPassStrengthMeter_LocationChanged);
       // 
       // pictureBoxPasswordStrengthEmpty
       // 
@@ -708,6 +711,17 @@ namespace AttacheCase
       this.labelPassword.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseDown);
       this.labelPassword.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseMove);
       // 
+      // textBoxPassword
+      // 
+      resources.ApplyResources(this.textBoxPassword, "textBoxPassword");
+      this.textBoxPassword.Name = "textBoxPassword";
+      this.textBoxPassword.IsPasswordVisibleChanged += new System.EventHandler(this.textBoxPassword_IsPasswordVisibleChanged);
+      this.textBoxPassword.TextChanged += new System.EventHandler(this.textBoxPassword_TextChanged);
+      this.textBoxPassword.DragDrop += new System.Windows.Forms.DragEventHandler(this.textBoxPassword_DragDrop);
+      this.textBoxPassword.DragEnter += new System.Windows.Forms.DragEventHandler(this.textBoxPassword_DragEnter);
+      this.textBoxPassword.DragLeave += new System.EventHandler(this.textBoxPassword_DragLeave);
+      this.textBoxPassword.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxPassword_KeyDown);
+      // 
       // tabPageEncryptConfirm
       // 
       this.tabPageEncryptConfirm.BackColor = System.Drawing.Color.White;
@@ -747,6 +761,14 @@ namespace AttacheCase
       resources.ApplyResources(this.pictureBoxPassStrengthMeterConfirm, "pictureBoxPassStrengthMeterConfirm");
       this.pictureBoxPassStrengthMeterConfirm.Name = "pictureBoxPassStrengthMeterConfirm";
       this.pictureBoxPassStrengthMeterConfirm.TabStop = false;
+      // 
+      // textBoxRePassword
+      // 
+      this.textBoxRePassword.BackColor = System.Drawing.Color.PapayaWhip;
+      resources.ApplyResources(this.textBoxRePassword, "textBoxRePassword");
+      this.textBoxRePassword.Name = "textBoxRePassword";
+      this.textBoxRePassword.TextChanged += new System.EventHandler(this.textBoxRePassword_TextChanged);
+      this.textBoxRePassword.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxRePassword_KeyDown);
       // 
       // pictureBoxEncryptConfirmBackButton
       // 
@@ -834,6 +856,7 @@ namespace AttacheCase
       // panelDecrypt
       // 
       this.panelDecrypt.BackColor = System.Drawing.Color.Transparent;
+      this.panelDecrypt.Controls.Add(this.roundedBorderLabelSalvageMode);
       this.panelDecrypt.Controls.Add(this.textBoxDecryptPassword);
       this.panelDecrypt.Controls.Add(this.pictureBoxDecryptBackButton);
       this.panelDecrypt.Controls.Add(this.panelSidebarDecrypt);
@@ -846,6 +869,28 @@ namespace AttacheCase
       this.panelDecrypt.VisibleChanged += new System.EventHandler(this.panelDecrypt_VisibleChanged);
       this.panelDecrypt.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseDown);
       this.panelDecrypt.MouseMove += new System.Windows.Forms.MouseEventHandler(this.Form1_MouseMove);
+      // 
+      // roundedBorderLabelSalvageMode
+      // 
+      resources.ApplyResources(this.roundedBorderLabelSalvageMode, "roundedBorderLabelSalvageMode");
+      this.roundedBorderLabelSalvageMode.BackColor = System.Drawing.Color.Transparent;
+      this.roundedBorderLabelSalvageMode.BorderColor = System.Drawing.Color.DarkGreen;
+      this.roundedBorderLabelSalvageMode.BorderThickness = 2;
+      this.roundedBorderLabelSalvageMode.CornerRadius = 6;
+      this.roundedBorderLabelSalvageMode.ForeColor = System.Drawing.Color.DarkGreen;
+      this.roundedBorderLabelSalvageMode.Name = "roundedBorderLabelSalvageMode";
+      // 
+      // textBoxDecryptPassword
+      // 
+      resources.ApplyResources(this.textBoxDecryptPassword, "textBoxDecryptPassword");
+      this.textBoxDecryptPassword.Name = "textBoxDecryptPassword";
+      this.textBoxDecryptPassword.TextChanged += new System.EventHandler(this.textBoxDecryptPassword_TextChanged);
+      this.textBoxDecryptPassword.DragDrop += new System.Windows.Forms.DragEventHandler(this.textBoxDecryptPassword_DragDrop);
+      this.textBoxDecryptPassword.DragEnter += new System.Windows.Forms.DragEventHandler(this.textBoxDecryptPassword_DragEnter);
+      this.textBoxDecryptPassword.DragLeave += new System.EventHandler(this.textBoxDecryptPassword_DragLeave);
+      this.textBoxDecryptPassword.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxDecryptPassword_KeyDown);
+      this.textBoxDecryptPassword.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxDecryptPassword_KeyPress);
+      this.textBoxDecryptPassword.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.textBoxDecryptPassword_PreviewKeyDown);
       // 
       // pictureBoxDecryptBackButton
       // 
@@ -1209,16 +1254,16 @@ namespace AttacheCase
       this.panelPostPpapMain.Name = "panelPostPpapMain";
       this.panelPostPpapMain.VisibleChanged += new System.EventHandler(this.panelPostPpapMain_VisibleChanged);
       // 
-      // labelRegisteredMailAddress
-      // 
-      resources.ApplyResources(this.labelRegisteredMailAddress, "labelRegisteredMailAddress");
-      this.labelRegisteredMailAddress.Name = "labelRegisteredMailAddress";
-      // 
       // pictureBoxMailAddress
       // 
       resources.ApplyResources(this.pictureBoxMailAddress, "pictureBoxMailAddress");
       this.pictureBoxMailAddress.Name = "pictureBoxMailAddress";
       this.pictureBoxMailAddress.TabStop = false;
+      // 
+      // labelRegisteredMailAddress
+      // 
+      resources.ApplyResources(this.labelRegisteredMailAddress, "labelRegisteredMailAddress");
+      this.labelRegisteredMailAddress.Name = "labelRegisteredMailAddress";
       // 
       // pictureBoxInvalid
       // 
@@ -1319,6 +1364,11 @@ namespace AttacheCase
       this.panelPublicDragAndDrop.Controls.Add(this.labelPasswordSharingIfRegistered);
       resources.ApplyResources(this.panelPublicDragAndDrop, "panelPublicDragAndDrop");
       this.panelPublicDragAndDrop.Name = "panelPublicDragAndDrop";
+      // 
+      // labelPasswordSharingIfRegistered
+      // 
+      resources.ApplyResources(this.labelPasswordSharingIfRegistered, "labelPasswordSharingIfRegistered");
+      this.labelPasswordSharingIfRegistered.Name = "labelPasswordSharingIfRegistered";
       // 
       // tabPageProgressState
       // 
@@ -1523,42 +1573,6 @@ namespace AttacheCase
       // 
       this.toolTipZxcvbnWarning.IsBalloon = true;
       this.toolTipZxcvbnWarning.ToolTipIcon = System.Windows.Forms.ToolTipIcon.Warning;
-      // 
-      // labelPasswordSharingIfRegistered
-      // 
-      resources.ApplyResources(this.labelPasswordSharingIfRegistered, "labelPasswordSharingIfRegistered");
-      this.labelPasswordSharingIfRegistered.Name = "labelPasswordSharingIfRegistered";
-      // 
-      // textBoxPassword
-      // 
-      resources.ApplyResources(this.textBoxPassword, "textBoxPassword");
-      this.textBoxPassword.Name = "textBoxPassword";
-      this.textBoxPassword.IsPasswordVisibleChanged += new System.EventHandler(this.textBoxPassword_IsPasswordVisibleChanged);
-      this.textBoxPassword.TextChanged += new System.EventHandler(this.textBoxPassword_TextChanged);
-      this.textBoxPassword.DragDrop += new System.Windows.Forms.DragEventHandler(this.textBoxPassword_DragDrop);
-      this.textBoxPassword.DragEnter += new System.Windows.Forms.DragEventHandler(this.textBoxPassword_DragEnter);
-      this.textBoxPassword.DragLeave += new System.EventHandler(this.textBoxPassword_DragLeave);
-      this.textBoxPassword.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxPassword_KeyDown);
-      // 
-      // textBoxRePassword
-      // 
-      this.textBoxRePassword.BackColor = System.Drawing.Color.PapayaWhip;
-      resources.ApplyResources(this.textBoxRePassword, "textBoxRePassword");
-      this.textBoxRePassword.Name = "textBoxRePassword";
-      this.textBoxRePassword.TextChanged += new System.EventHandler(this.textBoxRePassword_TextChanged);
-      this.textBoxRePassword.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxRePassword_KeyDown);
-      // 
-      // textBoxDecryptPassword
-      // 
-      resources.ApplyResources(this.textBoxDecryptPassword, "textBoxDecryptPassword");
-      this.textBoxDecryptPassword.Name = "textBoxDecryptPassword";
-      this.textBoxDecryptPassword.TextChanged += new System.EventHandler(this.textBoxDecryptPassword_TextChanged);
-      this.textBoxDecryptPassword.DragDrop += new System.Windows.Forms.DragEventHandler(this.textBoxDecryptPassword_DragDrop);
-      this.textBoxDecryptPassword.DragEnter += new System.Windows.Forms.DragEventHandler(this.textBoxDecryptPassword_DragEnter);
-      this.textBoxDecryptPassword.DragLeave += new System.EventHandler(this.textBoxDecryptPassword_DragLeave);
-      this.textBoxDecryptPassword.KeyDown += new System.Windows.Forms.KeyEventHandler(this.textBoxDecryptPassword_KeyDown);
-      this.textBoxDecryptPassword.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.textBoxDecryptPassword_KeyPress);
-      this.textBoxDecryptPassword.PreviewKeyDown += new System.Windows.Forms.PreviewKeyDownEventHandler(this.textBoxDecryptPassword_PreviewKeyDown);
       // 
       // Form1
       // 
@@ -1853,6 +1867,7 @@ namespace AttacheCase
     private Label labelPasswordStrengthConfirm;
     public ToolStripStatusLabel toolStripStatusLabelLicense;
     private Label labelPasswordSharingIfRegistered;
+    private RoundedBorderLabel roundedBorderLabelSalvageMode;
   }
 }
 

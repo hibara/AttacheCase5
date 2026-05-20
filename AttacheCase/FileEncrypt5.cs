@@ -116,7 +116,7 @@ namespace AttacheCase
     public bool fExecutable { get; set; } = false;
 
     /// <summary>自己実行形式の .NET バージョン</summary>
-    public string ExeToolVersionString { get; set; } = "4.6.2";
+    public string ExeToolVersionString { get; set; } = "4.8";
 
     /// <summary>タイムスタンプを保持するか</summary>
     public bool fKeepTimeStamp { get; set; } = false;
@@ -423,62 +423,55 @@ namespace AttacheCase
           outfs.Write(bodyNonce, 0, CryptoHelper5.AES_GCM_NONCE_SIZE);
 
           // --- 暗号化本体の書き込み ---
-          //     DeflateStream → AES-256-GCM の順でストリーム処理
-          using (var bodyPlainStream = new MemoryStream())
+          //     入力ファイル → DeflateStream → GcmEncryptingStream → outfs の
+          //     3 段ストリームパイプライン。中間バッファを持たないため、TB クラスの
+          //     データでも定数メモリ（数十 KB）で処理できる。
+          //
+          //     using の入れ子順序により、Dispose の順序は ds → gcmStream となる:
+          //     1. ds.Dispose で圧縮の終端マーカーが gcmStream に flush される
+          //     2. gcmStream.Dispose で GCM 認証タグ (16 バイト) が outfs に書き出される
+          using (var gcmStream = new GcmEncryptingStream(
+                   outfs, commonKey, bodyNonce, leaveOpen: true,
+                   progressCallback: _ => !ShouldCancel(worker)))
+          using (var ds = new DeflateStream(gcmStream, compressionLevel, leaveOpen: true))
           {
-            // まず圧縮してメモリに格納（GCM はストリーム全体を処理する必要があるため）
-            using (var ds = new DeflateStream(bodyPlainStream, compressionLevel, leaveOpen: true))
+            foreach (var path in FileList)
             {
-              foreach (var path in FileList)
+              if (!File.Exists(path) || Directory.Exists(path)) continue;
+
+              buffer = new byte[BUFFER_SIZE];
+              using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
               {
-                if (File.Exists(path) && !Directory.Exists(path))
+                int len;
+                while ((len = fs.Read(buffer, 0, BUFFER_SIZE)) > 0)
                 {
-                  buffer = new byte[BUFFER_SIZE];
-                  using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                  ds.Write(buffer, 0, len);
+                  _TotalSize += len;
+                  Interlocked.Add(ref _processedSize, len);
+
+                  // 進捗報告
+                  if (swProg.ElapsedMilliseconds > 100)
                   {
-                    int len;
-                    while ((len = fs.Read(buffer, 0, BUFFER_SIZE)) > 0)
+                    var MessageText = TotalNumberOfFiles > 1
+                      ? $"{path} ( {NumberOfFiles} / {TotalNumberOfFiles} files )"
+                      : path;
+
+                    MessageList = new ArrayList { ENCRYPTING, MessageText };
+                    var percent = (float)_processedSize / TotalFileSize;
+                    worker?.ReportProgress((int)(percent * 10000), MessageList);
+                    swProg.Restart();
+
+                    if (ShouldCancel(worker))
                     {
-                      ds.Write(buffer, 0, len);
-                      _TotalSize += len;
-                      Interlocked.Add(ref _processedSize, len);
-
-                      // 進捗報告
-                      if (swProg.ElapsedMilliseconds > 100)
-                      {
-                        var MessageText = TotalNumberOfFiles > 1
-                          ? $"{path} ( {NumberOfFiles} / {TotalNumberOfFiles} files )"
-                          : path;
-
-                        MessageList = new ArrayList { ENCRYPTING, MessageText };
-                        var percent = (float)_processedSize / TotalFileSize;
-                        worker?.ReportProgress((int)(percent * 10000), MessageList);
-                        swProg.Restart();
-
-                        if (ShouldCancel(worker))
-                        {
-                          e.Cancel = true;
-                          CryptoHelper5.SecureClear(commonKey);
-                          return false;
-                        }
-                      }
+                      e.Cancel = true;
+                      CryptoHelper5.SecureClear(commonKey);
+                      return false;
                     }
                   }
                 }
               }
-            } // DeflateStream 閉じ → 圧縮完了
-
-            // 圧縮データを AES-256-GCM で暗号化して書き込み
-            bodyPlainStream.Position = 0;
-            CryptoHelper5.AesGcmEncryptStream(
-              bodyPlainStream, outfs, commonKey, bodyNonce,
-              progressCallback: processedBytes =>
-              {
-                if (ShouldCancel(worker))
-                  return false;
-                return true;
-              });
-          }
+            }
+          } // ds → gcmStream の順で Dispose（認証タグが末尾に書き出される）
         } // outfs 閉じ
 
         // --- 共通鍵をメモリから消去 ---

@@ -410,7 +410,7 @@
     <value>NoControl</value>
   </data>
   <data name="buttonExit.Location" type="System.Drawing.Point, System.Drawing">
-    <value>627, 358</value>
+    <value>625, 356</value>
   </data>
   <data name="buttonExit.Size" type="System.Drawing.Size, System.Drawing">
     <value>75, 32</value>
@@ -835,7 +835,7 @@ ATC</value>
     <value>NoControl</value>
   </data>
   <data name="labelDragAndDrop.Location" type="System.Drawing.Point, System.Drawing">
-    <value>268, 180</value>
+    <value>267, 179</value>
   </data>
   <data name="labelDragAndDrop.Size" type="System.Drawing.Size, System.Drawing">
     <value>344, 91</value>
@@ -2186,6 +2186,42 @@ ATC</value>
   <data name="&gt;&gt;tabPageEncryptConfirm.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
+  <data name="roundedBorderLabelSalvageMode.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="roundedBorderLabelSalvageMode.ImeMode" type="System.Windows.Forms.ImeMode, System.Windows.Forms">
+    <value>NoControl</value>
+  </data>
+  <data name="roundedBorderLabelSalvageMode.Location" type="System.Drawing.Point, System.Drawing">
+    <value>98, 20</value>
+  </data>
+  <data name="roundedBorderLabelSalvageMode.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>6, 6, 6, 6</value>
+  </data>
+  <data name="roundedBorderLabelSalvageMode.Size" type="System.Drawing.Size, System.Drawing">
+    <value>88, 24</value>
+  </data>
+  <data name="roundedBorderLabelSalvageMode.TabIndex" type="System.Int32, mscorlib">
+    <value>52</value>
+  </data>
+  <data name="roundedBorderLabelSalvageMode.Text" xml:space="preserve">
+    <value>Salvage Mode</value>
+  </data>
+  <data name="roundedBorderLabelSalvageMode.Visible" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="&gt;&gt;roundedBorderLabelSalvageMode.Name" xml:space="preserve">
+    <value>roundedBorderLabelSalvageMode</value>
+  </data>
+  <data name="&gt;&gt;roundedBorderLabelSalvageMode.Type" xml:space="preserve">
+    <value>AttacheCase.RoundedBorderLabel, AttacheCase, Version=5.0.0.0, Culture=neutral, PublicKeyToken=null</value>
+  </data>
+  <data name="&gt;&gt;roundedBorderLabelSalvageMode.Parent" xml:space="preserve">
+    <value>panelDecrypt</value>
+  </data>
+  <data name="&gt;&gt;roundedBorderLabelSalvageMode.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
   <data name="textBoxDecryptPassword.Font" type="System.Drawing.Font, System.Drawing">
     <value>メイリオ, 9.75pt</value>
   </data>
@@ -2211,7 +2247,7 @@ ATC</value>
     <value>panelDecrypt</value>
   </data>
   <data name="&gt;&gt;textBoxDecryptPassword.ZOrder" xml:space="preserve">
-    <value>0</value>
+    <value>1</value>
   </data>
   <data name="pictureBoxDecryptBackButton.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Top, Right</value>
@@ -2250,7 +2286,7 @@ ATC</value>
     <value>panelDecrypt</value>
   </data>
   <data name="&gt;&gt;pictureBoxDecryptBackButton.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>2</value>
   </data>
   <data name="labelDecryption.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Left, Right</value>
@@ -2364,7 +2400,7 @@ ATC</value>
     <value>panelDecrypt</value>
   </data>
   <data name="&gt;&gt;panelSidebarDecrypt.ZOrder" xml:space="preserve">
-    <value>2</value>
+    <value>3</value>
   </data>
   <data name="checkBoxDeleteAtcFileAfterDecryption.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Left, Right</value>
@@ -2400,7 +2436,7 @@ ATC</value>
     <value>panelDecrypt</value>
   </data>
   <data name="&gt;&gt;checkBoxDeleteAtcFileAfterDecryption.ZOrder" xml:space="preserve">
-    <value>3</value>
+    <value>4</value>
   </data>
   <data name="buttonDecryptCancel.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Bottom, Right</value>
@@ -2433,7 +2469,7 @@ ATC</value>
     <value>panelDecrypt</value>
   </data>
   <data name="&gt;&gt;buttonDecryptCancel.ZOrder" xml:space="preserve">
-    <value>4</value>
+    <value>5</value>
   </data>
   <data name="buttonDecryptStart.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Bottom, Right</value>
@@ -2466,7 +2502,7 @@ ATC</value>
     <value>panelDecrypt</value>
   </data>
   <data name="&gt;&gt;buttonDecryptStart.ZOrder" xml:space="preserve">
-    <value>5</value>
+    <value>6</value>
   </data>
   <data name="labelDecryptionPassword.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
     <value>Left, Right</value>
@@ -2502,7 +2538,7 @@ ATC</value>
     <value>panelDecrypt</value>
   </data>
   <data name="&gt;&gt;labelDecryptionPassword.ZOrder" xml:space="preserve">
-    <value>6</value>
+    <value>7</value>
   </data>
   <data name="panelDecrypt.Dock" type="System.Windows.Forms.DockStyle, System.Windows.Forms">
     <value>Fill</value>
@@ -3516,10 +3552,10 @@ Encrypt</value>
     <value>NoControl</value>
   </data>
   <data name="progressBarPostPpap.Location" type="System.Drawing.Point, System.Drawing">
-    <value>99, 382</value>
+    <value>99, 381</value>
   </data>
   <data name="progressBarPostPpap.Size" type="System.Drawing.Size, System.Drawing">
-    <value>699, 10</value>
+    <value>697, 10</value>
   </data>
   <data name="progressBarPostPpap.TabIndex" type="System.Int32, mscorlib">
     <value>24</value>
@@ -3549,10 +3585,10 @@ Encrypt</value>
     <value>NoControl</value>
   </data>
   <data name="labelPostPpapStatus.Location" type="System.Drawing.Point, System.Drawing">
-    <value>99, 333</value>
+    <value>99, 332</value>
   </data>
   <data name="labelPostPpapStatus.Size" type="System.Drawing.Size, System.Drawing">
-    <value>699, 46</value>
+    <value>697, 46</value>
   </data>
   <data name="labelPostPpapStatus.TabIndex" type="System.Int32, mscorlib">
     <value>23</value>
@@ -3583,7 +3619,7 @@ Encrypt</value>
     <value>NoControl</value>
   </data>
   <data name="buttonRegisterYourMailAddress.Location" type="System.Drawing.Point, System.Drawing">
-    <value>683, 289</value>
+    <value>681, 288</value>
   </data>
   <data name="buttonRegisterYourMailAddress.Size" type="System.Drawing.Size, System.Drawing">
     <value>115, 28</value>
@@ -3619,7 +3655,7 @@ Encrypt</value>
     <value>NoControl</value>
   </data>
   <data name="labelYourMailAddress.Location" type="System.Drawing.Point, System.Drawing">
-    <value>100, 228</value>
+    <value>100, 227</value>
   </data>
   <data name="labelYourMailAddress.Size" type="System.Drawing.Size, System.Drawing">
     <value>130, 23</value>
@@ -3649,10 +3685,10 @@ Encrypt</value>
     <value>メイリオ, 9.75pt</value>
   </data>
   <data name="textBoxYourMailAddress.Location" type="System.Drawing.Point, System.Drawing">
-    <value>100, 257</value>
+    <value>100, 256</value>
   </data>
   <data name="textBoxYourMailAddress.Size" type="System.Drawing.Size, System.Drawing">
-    <value>698, 27</value>
+    <value>696, 27</value>
   </data>
   <data name="textBoxYourMailAddress.TabIndex" type="System.Int32, mscorlib">
     <value>20</value>
@@ -3682,7 +3718,7 @@ Encrypt</value>
     <value>96, 87</value>
   </data>
   <data name="labelPpapDescription.Size" type="System.Drawing.Size, System.Drawing">
-    <value>629, 161</value>
+    <value>627, 161</value>
   </data>
   <data name="labelPpapDescription.TabIndex" type="System.Int32, mscorlib">
     <value>19</value>
@@ -4155,7 +4191,7 @@ Encrypt</value>
     <value>NoControl</value>
   </data>
   <data name="pictureBoxValidDetails.Location" type="System.Drawing.Point, System.Drawing">
-    <value>104, 116</value>
+    <value>104, 115</value>
   </data>
   <data name="pictureBoxValidDetails.Size" type="System.Drawing.Size, System.Drawing">
     <value>16, 16</value>
@@ -4231,7 +4267,7 @@ Encrypt</value>
     <value>NoControl</value>
   </data>
   <data name="pictureBoxValid.Location" type="System.Drawing.Point, System.Drawing">
-    <value>104, 94</value>
+    <value>104, 93</value>
   </data>
   <data name="pictureBoxValid.Size" type="System.Drawing.Size, System.Drawing">
     <value>16, 16</value>
@@ -4267,7 +4303,7 @@ Encrypt</value>
     <value>NoControl</value>
   </data>
   <data name="buttonPuclicMailAddressSearch.Location" type="System.Drawing.Point, System.Drawing">
-    <value>713, 90</value>
+    <value>711, 89</value>
   </data>
   <data name="buttonPuclicMailAddressSearch.Size" type="System.Drawing.Size, System.Drawing">
     <value>84, 29</value>
@@ -4303,7 +4339,7 @@ Encrypt</value>
     <value>NoControl</value>
   </data>
   <data name="labelRecipientMailAddress.Location" type="System.Drawing.Point, System.Drawing">
-    <value>100, 31</value>
+    <value>100, 30</value>
   </data>
   <data name="labelRecipientMailAddress.Size" type="System.Drawing.Size, System.Drawing">
     <value>132, 20</value>
@@ -4333,10 +4369,10 @@ Encrypt</value>
     <value>メイリオ, 11.25pt</value>
   </data>
   <data name="textBoxPuclicRecipientMailAddress.Location" type="System.Drawing.Point, System.Drawing">
-    <value>104, 54</value>
+    <value>104, 53</value>
   </data>
   <data name="textBoxPuclicRecipientMailAddress.Size" type="System.Drawing.Size, System.Drawing">
-    <value>693, 30</value>
+    <value>691, 30</value>
   </data>
   <data name="textBoxPuclicRecipientMailAddress.TabIndex" type="System.Int32, mscorlib">
     <value>33</value>
@@ -4369,7 +4405,7 @@ Encrypt</value>
     <value>NoControl</value>
   </data>
   <data name="pictureBoxPostPpapBackButton.Location" type="System.Drawing.Point, System.Drawing">
-    <value>757, 23</value>
+    <value>755, 23</value>
   </data>
   <data name="pictureBoxPostPpapBackButton.Size" type="System.Drawing.Size, System.Drawing">
     <value>40, 40</value>

@@ -1539,7 +1539,7 @@
     <value>27</value>
   </data>
   <data name="label4.Text" xml:space="preserve">
-    <value>Older operating systems (Windows 7, 8, Vista, XP, etc.) that do not have .NET Framework 4.6.2 installed can also be decrypted reliably, but are not supported.</value>
+    <value>Older operating systems (Windows 7, Vista, XP, etc.) that do not have .NET Framework 4.8 installed can also be decrypted reliably, but are not supported.</value>
   </data>
   <data name="&gt;&gt;label4.Name" xml:space="preserve">
     <value>label4</value>

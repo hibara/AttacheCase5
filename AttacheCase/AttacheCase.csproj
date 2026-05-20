@@ -141,6 +141,7 @@
     <Compile Include="CommonSrc\Iso8859Dash1Encoding.cs" />
     <Compile Include="Crc32Utility.cs" />
     <Compile Include="CryptoHelper5.cs" />
+    <Compile Include="CryptoStream5.cs" />
     <Compile Include="CustomControl\CustomDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -160,6 +161,9 @@
     <Compile Include="FileDecrypt2.cs" />
     <Compile Include="FileDecrypt5.cs" />
     <Compile Include="FileEncrypt5.cs" />
+    <Compile Include="RoundedBorderLabel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="RoundtripTest.cs" />
     <Compile Include="FluentAccordion.cs">
       <SubType>Component</SubType>
@@ -190,12 +194,6 @@
     </Compile>
     <Compile Include="Form4.Designer.cs">
       <DependentUpon>Form4.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Form5.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Form5.Designer.cs">
-      <DependentUpon>Form5.cs</DependentUpon>
     </Compile>
     <Compile Include="IniSecurityManager.cs" />
     <Compile Include="LicenseRegister.cs" />
@@ -258,9 +256,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Form4.resx">
       <DependentUpon>Form4.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Form5.resx">
-      <DependentUpon>Form5.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.ja-JP.resx">
       <SubType>Designer</SubType>

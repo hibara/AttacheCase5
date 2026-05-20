@@ -224,9 +224,6 @@ namespace AttacheCase
     private int FileIndex = 0;
     private List<string> OutputFileList = new List<string>();
 
-    // Developer Console window
-    private Form5 frm5 = null;
-
     private TaskbarProgress _taskbarProgress;
 
     public sealed override Color BackColor
@@ -314,6 +311,18 @@ namespace AttacheCase
     /// </summary>
     /// <param name="sender"></param>
     /// <param name="e"></param>
+
+    /// <summary>
+    /// サルベージモードインジケータ (panelDecrypt 上の緑色枠ラベル) の表示状態を
+    /// 現在の AppSettings に基づいて更新する。
+    /// 3つのサルベージ系オプションのいずれかが ON ならラベルを表示、全 OFF なら非表示。
+    /// Form1_Load および設定ダイアログ (Form3) からの復帰時に呼び出すこと。
+    /// </summary>
+    private void UpdateSalvageModeIndicator()
+    {
+      roundedBorderLabelSalvageMode.Visible = AppSettings.Instance.IsSalvageMode;
+    }
+
     private void Form1_Load(object sender, EventArgs e)
     {
       tabControl1.Dock = DockStyle.Fill;
@@ -380,6 +389,10 @@ namespace AttacheCase
         // Adjust invalid window form position
         this.Top = AppSettings.Instance.FormTop;
       }
+
+      // サルベージモードインジケータの初期表示状態を反映
+      // (前回起動時にサルベージ系オプションを ON のまま終了したケースに対応)
+      UpdateSalvageModeIndicator();
 
       StartProcess();
 
@@ -1818,12 +1831,6 @@ namespace AttacheCase
 
             FileIndex++;
 
-            if (AppSettings.Instance.fDeveloperConsole == true)
-            {
-              toolStripStatusLabelEncryptionTime.Visible = true;
-              toolStripStatusLabelEncryptionTime.Text = @"Encryption Time : " + encryption5.EncryptionTimeString;
-            }
-
             // One more encryption
             if (FileIndex < AppSettings.Instance.FileList.Count)
             {
@@ -2175,13 +2182,6 @@ namespace AttacheCase
           else
           {
             OutputFileList.AddRange(decryption4.OutputFileList);
-          }
-
-          //-----------------------------------
-          // Developer mode
-          if (AppSettings.Instance.fDeveloperConsole == true)
-          {
-            showDeveloperConsoleWindowDecrypt();
           }
 
           //-----------------------------------
@@ -2857,6 +2857,10 @@ namespace AttacheCase
         frm3.ShowDialog(this);
         frm3.Dispose();
 
+        // 設定ダイアログでサルベージ系オプションが変更された可能性があるためインジケータを更新
+        // (チェック全 OFF にしたら出しっぱなしにならず確実に消えるよう、毎回再評価する)
+        UpdateSalvageModeIndicator();
+
         ClearAllChecked();
         if (AppSettings.Instance.EncryptionSameFileTypeAlways == 1)
         {
@@ -3119,10 +3123,18 @@ namespace AttacheCase
         else
         {
           // Encryption
-
-          ProcessType = AppSettings.Instance.EncryptionSameFileTypeBefore;
-
-          if (AppSettings.Instance.EncryptionSameFileTypeAlways == FILE_TYPE_ATC)
+          // Priority: EncryptionSameFileTypeAlways > EncryptionSameFileTypeBefore > DetectFileType
+          //
+          // 例外: panelRsa / panelRsaKey が表示中の場合、ユーザーは明示的に RSA 暗号化（または復号）
+          // の操作中なので、「常に同じファイル形式で暗号化する」設定（EncryptionSameFileTypeAlways）は
+          // 無視して DetectFileType() の結果をそのまま採用する。
+          // これにより、例えば「常に ATC で暗号化」設定で panelRsa を開き公開鍵をドロップしても、
+          // ATC 分岐に誤って流れてエラーになる挙動を回避する。
+          if (panelRsa.Visible == true || panelRsaKey.Visible == true)
+          {
+            // ProcessType は DetectFileType() の結果のまま使用
+          }
+          else if (AppSettings.Instance.EncryptionSameFileTypeAlways == FILE_TYPE_ATC)
           {
             ProcessType = PROCESS_TYPE_ATC;
           }
@@ -3130,13 +3142,18 @@ namespace AttacheCase
           {
             ProcessType = PROCESS_TYPE_ATC_EXE;
           }
-          //else if (AppSettings.Instance.EncryptionSameFileTypeAlways == PROCESS_TYPE_PASSWORD_ZIP)
-          //{
-          //  ProcessType = PROCESS_TYPE_PASSWORD_ZIP;
-          //}
+          else if (AppSettings.Instance.EncryptionSameFileTypeAlways == PROCESS_TYPE_PASSWORD_ZIP)
+          {
+            ProcessType = PROCESS_TYPE_PASSWORD_ZIP;
+          }
           else if (AppSettings.Instance.EncryptionSameFileTypeAlways == PROCESS_TYPE_DECRYPTION)
           {
             ProcessType = PROCESS_TYPE_RSA_ENCRYPTION;
+          }
+          else if (AppSettings.Instance.fEncryptionSameFileTypeBefore == true &&
+                   AppSettings.Instance.EncryptionSameFileTypeBefore > 0)
+          {
+            ProcessType = AppSettings.Instance.EncryptionSameFileTypeBefore;
           }
           else
           {
@@ -3742,40 +3759,30 @@ namespace AttacheCase
       this.AcceptButton = null;
       this.CancelButton = buttonExit;
 
-      // File type for encryption. 
+      ClearAllChecked();
+
+      // Highlight the sidebar icon for the file type that will be used next.
+      // Priority: EncryptionSameFileTypeAlways > EncryptionSameFileTypeBefore
+      int highlightFileType = 0;
       if (AppSettings.Instance.EncryptionSameFileTypeAlways > 0)
       {
+        highlightFileType = AppSettings.Instance.EncryptionSameFileTypeAlways;
       }
-      else if (AppSettings.Instance.EncryptionSameFileTypeBefore > 0)
+      else if (AppSettings.Instance.fEncryptionSameFileTypeBefore == true &&
+               AppSettings.Instance.EncryptionSameFileTypeBefore > 0)
       {
-      }
-      else
-      {
+        highlightFileType = AppSettings.Instance.EncryptionSameFileTypeBefore;
       }
 
-      ClearAllChecked();
-      // Encryption will be the same file type always.
-      if (AppSettings.Instance.EncryptionSameFileTypeAlways == 1)
+      if (highlightFileType == FILE_TYPE_ATC)
       {
         _atcChecked = true;
       }
-      else if (AppSettings.Instance.EncryptionSameFileTypeAlways == 2)
+      else if (highlightFileType == FILE_TYPE_ATC_EXE)
       {
         _exeChecked = true;
       }
-      else if (AppSettings.Instance.EncryptionSameFileTypeAlways == 3)
-      {
-        _rsaChecked = true;
-      }
-      else if (AppSettings.Instance.EncryptionSameFileTypeBefore == 1)
-      {
-        _atcChecked = true;
-      }
-      else if (AppSettings.Instance.EncryptionSameFileTypeBefore == 2)
-      {
-        _exeChecked = true;
-      }
-      else if (AppSettings.Instance.EncryptionSameFileTypeBefore == 3)
+      else if (highlightFileType == FILE_TYPE_PASSWORD_ZIP)
       {
         _rsaChecked = true;
       }
@@ -3857,9 +3864,11 @@ namespace AttacheCase
       }
       // Save same encryption type that was used to before.
       // 前に使った暗号化ファイルの種類にする
-      else if (AppSettings.Instance.EncryptionFileType == 0 && AppSettings.Instance.EncryptionSameFileTypeBefore > 0)
+      else if (AppSettings.Instance.EncryptionFileType == 0 &&
+               AppSettings.Instance.fEncryptionSameFileTypeBefore == true &&
+               AppSettings.Instance.EncryptionSameFileTypeBefore > 0)
       {
-        AppSettings.Instance.EncryptionFileType = AppSettings.Instance.EncryptionFileType;
+        AppSettings.Instance.EncryptionFileType = AppSettings.Instance.EncryptionSameFileTypeBefore;
       }
 
       // Select file type
@@ -4302,54 +4311,242 @@ namespace AttacheCase
 
     private void textBoxPassword_TextChanged(object sender, EventArgs e)
     {
-      if (!AppSettings.Instance.fPasswordStrengthMeter) return;
-
-      var password = textBoxPassword.Text;
-      if (string.IsNullOrEmpty(password))
+      if (AppSettings.Instance.MyEncryptPasswordBinary != null)
       {
-        labelPasswordStrength.Text = "";
-        pictureBoxPassStrengthMeter.Image = null;
+        textBoxPassword.Enabled = false;
+        textBoxRePassword.Enabled = false;
+        textBoxPassword.BackColor = SystemColors.ButtonFace;
+        textBoxRePassword.BackColor = SystemColors.ButtonFace;
         return;
       }
 
-      var zxcvbn = new Zxcvbn.Zxcvbn();
-      var result = zxcvbn.EvaluatePassword(password);
-      var score = result.Score;
-
-      // スコアに応じたラベルと色
-      string strengthText;
-      Color labelColor;
-      switch (score)
+      // Processing while a memorized password is input.
+      if (AppSettings.Instance.fMyEncryptPasswordKeep)
       {
-        case 0:
-          strengthText = "非常に弱い";
-          labelColor = Color.FromArgb(220, 50, 50);
-          pictureBoxPassStrengthMeter.Image = pictureBoxPasswordStrength00.Image;
-          break;
-        case 1:
-          strengthText = "弱い";
-          labelColor = Color.FromArgb(240, 130, 30);
-          pictureBoxPassStrengthMeter.Image = pictureBoxPasswordStrength01.Image;
-          break;
-        case 2:
-          strengthText = "普通";
-          labelColor = Color.FromArgb(220, 200, 30);
-          pictureBoxPassStrengthMeter.Image = pictureBoxPasswordStrength02.Image;
-          break;
-        case 3:
-          strengthText = "強い";
-          labelColor = Color.FromArgb(100, 180, 60);
-          pictureBoxPassStrengthMeter.Image = pictureBoxPasswordStrength03.Image;
-          break;
-        default:
-          strengthText = "非常に強い";
-          labelColor = Color.FromArgb(40, 160, 40);
-          pictureBoxPassStrengthMeter.Image = pictureBoxPasswordStrength04.Image;
-          break;
+        if (textBoxPassword.Text != AppSettings.Instance.MyEncryptPasswordString)
+        {
+          // "記憶パスワードを破棄して新しいパスワードを入力する："
+          // "Discard memorized password and input new password:"
+          labelPassword.Text = Resources.LabelPasswordInputNewPassword;
+        }
+        else
+        {
+          // "記憶パスワード："
+          // "The memorized password:"
+          labelPassword.Text = Resources.LabelPasswordMemorized;
+        }
       }
 
-      labelPasswordStrength.Text = strengthText;
-      labelPasswordStrength.ForeColor = labelColor;
+      textBoxPassword.Enabled = true;
+      textBoxRePassword.Enabled = true;
+
+      // Password Strength meter ( zxcvbn )
+      if (pictureBoxPassStrengthMeter.Visible)
+      {
+        var zxcvbn = new Zxcvbn.Zxcvbn();
+        var result = zxcvbn.EvaluatePassword(textBoxPassword.Text);
+
+        switch (result.Score)
+        {
+          case 0:
+            if (textBoxPassword.Text == "")
+            {
+              pictureBoxPassStrengthMeter.Image = pictureBoxPasswordStrengthEmpty.Image;
+              labelPasswordStrength.Text = Resources.ZxcvbnLabelEmpty;
+            }
+            else
+            {
+              pictureBoxPassStrengthMeter.Image = pictureBoxPasswordStrengthEmpty.Image;
+              labelPasswordStrength.Text = Resources.ZxcvbnLabel00;
+            }
+            break;
+
+          case 1:
+            pictureBoxPassStrengthMeter.Image = pictureBoxPasswordStrength01.Image;
+            labelPasswordStrength.Text = Resources.ZxcvbnLabel01;
+            break;
+
+          case 2:
+            pictureBoxPassStrengthMeter.Image = pictureBoxPasswordStrength02.Image;
+            labelPasswordStrength.Text = Resources.ZxcvbnLabel02;
+            break;
+
+          case 3:
+            pictureBoxPassStrengthMeter.Image = pictureBoxPasswordStrength03.Image;
+            labelPasswordStrength.Text = Resources.ZxcvbnLabel03;
+            break;
+
+          case 4:
+            pictureBoxPassStrengthMeter.Image = pictureBoxPasswordStrength04.Image;
+            labelPasswordStrength.Text = Resources.ZxcvbnLabel04;
+            break;
+
+          default:
+            pictureBoxPassStrengthMeter.Image = pictureBoxPasswordStrengthEmpty.Image;
+            labelPasswordStrength.Text = Resources.ZxcvbnLabel00;
+            break;
+        }
+
+        toolTipZxcvbnWarning.ToolTipTitle = Resources.ZxcvbnToolTipTitleWarning;
+        switch (result.warning)
+        {
+          case Zxcvbn.Warning.StraightRow:
+            toolTipZxcvbnWarning.SetToolTip(labelPasswordStrength, Resources.ZxcvbnWarningStraightRow);
+            break;
+          case Zxcvbn.Warning.ShortKeyboardPatterns:
+            toolTipZxcvbnWarning.SetToolTip(labelPasswordStrength, Resources.ZxcvbnWarningShortKeyboardPatterns);
+            break;
+          case Zxcvbn.Warning.RepeatsLikeAaaEasy:
+            toolTipZxcvbnWarning.SetToolTip(labelPasswordStrength, Resources.ZxcvbnWarningRepeatsLikeAaaEasy);
+            break;
+          case Zxcvbn.Warning.RepeatsLikeAbcSlighterHarder:
+            toolTipZxcvbnWarning.SetToolTip(labelPasswordStrength, Resources.ZxcvbnWarningRepeatsLikeAbcSlighterHarder);
+            break;
+          case Zxcvbn.Warning.SequenceAbcEasy:
+            toolTipZxcvbnWarning.SetToolTip(labelPasswordStrength, Resources.ZxcvbnWarningSequenceAbcEasy);
+            break;
+          case Zxcvbn.Warning.RecentYearsEasy:
+            toolTipZxcvbnWarning.SetToolTip(labelPasswordStrength, Resources.ZxcvbnWarningRecentYearsEasy);
+            break;
+          case Zxcvbn.Warning.DatesEasy:
+            toolTipZxcvbnWarning.SetToolTip(labelPasswordStrength, Resources.ZxcvbnWarningDatesEasy);
+            break;
+          case Zxcvbn.Warning.Top10Passwords:
+            toolTipZxcvbnWarning.SetToolTip(labelPasswordStrength, Resources.ZxcvbnWarningTop10Passwords);
+            break;
+          case Zxcvbn.Warning.CommonPasswords:
+            toolTipZxcvbnWarning.SetToolTip(labelPasswordStrength, Resources.ZxcvbnWarningCommonPasswords);
+            break;
+          case Zxcvbn.Warning.SimilarCommonPasswords:
+            toolTipZxcvbnWarning.SetToolTip(labelPasswordStrength, Resources.ZxcvbnWarningSimilarCommonPasswords);
+            break;
+          case Zxcvbn.Warning.WordEasy:
+            toolTipZxcvbnWarning.SetToolTip(labelPasswordStrength, Resources.ZxcvbnWarningWordEasy);
+            break;
+          case Zxcvbn.Warning.NameSurnamesEasy:
+            toolTipZxcvbnWarning.SetToolTip(labelPasswordStrength, Resources.ZxcvbnWarningNameSurnamesEasy);
+            break;
+          case Zxcvbn.Warning.CommonNameSurnamesEasy:
+            toolTipZxcvbnWarning.SetToolTip(labelPasswordStrength, Resources.ZxcvbnWarningCommonNameSurnamesEasy);
+            break;
+          case Zxcvbn.Warning.Empty:
+            if (textBoxPassword.Text == "")
+            {
+              toolTipZxcvbnWarning.SetToolTip(labelPasswordStrength, Resources.ZxcvbnWarningEmpty);
+            }
+            else
+            {
+              toolTipZxcvbnWarning.ToolTipTitle = "";
+            }
+            break;
+          case Zxcvbn.Warning.Default:
+          case Zxcvbn.Warning.Top100Passwords:
+          default:
+            toolTipZxcvbnWarning.ToolTipTitle = "";
+            break;
+        }
+
+        toolTipZxcvbnWarning.Active = toolTipZxcvbnWarning.ToolTipTitle != "";
+
+        toolTipZxcvbnSuggestions.ToolTipTitle = Resources.ZxcvbnToolTipTitleSuggestions;
+        var suggestionsList = "";
+        for (var i = 0; i < result.suggestions.Count; i++)
+        {
+          var suggestionText = "";
+          switch (result.suggestions[i])
+          {
+            case Zxcvbn.Suggestion.AddAnotherWordOrTwo:
+              suggestionText = Resources.ZxcvbnSuggestionAddAnotherWordOrTwo;
+              break;
+            case Zxcvbn.Suggestion.UseLongerKeyboardPattern:
+              suggestionText = Resources.ZxcvbnSuggestionUseLongerKeyboardPattern;
+              break;
+            case Zxcvbn.Suggestion.AvoidRepeatedWordsAndChars:
+              suggestionText = Resources.ZxcvbnSuggestionAvoidRepeatedWordsAndChars;
+              break;
+            case Zxcvbn.Suggestion.AvoidSequences:
+              suggestionText = Resources.ZxcvbnSuggestionAvoidSequences;
+              break;
+            case Zxcvbn.Suggestion.AvoidYearsAssociatedYou:
+              suggestionText = Resources.ZxcvbnSuggestionAvoidYearsAssociatedYou;
+              break;
+            case Zxcvbn.Suggestion.AvoidDatesYearsAssociatedYou:
+              suggestionText = Resources.ZxcvbnSuggestionAvoidDatesYearsAssociatedYou;
+              break;
+            case Zxcvbn.Suggestion.CapsDontHelp:
+              suggestionText = Resources.ZxcvbnSuggestionCapsDontHelp;
+              break;
+            case Zxcvbn.Suggestion.AllCapsEasy:
+              suggestionText = Resources.ZxcvbnSuggestionAllCapsEasy;
+              break;
+            case Zxcvbn.Suggestion.ReversedWordEasy:
+              suggestionText = Resources.ZxcvbnSuggestionReversedWordEasy;
+              break;
+            case Zxcvbn.Suggestion.PredictableSubstitutionsEasy:
+              suggestionText = Resources.ZxcvbnSuggestionPredictableSubstitutionsEasy;
+              break;
+            case Zxcvbn.Suggestion.Empty:
+              if (textBoxPassword.Text == "")
+              {
+                suggestionText = Resources.ZxcvbnSuggestionEmpty;
+              }
+              break;
+            case Zxcvbn.Suggestion.Default:
+              suggestionText = Resources.ZxcvbnSuggestionDefault;
+              break;
+            default:
+              throw new ArgumentOutOfRangeException();
+          }
+          if (suggestionText != "")
+          {
+            suggestionsList = suggestionsList + "- " + suggestionText + "\r\n";
+          }
+        }
+
+        if (suggestionsList == "")
+        {
+          toolTipZxcvbnSuggestions.SetToolTip(pictureBoxPassStrengthMeter, "");
+          toolTipZxcvbnSuggestions.Active = false;
+        }
+        else
+        {
+          toolTipZxcvbnSuggestions.SetToolTip(pictureBoxPassStrengthMeter, suggestionsList);
+          toolTipZxcvbnSuggestions.Active = true;
+        }
+      }
+    }
+
+    /// <summary>
+    /// labelPasswordStrength のテキストが変わって AutoSize で Width が確定したタイミングで、
+    /// pictureBoxPassStrengthMeter の中央に揃える。
+    /// テキストがメーターの右端を越える長さの場合は右端寄せにフォールバックする。
+    /// </summary>
+    private void labelPasswordStrength_TextChanged(object sender, EventArgs e)
+    {
+      // InitializeComponent 中の発火を弾く（pictureBox がまだ未配置）
+      if (!IsHandleCreated) return;
+
+      // BeginInvoke で AutoSize の Width 確定後に位置調整
+      BeginInvoke(new Action(RecenterLabelPasswordStrength));
+    }
+
+    /// <summary>
+    /// フォームリサイズ等でメーター位置が動いたとき、ラベルも追従させる。
+    /// </summary>
+    private void pictureBoxPassStrengthMeter_LocationChanged(object sender, EventArgs e)
+    {
+      if (!IsHandleCreated) return;
+      RecenterLabelPasswordStrength();
+    }
+
+    /// <summary>
+    /// labelPasswordStrength の文字中心を pictureBoxPassStrengthMeter の中心に揃える。
+    /// </summary>
+    private void RecenterLabelPasswordStrength()
+    {
+      labelPasswordStrength.Refresh();
+      labelPasswordStrength.Top = pictureBoxPassStrengthMeter.Top - labelPasswordStrength.Height - 4;
+      labelPasswordStrength.Left = pictureBoxPassStrengthMeter.Left + pictureBoxPassStrengthMeter.Width / 2 - labelPasswordStrength.Width / 2;
     }
 
     private void textBoxPassword_DragEnter(object sender, DragEventArgs e)
@@ -4777,7 +4974,10 @@ namespace AttacheCase
       //-----------------------------------
       // Save same encryption type that was used to before.
       //-----------------------------------
-      AppSettings.Instance.EncryptionSameFileTypeBefore = AppSettings.Instance.EncryptionFileType;
+      if (AppSettings.Instance.fEncryptionSameFileTypeBefore == true)
+      {
+        AppSettings.Instance.EncryptionSameFileTypeBefore = AppSettings.Instance.EncryptionFileType;
+      }
 
       //-----------------------------------
       // Get directory path to output
@@ -5051,7 +5251,7 @@ namespace AttacheCase
           }
           else
           {
-            encryption5.ExeToolVersionString = "4.6.2";
+            encryption5.ExeToolVersionString = "4.8";
             ExeOutSize = FileEncrypt5.ExeOutFileSize[1];
           }
 
@@ -5387,7 +5587,7 @@ namespace AttacheCase
           }
           else
           {
-            encryption5.ExeToolVersionString = "4.6.2";
+            encryption5.ExeToolVersionString = "4.8";
             ExeOutSize = FileEncrypt5.ExeOutFileSize[1];
           }
 
@@ -5725,7 +5925,7 @@ namespace AttacheCase
           }
           else
           {
-            encryption5.ExeToolVersionString = "4.6.2";
+            encryption5.ExeToolVersionString = "4.8";
             ExeOutSize = FileEncrypt5.ExeOutFileSize[1];
           }
 
@@ -6555,7 +6755,11 @@ namespace AttacheCase
         {
           LimitOfInputPassword = decryption3.MissTypeLimits;
         }
-        decryption3.fSalvageIgnoreHashCheck = AppSettings.Instance.fSalvageIgnoreHashCheck;
+        // サルベージ系オプションを復号エンジンに引き渡す
+        // (これまで fSalvageIgnoreHashCheck しか渡しておらず、他2つは UI 上の死に設定になっていた)
+        decryption3.fSalvageToCreateParentFolderOneByOne = AppSettings.Instance.fSalvageToCreateParentFolderOneByOne;
+        decryption3.fSalvageIntoSameDirectory            = AppSettings.Instance.fSalvageIntoSameDirectory;
+        decryption3.fSalvageIgnoreHashCheck              = AppSettings.Instance.fSalvageIgnoreHashCheck;
         toolStripStatusLabelDataVersion.Text = @"Data ver.3";
         this.Update();
 
@@ -6601,7 +6805,11 @@ namespace AttacheCase
         {
           LimitOfInputPassword = decryption4.MissTypeLimits;
         }
-        decryption4.fSalvageIgnoreHashCheck = AppSettings.Instance.fSalvageIgnoreHashCheck;
+        // サルベージ系オプションを復号エンジンに引き渡す
+        // (これまで fSalvageIgnoreHashCheck しか渡しておらず、他2つは UI 上の死に設定になっていた)
+        decryption4.fSalvageToCreateParentFolderOneByOne = AppSettings.Instance.fSalvageToCreateParentFolderOneByOne;
+        decryption4.fSalvageIntoSameDirectory            = AppSettings.Instance.fSalvageIntoSameDirectory;
+        decryption4.fSalvageIgnoreHashCheck              = AppSettings.Instance.fSalvageIgnoreHashCheck;
         toolStripStatusLabelDataVersion.Text = @"Data ver.4";
         this.Update();
 
@@ -6649,7 +6857,11 @@ namespace AttacheCase
         {
           LimitOfInputPassword = decryption5.MissTypeLimits;
         }
-        decryption5.fSalvageIgnoreHashCheck = AppSettings.Instance.fSalvageIgnoreHashCheck;
+        // サルベージ系オプションを復号エンジンに引き渡す
+        // (これまで fSalvageIgnoreHashCheck しか渡しておらず、他2つは UI 上の死に設定になっていた)
+        decryption5.fSalvageToCreateParentFolderOneByOne = AppSettings.Instance.fSalvageToCreateParentFolderOneByOne;
+        decryption5.fSalvageIntoSameDirectory            = AppSettings.Instance.fSalvageIntoSameDirectory;
+        decryption5.fSalvageIgnoreHashCheck              = AppSettings.Instance.fSalvageIgnoreHashCheck;
         toolStripStatusLabelDataVersion.Text = @"Data ver.5";
         this.Update();
 
@@ -7077,69 +7289,6 @@ namespace AttacheCase
         return (false);
       }
     }
-
-    //======================================================================
-    /// <summary>
-    /// 開発用ディベロッパーコンソールウィンドウの表示と復号ファイルのヘッダ情報の表示
-    /// Display the Developer Console window for development and 
-    /// display header information of decrypted file
-    /// </summary>
-    /// <returns></returns>
-    //======================================================================
-    private void showDeveloperConsoleWindowDecrypt()
-    {
-      if (frm5 == null || frm5.IsDisposed)
-      {
-        frm5 = new Form5();
-      }
-      frm5.Show();
-
-      if (AppSettings.Instance.DeveloperConsolePosX < 0 || AppSettings.Instance.DeveloperConsolePosY < 0)
-      {
-        // 位置がマイナス値の場合（デフォルト値も含む）は、画面中央に表示する
-        frm5.Left = Screen.GetBounds(this).Width / 2 - AppSettings.Instance.DeveloperConsoleWidth / 2;
-        frm5.Top = Screen.GetBounds(this).Height / 2 - AppSettings.Instance.DeveloperConsoleHeight / 2;
-      }
-      else
-      {
-        frm5.Left = AppSettings.Instance.DeveloperConsolePosX;
-        frm5.Top = AppSettings.Instance.DeveloperConsolePosY;
-      }
-
-      frm5.Width = AppSettings.Instance.DeveloperConsoleWidth;
-      frm5.Height = AppSettings.Instance.DeveloperConsoleHeight;
-
-      if (decryption3 != null)
-      {
-        // AttacheCase3 data
-        Form5.Instance.textBoxAppFileVersionText = decryption3.DataFileVersion.ToString();
-        Form5.Instance.textBrokenText3 = decryption3.fBroken.ToString();
-        Form5.Instance.textBoxFileSignature3Text = decryption3.TokenStr;
-        Form5.Instance.textBoxMissTypeLimit3Text = ((int)decryption3.MissTypeLimits).ToString();
-        Form5.Instance.textBoxDataFileVersion3Text = decryption3.DataFileVersion.ToString();
-        Form5.Instance.textBoxAtcHeaderSizeText = decryption3.AtcHeaderSize.ToString();
-        Form5.Instance.textSaltText = BitConverter.ToString(decryption3.salt).Replace("-", string.Empty);
-        Form5.Instance.textBoxRfc2898DeriveBytesText = BitConverter.ToString(decryption3.deriveBytes.GetBytes(32)).Replace("-", string.Empty);
-        Form5.Instance.textBoxOutputFileListText = string.Join(", ", decryption3.FileList.ToArray());
-        Form5.Instance.toolStripStatusLabelDecryptionTimeText = "Decryption Time: " + decryption3.DecryptionTimeString;
-      }
-      else if (decryption2 != null)
-      {
-        // AttacheCase2 data
-        Form5.Instance.textBoxDataSubVersionText = decryption2.DataSebVersion.ToString();
-        Form5.Instance.textBoxReservedText = BitConverter.ToString(decryption2.reserved);
-        Form5.Instance.textBoxMissTypeLimit2Text = ((int)decryption2.MissTypeLimits).ToString();
-        Form5.Instance.textBoxfBroken2Text = decryption2.fBroken.ToString();
-        Form5.Instance.textBoxlFileSignature2Text = decryption2.TokenStr;
-        Form5.Instance.textBoxDataFileVersion2Text = decryption2.DataFileVersion.ToString();
-        Form5.Instance.textBoxTypeAlgorismText = decryption2.TypeAlgorism.ToString();
-        Form5.Instance.textBoxAtcHeaderSize2Text = decryption2.AtcHeaderSize.ToString();
-        Form5.Instance.textBoxOutputFileList2Text = string.Join(", ", decryption2.OutputFileList.ToArray());
-        Form5.Instance.toolStripStatusLabelDecryptionTimeText = "Decryption Time: " + decryption2.DecryptionTimeString;
-
-      }
-    }
-    //----------------------------------------------------------------------
 
     private void panelStartPage_MouseEnter(object sender, EventArgs e)
     {

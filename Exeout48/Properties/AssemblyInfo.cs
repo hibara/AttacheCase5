@@ -1,16 +1,15 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // アセンブリに関する一般情報は以下の属性セットをとおして制御されます。
 // アセンブリに関連付けられている情報を変更するには、
 // これらの属性値を変更してください。
-[assembly: AssemblyTitle("AtcSetup")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("AttacheCase self-executable file(4.8)")]
+[assembly: AssemblyDescription("Based on .NET Framework 4.8")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("HiBARA Software")]
-[assembly: AssemblyProduct("AtcSetup")]
-[assembly: AssemblyCopyright("©2016-2026 HiBARA Software, LCC")]
+[assembly: AssemblyProduct("ExeOut")]
+[assembly: AssemblyCopyright("©2016-2026 HiBARA Software, LLC")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // 次の GUID は、このプロジェクトが COM に公開される場合の、typelib の ID です
-[assembly: Guid("6750A4CA-841E-47D5-B890-0596FD68F35F")]
+[assembly: Guid("180F3D61-22A6-44B8-BE74-943B83414FDA")]
 
 // アセンブリのバージョン情報は、以下の 4 つの値で構成されています:
 //

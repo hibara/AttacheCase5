@@ -63,6 +63,7 @@ artifacts/
 *.tli
 *.tlh
 *.tmp
+*.tmp.*
 *.tmp_proj
 *.log
 *.vspscc
@@ -299,6 +300,9 @@ tools/resource_hacker/ResourceHacker.ini
 # Claude Code
 .claude/
 .wrangler/
+
+# Claude Code が生成する一時ファイル
+*.cs.tmp.*
 
 # Resend server
 attachecase-key-server/

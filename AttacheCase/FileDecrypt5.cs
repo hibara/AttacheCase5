@@ -428,19 +428,33 @@ namespace AttacheCase
           }
 
           //--------------------------------------------------------------
-          // ④ 本体データの復号
+          // ④ 本体データの復号 + Deflate 解凍 + ファイル展開（ストリームパイプライン）
+          //
+          //     fs → GcmDecryptingStream → DeflateStream → ExtractFiles
+          //
+          //     中間バッファを持たないため、TB クラスの暗号化ファイルでも
+          //     定数メモリ（数十 KB）で処理できる。
           //--------------------------------------------------------------
           var bodyNonce = new byte[CryptoHelper5.AES_GCM_NONCE_SIZE];
           fs.Read(bodyNonce, 0, bodyNonce.Length);
 
-          var encBodyLen = (int)(fs.Length - fs.Position);
-          var encryptedBody = new byte[encBodyLen];
-          fs.Read(encryptedBody, 0, encBodyLen);
-
-          byte[] compressedBody;
           try
           {
-            compressedBody = CryptoHelper5.AesGcmDecrypt(encryptedBody, commonKey, bodyNonce);
+            using (var gcmStream = new GcmDecryptingStream(fs, commonKey, bodyNonce, leaveOpen: true))
+            {
+              using (var ds = new DeflateStream(gcmStream, CompressionMode.Decompress))
+              {
+                if (!ExtractFiles(ds, FileDataList, outDirPath, cancelCheck, dialog, worker, swProgress, e))
+                {
+                  CryptoHelper5.SecureClear(commonKey);
+                  return false;
+                }
+              }
+
+              // DeflateStream は deflate 終端マーカーで読み取りを停止することがあるため、
+              // 残りバイトを明示的に読み切って GCM 認証タグを検証する。
+              gcmStream.DrainAndVerify();
+            }
           }
           catch (InvalidCipherTextException)
           {
@@ -451,16 +465,6 @@ namespace AttacheCase
           }
 
           CryptoHelper5.SecureClear(commonKey);
-
-          //--------------------------------------------------------------
-          // ⑤ Deflate 解凍 → ファイル展開
-          //--------------------------------------------------------------
-          using (var compStream = new MemoryStream(compressedBody))
-          using (var ds = new DeflateStream(compStream, CompressionMode.Decompress))
-          {
-            if (!ExtractFiles(ds, FileDataList, outDirPath, cancelCheck, dialog, worker, swProgress, e))
-              return false;
-          }
         }
 
         swDecrypt.Stop();

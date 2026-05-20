@@ -18,9 +18,9 @@ namespace ExeToHex
     /// ソースコードとして書き込む外部ツール
     /// </summary>
     /// <param name="args">
-    ///	0: Sourcecode file ( ExeOut4.cs ) path
+    ///	0: Source code file ( ExeOut4.cs ) path
     ///	1: Exeout binary file ( ExeOut40.exe ) path of older version
-    ///	2: Exeout binary file ( ExeOut462.exe ) path of recent version
+    ///	2: Exeout binary file ( ExeOut48.exe ) path of recent version
     /// </param>
     /// <returns></returns>
 		static int Main(string[] args)
@@ -34,7 +34,7 @@ namespace ExeToHex
 			//-----------------------------------
 			// args[0]: CS file that the binary data is written to
 			var cSharpSourceFilePath = args[0];
-			if (File.Exists(cSharpSourceFilePath) == false)
+			if (!File.Exists(cSharpSourceFilePath))
 			{
 				MessageBox.Show("C#ソースファイルの存在が見つかりません！　第一引数が不正です。");
 				return (1);
@@ -47,7 +47,7 @@ namespace ExeToHex
 
 			//-----------------------------------
 			// args[1]: Executable file (.NET Framework 4.0) that is written to binary data
-			if (File.Exists(args[1]) == false)
+			if (!File.Exists(args[1]))
 			{
 				MessageBox.Show("実行ファイルの存在が見つかりません！　第二引数が不正です。");
 				return (1);
@@ -59,8 +59,8 @@ namespace ExeToHex
 			}
 
 			//-----------------------------------
-			// args[1]: Executable file (.NET Framework 4.6.2) that is written to binary data
-			if (File.Exists(args[2]) == false)
+			// args[2]: Executable file (.NET Framework 4.8) that is written to binary data
+			if (!File.Exists(args[2]))
 			{
 				MessageBox.Show("実行ファイルの存在が見つかりません！　第三引数が不正です。");
 				return (1);
@@ -94,7 +94,7 @@ namespace ExeToHex
 					continue;
 				}
 				
-				if (fSkip == false)
+				if (!fSkip)
 				{
 					srcOutList.Add(srcList[i]);
 				}
@@ -110,10 +110,10 @@ namespace ExeToHex
 			// #region The bytes data of ATC executable file ( .NET Framework 4.0 )
 			// #endregion
 
-			// #region The bytes data of ATC executable file ( .NET Framework 4.6.2 )
+			// #region The bytes data of ATC executable file ( .NET Framework 4.8 )
 			// #endregion
 
-			var sizeList = new List<Int64>();
+			var sizeList = new List<long>();
 
 			for (var i = 0; i < srcOutList.Count(); i++)
 			{
@@ -135,11 +135,11 @@ namespace ExeToHex
 					versionList.Add(fvi.ProductVersion); 
 
 					// ソースファイルへサイズを表すInt64配列を挿入する
-					srcOutList.Insert(i + 1, 
-						"      // The size of ATC executable file ( .NET Framework 4.0 )" + Environment.NewLine + 
+					srcOutList.Insert(i + 1,
+						"      // The size of ATC executable file ( .NET Framework 4.0 )" + Environment.NewLine +
 						     "      " + sizeList[0] + ",  // ver." + versionList[0] + Environment.NewLine +
-						     "      // The size of ATC executable file ( .NET Framework 4.6.2 )" + Environment.NewLine + 
-								 "      " + sizeList[1] + ",  // ver." + versionList[1] + Environment.NewLine); 
+						     "      // The size of ATC executable file ( .NET Framework 4.8 )" + Environment.NewLine +
+								 "      " + sizeList[1] + ",  // ver." + versionList[1] + Environment.NewLine);
 				}
 				// 自己実行形式ファイル（.NET Framework 4.0）のバイト配列を挿入
 				else if (srcOutList[i].Contains("#region The bytes data of ATC executable file ( .NET Framework 4.0 )"))
@@ -150,13 +150,13 @@ namespace ExeToHex
 					Console.WriteLine("以下のファイルに、" + exeOutSizeString + "( .NET Framework 4.0 ) を書き込みました。\n" + cSharpSourceFilePath);
 
 				}
-				// 自己実行形式ファイル（.NET Framework 4.6.2）のバイト配列を挿入
-				else if (srcOutList[i].Contains("#region The bytes data of ATC executable file ( .NET Framework 4.6.2 )"))
+				// 自己実行形式ファイル（.NET Framework 4.8）のバイト配列を挿入
+				else if (srcOutList[i].Contains("#region The bytes data of ATC executable file ( .NET Framework 4.8 )"))
 				{
 					srcOutList.Insert(i + 1, ReadExeBinaryFileToString(args[2]));
 					var exeOutSizeString = sizeList[1].ToString("#,0") + " Bytes";
 					//MessageBox.Show("以下のファイルに、" + exeOutSizeString + " を書き込みました。\n" + cSharpSourceFilePath);
-					Console.WriteLine("以下のファイルに、" + exeOutSizeString + "( .NET Framework 4.6.2 ) を書き込みました。\n" + cSharpSourceFilePath);
+					Console.WriteLine("以下のファイルに、" + exeOutSizeString + "( .NET Framework 4.8 ) を書き込みました。\n" + cSharpSourceFilePath);
 				}
 				
 			}
@@ -236,11 +236,6 @@ namespace ExeToHex
 			}
 			
 		}
-
-
-    
-    
-    
     
 	}
 

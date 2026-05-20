@@ -431,7 +431,7 @@
     <value>自己実行形式ファイルで 4GiB を超えるサイズの作成を許可する</value>
   </data>
   <data name="label4.Text" xml:space="preserve">
-    <value>.NET Framework 4.6.2がインストールされていない古いOS（Windows7, Vista, XPなど）でも確実に復号できますが、サポート外です。</value>
+    <value>.NET Framework 4.8がインストールされていない古いOS（Windows 7, Vista, XPなど）でも確実に復号できますが、サポート外です。</value>
   </data>
   <data name="pictureBox1.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
