@@ -1,0 +1,1720 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter</value>
+  </resheader>
+
+  <!-- アプリ全般 -->
+  <data name="AppName" xml:space="preserve">
+    <value>AttacheCase</value>
+  </data>
+
+  <!-- メニュー項目 -->
+  <data name="Menu_Encryption" xml:space="preserve">
+    <value>Encrypt</value>
+  </data>
+  <data name="Menu_Decryption" xml:space="preserve">
+    <value>Decrypt</value>
+  </data>
+  <data name="Menu_PublicKey" xml:space="preserve">
+    <value>Public Key</value>
+  </data>
+  <data name="Menu_PostPpap" xml:space="preserve">
+    <value>Post-PPAP</value>
+  </data>
+  <data name="Menu_Rsa" xml:space="preserve">
+    <value>RSA</value>
+  </data>
+  <data name="Menu_ZipPassword" xml:space="preserve">
+    <!-- 利用者による表現の修正。勝手に短縮しないこと（サイドバーに収まらない場合は
+         レイアウト側=幅や折り返しで解決する） -->
+    <value>Password-protected ZIP</value>
+  </data>
+  <data name="ZipGuide_ExtractHint" xml:space="preserve">
+    <value>Drop a ZIP file and it will be extracted. If it is encrypted, you will be asked for the password.</value>
+  </data>
+  <data name="ZipGuide_CreateHint" xml:space="preserve">
+    <value>Drop any other file or folder and an encrypted ZIP will be created.
+Choose the method below.</value>
+  </data>
+  <data name="ZipGuide_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="ZipGuide_Standard" xml:space="preserve">
+    <value>Standard ZIP 2.0 ( Compatible with Windows, but has security vulnerabilities )</value>
+  </data>
+  <data name="ZipGuide_Aes128" xml:space="preserve">
+    <value>AES128 ( Although the encryption is strong, it may not open on Windows )</value>
+  </data>
+  <data name="ZipGuide_Aes256" xml:space="preserve">
+    <value>AES256 ( The strongest method here, but it may not open on Windows )</value>
+  </data>
+  <data name="Menu_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+
+  <!-- メイン画面 -->
+  <data name="Main_DropMessage" xml:space="preserve">
+    <value>Drop files or folders here&#xA;to encrypt or decrypt</value>
+  </data>
+  <data name="Main_DropFilesToEncrypt" xml:space="preserve">
+    <value>Drop files or folders&#xA;to encrypt</value>
+  </data>
+  <data name="Main_DropFilesToDecrypt" xml:space="preserve">
+    <value>Drop encrypted files (.atc)&#xA;to decrypt</value>
+  </data>
+
+  <!-- 暗号化画面 -->
+  <data name="Encryption_Title" xml:space="preserve">
+    <value>Encryption</value>
+  </data>
+  <data name="Encryption_Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="Encryption_PasswordConfirm" xml:space="preserve">
+    <value>Confirm Password</value>
+  </data>
+  <data name="Encryption_PasswordPlaceholder" xml:space="preserve">
+    <value>Enter password</value>
+  </data>
+  <data name="Encryption_PasswordConfirmPlaceholder" xml:space="preserve">
+    <value>Confirm password</value>
+  </data>
+  <data name="Encryption_PasswordMismatch" xml:space="preserve">
+    <value>Passwords do not match</value>
+  </data>
+  <data name="Encryption_Start" xml:space="preserve">
+    <value>Start Encryption</value>
+  </data>
+  <data name="Encryption_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Encryption_Processing" xml:space="preserve">
+    <value>Encrypting...</value>
+  </data>
+  <data name="Encryption_Complete" xml:space="preserve">
+    <value>Encryption Complete</value>
+  </data>
+  <data name="Encryption_Failed" xml:space="preserve">
+    <value>Encryption Failed</value>
+  </data>
+  <data name="Encryption_FileCount" xml:space="preserve">
+    <value>{0} file(s) selected</value>
+  </data>
+  <data name="Encryption_HeaderFormat" xml:space="preserve">
+    <value>Encrypt ATC: </value>
+  </data>
+  <data name="Encryption_HeaderFormatExe" xml:space="preserve">
+    <value>Encrypt as self-executable: </value>
+  </data>
+
+  <!-- 復号画面 -->
+  <data name="Decryption_Title" xml:space="preserve">
+    <value>Decryption</value>
+  </data>
+  <data name="Decryption_Password" xml:space="preserve">
+    <value>Password</value>
+  </data>
+  <data name="Decryption_PasswordPlaceholder" xml:space="preserve">
+    <value>Enter password</value>
+  </data>
+  <data name="Decryption_Start" xml:space="preserve">
+    <value>Start Decryption</value>
+  </data>
+  <data name="Decryption_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Decryption_Processing" xml:space="preserve">
+    <value>Decrypting...</value>
+  </data>
+  <data name="Decryption_Complete" xml:space="preserve">
+    <value>Decryption Complete</value>
+  </data>
+  <data name="Decryption_Failed" xml:space="preserve">
+    <value>Decryption Failed</value>
+  </data>
+  <data name="Decryption_WrongPassword" xml:space="preserve">
+    <value>Wrong password</value>
+  </data>
+
+  <!-- 公開鍵画面 -->
+  <data name="PublicKey_Title" xml:space="preserve">
+    <value>Public Key Encryption</value>
+  </data>
+  <data name="PublicKey_GenerateKeyPair" xml:space="preserve">
+    <value>Generate Key Pair</value>
+  </data>
+  <data name="PublicKey_DropPublicKey" xml:space="preserve">
+    <value>Drop public key file (.atcpub)</value>
+  </data>
+  <data name="PublicKey_DropPrivateKey" xml:space="preserve">
+    <value>Drop private key file (.atcpvt)</value>
+  </data>
+  <data name="PublicKey_WaitingForFile" xml:space="preserve">
+    <value>Waiting for file to encrypt...</value>
+  </data>
+  <data name="PublicKey_WaitingForEncryptedFile" xml:space="preserve">
+    <value>Waiting for encrypted file...</value>
+  </data>
+  <data name="PublicKey_KeyGenerated" xml:space="preserve">
+    <value>Key pair generated successfully</value>
+  </data>
+
+  <!-- ZIPパスワード画面 -->
+  <data name="ZipPassword_Title" xml:space="preserve">
+    <value>ZIP Password</value>
+  </data>
+  <data name="ZipPassword_CreateZip" xml:space="preserve">
+    <value>Create Password-Protected ZIP</value>
+  </data>
+  <data name="ZipPassword_ExtractZip" xml:space="preserve">
+    <value>Extract Password-Protected ZIP</value>
+  </data>
+  <data name="ZipPassword_DropFiles" xml:space="preserve">
+    <value>Drop files to create&#xA;password-protected ZIP</value>
+  </data>
+
+  <!-- 公開鍵画面追加 -->
+  <data name="PublicKey_DropFilesToEncrypt" xml:space="preserve">
+    <value>Drop files to encrypt&#xA;with public key</value>
+  </data>
+
+  <!-- 共通ボタン -->
+  <data name="Button_OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Button_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Button_Yes" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="Button_No" xml:space="preserve">
+    <value>No</value>
+  </data>
+  <data name="Button_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="Button_Back" xml:space="preserve">
+    <value>Back</value>
+  </data>
+
+  <!-- ダイアログ -->
+  <data name="Dialog_OverwriteTitle" xml:space="preserve">
+    <value>Confirm Overwrite</value>
+  </data>
+  <data name="Dialog_OverwriteMessage" xml:space="preserve">
+    <value>The following files already exist. Do you want to overwrite them?</value>
+  </data>
+  <data name="Dialog_ErrorTitle" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Dialog_SuccessTitle" xml:space="preserve">
+    <value>Success</value>
+  </data>
+
+  <!-- 進捗 -->
+  <data name="Progress_Processing" xml:space="preserve">
+    <value>Processing...</value>
+  </data>
+  <data name="Progress_Percent" xml:space="preserve">
+    <value>{0}%</value>
+  </data>
+
+  <!-- macOS メニュー -->
+  <data name="MacMenu_About" xml:space="preserve">
+    <value>About AttacheCase</value>
+  </data>
+  <data name="MacMenu_Preferences" xml:space="preserve">
+    <value>Preferences...</value>
+  </data>
+  <data name="MacMenu_Services" xml:space="preserve">
+    <value>Services</value>
+  </data>
+  <data name="MacMenu_Hide" xml:space="preserve">
+    <value>Hide AttacheCase</value>
+  </data>
+  <data name="MacMenu_HideOthers" xml:space="preserve">
+    <value>Hide Others</value>
+  </data>
+  <data name="MacMenu_ShowAll" xml:space="preserve">
+    <value>Show All</value>
+  </data>
+  <data name="MacMenu_Quit" xml:space="preserve">
+    <value>Quit AttacheCase</value>
+  </data>
+  <data name="MacMenu_File" xml:space="preserve">
+    <value>File</value>
+  </data>
+  <data name="MacMenu_Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="MacMenu_Window" xml:space="preserve">
+    <value>Window</value>
+  </data>
+  <data name="MacMenu_Help" xml:space="preserve">
+    <value>Help</value>
+  </data>
+
+  <!-- ファイルメニュー -->
+  <data name="Menu_OpenFileToEncrypt" xml:space="preserve">
+    <value>Open File to Encrypt...</value>
+  </data>
+  <data name="Menu_OpenFolderToEncrypt" xml:space="preserve">
+    <value>Open Folder to Encrypt...</value>
+  </data>
+  <data name="Menu_OpenEncryptedFile" xml:space="preserve">
+    <value>Open Encrypted File to Decrypt...</value>
+  </data>
+  <data name="Menu_OpenFileForZip" xml:space="preserve">
+    <value>Open File for Password ZIP...</value>
+  </data>
+  <data name="Menu_OpenFolderForZip" xml:space="preserve">
+    <value>Open Folder for Password ZIP...</value>
+  </data>
+  <data name="Menu_OpenZipFile" xml:space="preserve">
+    <value>Open Password ZIP to Extract...</value>
+  </data>
+  <data name="Menu_GenerateKeyPair" xml:space="preserve">
+    <value>Generate Key Pair...</value>
+  </data>
+  <data name="Menu_LoadPublicKey" xml:space="preserve">
+    <value>Load Public Key...</value>
+  </data>
+  <data name="Menu_LoadPrivateKey" xml:space="preserve">
+    <value>Load Private Key...</value>
+  </data>
+  <data name="Menu_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+
+  <!-- ウィンドウメニュー -->
+  <data name="Menu_Minimize" xml:space="preserve">
+    <value>Minimize</value>
+  </data>
+  <data name="Menu_Zoom" xml:space="preserve">
+    <value>Zoom</value>
+  </data>
+  <data name="Menu_BringAllToFront" xml:space="preserve">
+    <value>Bring All to Front</value>
+  </data>
+
+  <!-- ヘルプメニュー -->
+  <data name="Menu_Website" xml:space="preserve">
+    <value>AttacheCase Website</value>
+  </data>
+
+  <!-- About画面 -->
+  <data name="About_Title" xml:space="preserve">
+    <value>About AttacheCase</value>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>Version {0}</value>
+  </data>
+  <data name="About_Copyright" xml:space="preserve">
+      <value>© 2016-2026 HiBARA Software, LLC</value>
+  </data>
+  <data name="About_Close" xml:space="preserve">
+    <value>Close</value>
+  </data>
+  <data name="About_License" xml:space="preserve">
+    <value>License…</value>
+  </data>
+  <data name="Menu_License" xml:space="preserve">
+    <value>License…</value>
+  </data>
+  <data name="License_Title" xml:space="preserve">
+    <value>License</value>
+  </data>
+  <data name="License_Tab_SourceAvailable" xml:space="preserve">
+    <value>AttacheCase</value>
+  </data>
+  <data name="License_Tab_Commercial" xml:space="preserve">
+    <value>Commercial Use</value>
+  </data>
+  <data name="License_Tab_ThirdParty" xml:space="preserve">
+    <value>Third-Party Notices</value>
+  </data>
+  <data name="License_Copy" xml:space="preserve">
+    <value>Copy Text</value>
+  </data>
+
+  <!-- ファイルダイアログ -->
+  <data name="Dialog_SelectFileToEncrypt" xml:space="preserve">
+    <value>Select file to encrypt</value>
+  </data>
+  <data name="Dialog_SelectFolderToEncrypt" xml:space="preserve">
+    <value>Select folder to encrypt</value>
+  </data>
+  <data name="Dialog_SelectEncryptedFile" xml:space="preserve">
+    <value>Select encrypted file (.atc)</value>
+  </data>
+  <data name="Dialog_SelectFileForZip" xml:space="preserve">
+    <value>Select file for password-protected ZIP</value>
+  </data>
+  <data name="Dialog_SelectFolderForZip" xml:space="preserve">
+    <value>Select folder for password-protected ZIP</value>
+  </data>
+  <data name="Dialog_SelectZipFile" xml:space="preserve">
+    <value>Select password-protected ZIP file</value>
+  </data>
+  <data name="Dialog_SelectPublicKey" xml:space="preserve">
+    <value>Select public key file (.atcpub)</value>
+  </data>
+  <data name="Dialog_SelectPrivateKey" xml:space="preserve">
+    <value>Select private key file (.atcpvt)</value>
+  </data>
+  <data name="Encryption_PasswordPrompt" xml:space="preserve">
+    <value>Please enter a password</value>
+  </data>
+  <data name="Encryption_FileTypeTooltip" xml:space="preserve">
+    <value>Output file type (ATC / self-executable EXE / password ZIP)</value>
+  </data>
+  <data name="Encryption_PasswordConfirmPrompt" xml:space="preserve">
+    <value>Please enter the same password again for confirmation</value>
+  </data>
+  <data name="Button_Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+  <data name="Button_Encrypt" xml:space="preserve">
+    <value>Encrypt</value>
+  </data>
+  <data name="Encryption_RsaProcessing" xml:space="preserve">
+    <value>RSA Encrypting...</value>
+  </data>
+  <data name="Encryption_Cancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="Encryption_Error" xml:space="preserve">
+    <value>Error: {0}</value>
+  </data>
+  <data name="Dialog_OverwriteFileMessage" xml:space="preserve">
+    <value>'{0}' already exists.
+Do you want to overwrite it?</value>
+  </data>
+  <data name="Decryption_PasswordPrompt" xml:space="preserve">
+    <value>Please enter a password</value>
+  </data>
+  <data name="Decryption_HeaderFormat" xml:space="preserve">
+    <value>Decrypt ATC: </value>
+  </data>
+  <data name="Decryption_RsaProcessing" xml:space="preserve">
+    <value>RSA Decrypting...</value>
+  </data>
+  <data name="Decryption_Cancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="Decryption_Error" xml:space="preserve">
+    <value>Error: {0}</value>
+  </data>
+  <data name="Decryption_FileListFailed" xml:space="preserve">
+    <value>Failed to get file list</value>
+  </data>
+  <data name="Decryption_DecryptionFailed" xml:space="preserve">
+    <value>Decryption failed</value>
+  </data>
+  <data name="Decryption_UnknownError" xml:space="preserve">
+    <value>Unknown error</value>
+  </data>
+  <data name="Decryption_PasswordMissExceeded" xml:space="preserve">
+    <value>Too many wrong password attempts. Please try again.</value>
+  </data>
+  <data name="Decryption_PasswordWrongRemaining" xml:space="preserve">
+    <value>Wrong password ({0} attempts remaining)</value>
+  </data>
+  <data name="Button_Decrypt" xml:space="preserve">
+    <value>Decrypt</value>
+  </data>
+  <data name="Dialog_OverwriteMultipleFiles" xml:space="preserve">
+    <value>The following files already exist.
+Do you want to overwrite them?
+
+{0}</value>
+  </data>
+  <data name="Dialog_OverwriteCountFiles" xml:space="preserve">
+    <value>{0} files already exist.
+Do you want to overwrite them?</value>
+  </data>
+  <data name="PublicKey_InitialDropMessage" xml:space="preserve">
+    <value>Decrypt files that were encrypted with RSA key files in an earlier version.&#xA;&#xA;Drag &amp; drop the encrypted file, or your private key (.atcpvt).&#xA;&#xA;To encrypt a file, use Post-PPAP.</value>
+  </data>
+  <data name="PublicKey_PublicKeyLoadedMessage" xml:space="preserve">
+    <value>Public key loaded. Drag &amp; drop the file or folder you want to encrypt here.</value>
+  </data>
+  <data name="PublicKey_PrivateKeyLoadedMessage" xml:space="preserve">
+    <value>Private key loaded. Drag &amp; drop the encrypted file here to decrypt.</value>
+  </data>
+  <data name="PublicKey_WaitingForPublicKeyMessage" xml:space="preserve">
+    <value>File "{0}" loaded.
+Please drag &amp; drop a public key (.atcpub).</value>
+  </data>
+  <data name="PublicKey_WaitingForPrivateKeyMessage" xml:space="preserve">
+    <value>Encrypted file "{0}" loaded.
+Please drag &amp; drop a private key (.atcpvt).</value>
+  </data>
+  <data name="PublicKey_KeyPairGeneratedMessage" xml:space="preserve">
+    <value>Key pair generated.
+
+Public key: {0}
+Private key: {1}</value>
+  </data>
+  <data name="PublicKey_SaveKeyPairTitle" xml:space="preserve">
+    <value>Select save location for public key pair</value>
+  </data>
+  <data name="PublicKey_AllFiles" xml:space="preserve">
+    <value>All files</value>
+  </data>
+  <data name="PublicKey_NoGuid" xml:space="preserve">
+    <value>(No GUID)</value>
+  </data>
+  <data name="PublicKey_ReadError" xml:space="preserve">
+    <value>(Read error)</value>
+  </data>
+  <data name="PublicKey_ErrorDropNormalFile" xml:space="preserve">
+    <value>Error: Please drop a normal file or folder to encrypt.</value>
+  </data>
+  <data name="PublicKey_ErrorDropUnsupported" xml:space="preserve">
+    <value>Error: This file cannot be used here. Drop an RSA encrypted file (.atc) or a private key (.atcpvt).</value>
+  </data>
+  <data name="PublicKey_InvalidBaseFileName" xml:space="preserve">
+    <value>Error: Please enter a file name (a name with only an extension cannot be used).</value>
+  </data>
+  <data name="PublicKey_ErrorDropEncryptedFile" xml:space="preserve">
+    <value>Error: Please drop an RSA encrypted file (.atc).</value>
+  </data>
+  <data name="PublicKey_ErrorDropPublicKey" xml:space="preserve">
+    <value>Error: Please drop a public key (.atcpub).</value>
+  </data>
+  <data name="PublicKey_ErrorDropPrivateKeyNotPublic" xml:space="preserve">
+    <value>Error: Cannot decrypt with a public key. Please drop a private key (.atcpvt).</value>
+  </data>
+  <data name="PublicKey_ErrorDropPrivateKey" xml:space="preserve">
+    <value>Error: Please drop a private key (.atcpvt).</value>
+  </data>
+  <data name="PublicKey_GuidLabel" xml:space="preserve">
+    <value>GUID</value>
+  </data>
+  <data name="PublicKey_GuidWarningPublicKey" xml:space="preserve">
+    <value>Receive the unique ID (GUID) from the other party separately from the public key, and verify they match to reduce the risk of impersonation or tampering.</value>
+  </data>
+  <data name="PublicKey_GuidWarningPrivateKey" xml:space="preserve">
+    <value>Send the displayed unique ID (GUID) to the other party through a channel separate from the public key to reduce the risk of impersonation or tampering.</value>
+  </data>
+  <data name="PublicKey_TargetFileLabel" xml:space="preserve">
+    <value>📁 Target file</value>
+  </data>
+  <data name="PublicKey_EncryptedFileLabel" xml:space="preserve">
+    <value>🔒 Encrypted file</value>
+  </data>
+  <data name="Button_GenerateKey" xml:space="preserve">
+    <value>Generate(_G)</value>
+  </data>
+  <data name="Button_CancelWithKey" xml:space="preserve">
+    <value>Cancel(_C)</value>
+  </data>
+  <data name="ZipEncryption_HeaderFormat" xml:space="preserve">
+    <value>Create Password ZIP: </value>
+  </data>
+  <data name="ZipEncryption_PasswordPrompt" xml:space="preserve">
+    <value>Please set a password for the ZIP file</value>
+  </data>
+  <data name="ZipEncryption_Processing" xml:space="preserve">
+    <value>Creating ZIP...</value>
+  </data>
+  <data name="Button_CreateZip" xml:space="preserve">
+    <value>Create ZIP</value>
+  </data>
+  <data name="ZipDecryption_HeaderFormat" xml:space="preserve">
+    <value>Extract ZIP: </value>
+  </data>
+  <data name="ZipDecryption_PasswordPrompt" xml:space="preserve">
+    <value>Please enter a password</value>
+  </data>
+  <data name="ZipDecryption_Processing" xml:space="preserve">
+    <value>Extracting...</value>
+  </data>
+  <data name="ZipDecryption_ExtractionFailed" xml:space="preserve">
+    <value>Extraction failed</value>
+  </data>
+  <data name="Button_Extract" xml:space="preserve">
+    <value>Extract</value>
+  </data>
+  <data name="MainWindow_Title" xml:space="preserve">
+      <value>AttacheCase</value>
+  </data>
+  <data name="Menu_About" xml:space="preserve">
+      <value>About {0}</value>
+  </data>
+  <data name="MacMenu_HideFormat" xml:space="preserve">
+      <value>Hide {0}</value>
+  </data>
+  <data name="MacMenu_QuitFormat" xml:space="preserve">
+      <value>Quit {0}</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Settings_Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Settings_RestoreDefaults" xml:space="preserve">
+    <value>Restore defaults</value>
+  </data>
+  <data name="Settings_Browse" xml:space="preserve">
+    <value>Browse…</value>
+  </data>
+  <data name="Settings_SelectFolder" xml:space="preserve">
+    <value>Select a folder</value>
+  </data>
+  <data name="Settings_CommandLineNote" xml:space="preserve">
+    <value>Values given on the command line apply to that run only and are not saved here.</value>
+  </data>
+  <data name="Settings_General" xml:space="preserve">
+    <value>General</value>
+  </data>
+  <data name="Settings_ExitAfterProcess" xml:space="preserve">
+    <value>Quit AttacheCase when the work is finished</value>
+  </data>
+  <data name="Settings_OpenDecryptedFile" xml:space="preserve">
+    <value>Open decrypted files with the associated application</value>
+  </data>
+  <data name="Settings_CheckForUpdatesOnStartup" xml:space="preserve">
+    <value>Check for updates at startup (once a day)</value>
+  </data>
+  <data name="Update_Title" xml:space="preserve">
+    <value>AttacheCase Update</value>
+  </data>
+  <data name="Update_Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Update_Downloading" xml:space="preserve">
+    <value>Downloading the new version...</value>
+  </data>
+  <data name="Update_Extracting" xml:space="preserve">
+    <value>Extracting the downloaded file...</value>
+  </data>
+  <data name="Update_Verifying" xml:space="preserve">
+    <value>Checking the signature and notarization...</value>
+  </data>
+  <data name="Update_ReadyToRestart" xml:space="preserve">
+    <value>The update is ready.
+AttacheCase will now restart.</value>
+  </data>
+  <data name="Update_Failed" xml:space="preserve">
+    <value>The update could not be completed.</value>
+  </data>
+  <data name="Update_ContentMismatch" xml:space="preserve">
+    <value>The file on the download server does not match the update information.</value>
+  </data>
+  <data name="Update_ContentMismatchAdvice" xml:space="preserve">
+    <value>Nothing on this Mac has been changed. AttacheCase has not been replaced, and you can keep using the current version.
+
+This is a problem on our side. Please try again later, or download the latest version from:
+https://hibara.jp/software/attachecase/</value>
+  </data>
+  <data name="Update_Verify_SignatureInvalid" xml:space="preserve">
+    <value>The downloaded application has an invalid signature.</value>
+  </data>
+  <data name="Update_Verify_TeamIdMismatch" xml:space="preserve">
+    <value>The downloaded application was signed by someone else. The update was stopped.</value>
+  </data>
+  <data name="Update_Verify_NotNotarized" xml:space="preserve">
+    <value>The downloaded application has not been notarized by Apple.</value>
+  </data>
+  <data name="Update_Verify_Rejected" xml:space="preserve">
+    <value>macOS did not accept the downloaded application.</value>
+  </data>
+  <data name="Update_Verify_Failed" xml:space="preserve">
+    <value>The downloaded application could not be checked.</value>
+  </data>
+  <data name="Update_Cannot_NotInAppBundle" xml:space="preserve">
+    <value>AttacheCase is not running as an application bundle, so it cannot update itself.</value>
+  </data>
+  <data name="Update_Cannot_Translocated" xml:space="preserve">
+    <value>AttacheCase is running from a temporary location.
+Please move it to your Applications folder and start it again.</value>
+  </data>
+  <data name="Update_Cannot_ReadOnly" xml:space="preserve">
+    <value>AttacheCase is running directly from a disk image.
+Please copy it to your Applications folder and start it again.</value>
+  </data>
+  <data name="Update_Cannot_NotWritable" xml:space="preserve">
+    <value>AttacheCase does not have permission to write to its own location.
+Please update manually.</value>
+  </data>
+  <data name="Update_DownloadSize" xml:space="preserve">
+    <value>{0} / {1}</value>
+  </data>
+  <data name="Update_Headline" xml:space="preserve">
+    <value>A new version of {0} is available!</value>
+  </data>
+  <data name="Update_SubText" xml:space="preserve">
+    <value>{0} {1} is available (you have {2}). Would you like to download it now?</value>
+  </data>
+  <data name="Update_NotesHeading" xml:space="preserve">
+    <value>AttacheCase {0}</value>
+  </data>
+  <data name="Update_NoNotes" xml:space="preserve">
+    <value>No release notes were published for this version.</value>
+  </data>
+  <data name="Update_Section_New" xml:space="preserve">
+    <value>New</value>
+  </data>
+  <data name="Update_Section_Improvements" xml:space="preserve">
+    <value>Improvements</value>
+  </data>
+  <data name="Update_Section_Fixes" xml:space="preserve">
+    <value>Fixes</value>
+  </data>
+  <data name="Update_SkipVersion" xml:space="preserve">
+    <value>Skip This Version</value>
+  </data>
+  <data name="Update_RemindLater" xml:space="preserve">
+    <value>Remind Me Later</value>
+  </data>
+  <data name="Update_Install" xml:space="preserve">
+    <value>Install Update</value>
+  </data>
+  <data name="Menu_CheckForUpdates" xml:space="preserve">
+    <value>Check for Updates…</value>
+  </data>
+  <data name="Update_UpToDate" xml:space="preserve">
+    <value>You are up to date. Version {0} is the latest.</value>
+  </data>
+  <data name="Update_CheckFailed" xml:space="preserve">
+    <value>Could not check for updates.</value>
+  </data>
+  <data name="Update_Checking" xml:space="preserve">
+    <value>Checking for updates...</value>
+  </data>
+  <data name="Update_Available" xml:space="preserve">
+    <value>Version {0} is now available.
+(You are using {1}.)
+
+Update now?</value>
+  </data>
+  <data name="Settings_NotMaskPassword" xml:space="preserve">
+    <value>Show the password instead of masking it</value>
+  </data>
+  <data name="Settings_Encrypt" xml:space="preserve">
+    <value>Encryption</value>
+  </data>
+  <data name="Settings_EncryptionFileType" xml:space="preserve">
+    <value>Type of encrypted file</value>
+  </data>
+  <data name="Settings_FileTypeAtc" xml:space="preserve">
+    <value>Encrypted file (.atc)</value>
+  </data>
+  <data name="Settings_FileTypeZip" xml:space="preserve">
+    <value>Password ZIP</value>
+  </data>
+  <data name="Settings_SaveToSameFolder" xml:space="preserve">
+    <value>Always save encrypted files to the same folder</value>
+  </data>
+  <data name="Settings_ConfirmOverwrite" xml:space="preserve">
+    <value>Confirm before overwriting a file with the same name</value>
+  </data>
+  <data name="Settings_EncryptOneByOne" xml:space="preserve">
+    <value>Encrypt each file in a folder separately</value>
+  </data>
+  <data name="Settings_KeepTimeStamp" xml:space="preserve">
+    <value>Keep the timestamp of the original file</value>
+  </data>
+  <data name="Settings_IncludeOriginalExtension" xml:space="preserve">
+    <value>Keep the original extension (report.xlsx.atc)</value>
+  </data>
+  <data name="Settings_UseAutoName" xml:space="preserve">
+    <value>Build the encrypted file name from a format</value>
+  </data>
+  <data name="Settings_AutoNameHint" xml:space="preserve">
+    <value>Specifiers: &lt;filename&gt; &lt;ext&gt; &lt;date:yyyyMMdd&gt; &lt;num:3&gt; &lt;random:8&gt;</value>
+  </data>
+  <data name="Settings_UseCamouflageExtension" xml:space="preserve">
+    <value>Camouflage the extension of the encrypted file</value>
+  </data>
+  <data name="Settings_CompressionLevel" xml:space="preserve">
+    <value>Compression</value>
+  </data>
+  <data name="Settings_CompressionNone" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="Settings_CompressionFastest" xml:space="preserve">
+    <value>Speed</value>
+  </data>
+  <data name="Settings_CompressionOptimal" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="Settings_MissTypeLimits" xml:space="preserve">
+    <value>Password retry limit recorded in the encrypted file</value>
+  </data>
+  <data name="Settings_Zip" xml:space="preserve">
+    <value>Password ZIP</value>
+  </data>
+  <data name="Settings_ZipAlgorithm" xml:space="preserve">
+    <value>Cipher</value>
+  </data>
+  <data name="Settings_ZipCrypto" xml:space="preserve">
+    <value>ZipCrypto (most compatible)</value>
+  </data>
+  <data name="Settings_ZipAes128" xml:space="preserve">
+    <value>AES-128</value>
+  </data>
+  <data name="Settings_ZipAes256" xml:space="preserve">
+    <value>AES-256</value>
+  </data>
+  <data name="Settings_ZipSaveToSameFolder" xml:space="preserve">
+    <value>Always save password ZIP files to the same folder</value>
+  </data>
+  <data name="Settings_Decrypt" xml:space="preserve">
+    <value>Decryption</value>
+  </data>
+  <data name="Settings_DecryptSaveToSameFolder" xml:space="preserve">
+    <value>Always save decrypted files to the same folder</value>
+  </data>
+  <data name="Settings_NoParentFolder" xml:space="preserve">
+    <value>Do not create a parent folder when decrypting</value>
+  </data>
+  <data name="Settings_SetTimeStampToNow" xml:space="preserve">
+    <value>Set the timestamp of decrypted files to the current time</value>
+  </data>
+  <data name="Settings_ContinueOnHashMismatch" xml:space="preserve">
+    <value>Continue decrypting even if CRC32 does not match</value>
+  </data>
+  <data name="Settings_Delete" xml:space="preserve">
+    <value>Deletion</value>
+  </data>
+  <data name="Settings_DeleteMode" xml:space="preserve">
+    <value>Delete the original after a successful encryption</value>
+  </data>
+  <data name="Settings_DeleteEncMode" xml:space="preserve">
+    <value>Delete the encrypted file after a successful decryption</value>
+  </data>
+  <data name="Settings_DeleteNone" xml:space="preserve">
+    <value>Do not delete</value>
+  </data>
+  <data name="Settings_DeleteNormal" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Settings_DeleteTrash" xml:space="preserve">
+    <value>Move to Trash</value>
+  </data>
+  <data name="Settings_DeleteWipe" xml:space="preserve">
+    <value>Wipe (overwrite, then delete)</value>
+  </data>
+  <data name="Settings_DeleteRandomTimes" xml:space="preserve">
+    <value>Random-value passes when wiping</value>
+  </data>
+  <data name="Settings_DeleteZeroTimes" xml:space="preserve">
+    <value>Zero passes when wiping</value>
+  </data>
+  <data name="Settings_ConfirmDelete" xml:space="preserve">
+    <value>Confirm before deleting</value>
+  </data>
+  <data name="Dialog_DeleteTitle" xml:space="preserve">
+    <value>Confirm deletion</value>
+  </data>
+  <data name="Dialog_DeleteMessage" xml:space="preserve">
+    <value>Delete {0}?</value>
+  </data>
+  <data name="Dialog_DeleteCountFiles" xml:space="preserve">
+    <value>{0} items</value>
+  </data>
+  <data name="Dialog_DeleteFailed" xml:space="preserve">
+    <value>Could not delete: {0}</value>
+  </data>
+  <data name="Password_Show" xml:space="preserve">
+    <value>Show the password</value>
+  </data>
+  <data name="Password_Hide" xml:space="preserve">
+    <value>Hide the password</value>
+  </data>
+  <data name="Settings_Window" xml:space="preserve">
+    <value>Window</value>
+  </data>
+  <data name="Settings_MinimizeWhileProcessing" xml:space="preserve">
+    <value>Always minimize the window while working</value>
+  </data>
+  <data name="Settings_MinimizeHint" xml:space="preserve">
+    <value>The progress is shown as a badge on the Dock icon while minimized.</value>
+  </data>
+  <data name="Settings_ShowMenuBarIcon" xml:space="preserve">
+    <value>Show an icon in the menu bar</value>
+  </data>
+  <data name="Settings_MenuBarIconHint" xml:space="preserve">
+    <value>Clicking the icon brings the window to the front.</value>
+  </data>
+  <data name="Settings_WindowForeground" xml:space="preserve">
+    <value>Keep the window in front of other windows</value>
+  </data>
+  <data name="Settings_NoMultipleInstance" xml:space="preserve">
+    <value>Do not start more than one AttacheCase</value>
+  </data>
+  <data name="Settings_NoMultipleInstanceHint" xml:space="preserve">
+    <value>Takes effect the next time AttacheCase starts.</value>
+  </data>
+  <data name="Settings_AutoNameInsert" xml:space="preserve">
+    <value>Insert</value>
+  </data>
+  <data name="Settings_AutoNameFileName" xml:space="preserve">
+    <value>File name</value>
+  </data>
+  <data name="Settings_AutoNameExtension" xml:space="preserve">
+    <value>Extension</value>
+  </data>
+  <data name="Settings_AutoNameDate" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Settings_AutoNameNumber" xml:space="preserve">
+    <value>Serial number</value>
+  </data>
+  <data name="Settings_AutoNameRandom" xml:space="preserve">
+    <value>Random string</value>
+  </data>
+  <data name="Settings_AutoNameExample" xml:space="preserve">
+    <value>ex). {0}</value>
+  </data>
+  <data name="Settings_AutoNameRandomCharset" xml:space="preserve">
+    <value>Characters used for the random string</value>
+  </data>
+  <data name="Settings_AutoNameUpperCase" xml:space="preserve">
+    <value>Uppercase</value>
+  </data>
+  <data name="Settings_AutoNameLowerCase" xml:space="preserve">
+    <value>Lowercase</value>
+  </data>
+  <data name="Settings_AutoNameNumbers" xml:space="preserve">
+    <value>Numbers</value>
+  </data>
+  <data name="Settings_AutoNameSymbols" xml:space="preserve">
+    <value>Symbols</value>
+  </data>
+  <data name="Settings_AutoNameSymbolsHint" xml:space="preserve">
+    <value>Characters that cannot be used in a file name on Windows or macOS are excluded.</value>
+  </data>
+  <data name="Error_OneByOneWithOutFile" xml:space="preserve">
+    <value>/oneby cannot be combined with a file name in /out. Specify a folder instead.</value>
+  </data>
+  <data name="Error_AutoNameInvalidChar" xml:space="preserve">
+    <value>The generated file name contains a character that cannot be used: {0}</value>
+  </data>
+  <data name="Error_NotEncryptedFile" xml:space="preserve">
+    <value>Not an encrypted file: {0}</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>Language</value>
+  </data>
+  <data name="Settings_LanguageSystem" xml:space="preserve">
+    <value>Follow the system</value>
+  </data>
+  <data name="Settings_LanguageJapanese" xml:space="preserve">
+    <value>日本語</value>
+  </data>
+  <data name="Settings_LanguageEnglish" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Progress_BuildingFileList" xml:space="preserve">
+    <value>Building the file list…</value>
+  </data>
+  <data name="Progress_ReadingFileInfo" xml:space="preserve">
+    <value>Reading file information… ({0} items)</value>
+  </data>
+  <data name="Progress_EncryptingFile" xml:space="preserve">
+    <value>Encrypting: {0}</value>
+  </data>
+  <data name="Progress_Finishing" xml:space="preserve">
+    <value>Finishing the output…</value>
+  </data>
+  <data name="Progress_Verifying" xml:space="preserve">
+    <value>Verifying…</value>
+  </data>
+  <data name="Progress_Decrypting" xml:space="preserve">
+    <value>Decrypting…</value>
+  </data>
+  <data name="Progress_Completed" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="Progress_SkippedUnsafePath" xml:space="preserve">
+    <value>Skipped (unsafe path)</value>
+  </data>
+  <data name="Progress_Extracting" xml:space="preserve">
+    <value>Extracting: {0}</value>
+  </data>
+  <data name="Progress_PreparingZip" xml:space="preserve">
+    <value>Preparing the ZIP…</value>
+  </data>
+  <data name="Progress_AddingToZip" xml:space="preserve">
+    <value>Adding to the ZIP…</value>
+  </data>
+  <data name="Error_FileNotFound" xml:space="preserve">
+    <value>The file was not found</value>
+  </data>
+  <data name="Error_HeaderNotFound" xml:space="preserve">
+    <value>The header was not found</value>
+  </data>
+  <data name="Error_ExeoutWindowsOnly" xml:space="preserve">
+    <value>The self-executable (.exe) format can be created only on Windows.</value>
+  </data>
+  <data name="Error_ExeoutStubMissing" xml:space="preserve">
+    <value>The decryption program (Exeout\Exeout.exe) that ships with the app was not found. Reinstall the application.</value>
+  </data>
+  <data name="Error_ExeoutStubCorrupted" xml:space="preserve">
+    <value>The bundled decryption program failed its integrity check (SHA-256 mismatch). Reinstall the application.</value>
+  </data>
+  <data name="LicenseReg_Title" xml:space="preserve">
+    <value>Commercial License Registration</value>
+  </data>
+  <data name="LicenseReg_StatusRegistered" xml:space="preserve">
+    <value>Registered to: {0} &lt;{1}&gt;</value>
+  </data>
+  <data name="LicenseReg_StatusNotRegistered" xml:space="preserve">
+    <value>Not registered</value>
+  </data>
+  <data name="LicenseReg_CodeLabel" xml:space="preserve">
+    <value>Paste your registration code:</value>
+  </data>
+  <data name="LicenseReg_Register" xml:space="preserve">
+    <value>Register</value>
+  </data>
+  <data name="LicenseReg_Delete" xml:space="preserve">
+    <value>Remove license</value>
+  </data>
+  <data name="LicenseReg_Success" xml:space="preserve">
+    <value>The license has been registered. Thank you!</value>
+  </data>
+  <data name="LicenseReg_Invalid" xml:space="preserve">
+    <value>The registration code is not valid.</value>
+  </data>
+  <data name="LicenseReg_Deleted" xml:space="preserve">
+    <value>The license has been removed.</value>
+  </data>
+  <data name="About_LicenseRegistration" xml:space="preserve">
+    <value>Commercial license...</value>
+  </data>
+  <data name="About_FreeVersionNotice" xml:space="preserve">
+    <value>AttacheCase5 is currently in use as a free version.</value>
+  </data>
+  <data name="About_CommercialRegister" xml:space="preserve">
+    <value>Register for commercial use</value>
+  </data>
+  <data name="About_CommercialUse" xml:space="preserve">
+    <value>Commercial use</value>
+  </data>
+  <data name="About_LicUserName" xml:space="preserve">
+    <value>User name :</value>
+  </data>
+  <data name="About_LicEmail" xml:space="preserve">
+    <value>E-mail :</value>
+  </data>
+  <data name="About_DeleteLicenseMenu" xml:space="preserve">
+    <value>Remove commercial license</value>
+  </data>
+  <data name="About_DeleteLicenseTitle" xml:space="preserve">
+    <value>Remove commercial license</value>
+  </data>
+  <data name="About_DeleteLicenseConfirm" xml:space="preserve">
+    <value>Do you want to remove this commercial license?</value>
+  </data>
+  <data name="Settings_AssociationSection" xml:space="preserve">
+    <value>File association (Windows)</value>
+  </data>
+  <data name="Settings_AssociationHint" xml:space="preserve">
+    <value>Register .atc / .atcpvt / .atcpub with Explorer so that double-clicking opens AttacheCase. Administrator privileges are requested only for the small helper tool.</value>
+  </data>
+  <data name="Settings_Associate" xml:space="preserve">
+    <value>Associate</value>
+  </data>
+  <data name="Settings_Unassociate" xml:space="preserve">
+    <value>Remove association</value>
+  </data>
+  <data name="Settings_AssociationIconLabel" xml:space="preserve">
+    <value>Icon shown for .atc files:</value>
+  </data>
+  <data name="Settings_AssociationIconHint" xml:space="preserve">
+    <value>To apply a new icon to files that are already associated, click "Associate" again.</value>
+  </data>
+  <data name="Dialog_InfoTitle" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="WinMenu_File" xml:space="preserve">
+    <value>_File</value>
+  </data>
+  <data name="WinMenu_Encrypt" xml:space="preserve">
+    <value>_Encrypt</value>
+  </data>
+  <data name="WinMenu_EncryptOpenFiles" xml:space="preserve">
+    <value>_Open Files to Encrypt...</value>
+  </data>
+  <data name="WinMenu_EncryptOpenFolder" xml:space="preserve">
+    <value>Open Folde_r to Encrypt...</value>
+  </data>
+  <data name="WinMenu_ZipFromFiles" xml:space="preserve">
+    <value>Create Encrypted _ZIP from Files...</value>
+  </data>
+  <data name="WinMenu_ZipFromFolder" xml:space="preserve">
+    <value>Cre_ate Encrypted ZIP from Folder...</value>
+  </data>
+  <data name="WinMenu_Decrypt" xml:space="preserve">
+    <value>_Decrypt</value>
+  </data>
+  <data name="WinMenu_DecryptOpenFile" xml:space="preserve">
+    <value>_Open Encrypted File (.atc)...</value>
+  </data>
+  <data name="WinMenu_DecryptOpenZip" xml:space="preserve">
+    <value>Open Encrypted _ZIP...</value>
+  </data>
+  <data name="WinMenu_PublicKey" xml:space="preserve">
+    <value>Public Key C_ryptography</value>
+  </data>
+  <data name="WinMenu_PostPpap" xml:space="preserve">
+    <value>_Post-PPAP</value>
+  </data>
+  <data name="WinMenu_Exit" xml:space="preserve">
+    <value>E_xit</value>
+  </data>
+  <data name="WinMenu_Options" xml:space="preserve">
+    <value>_Options</value>
+  </data>
+  <data name="WinMenu_Setting" xml:space="preserve">
+    <value>Se_ttings</value>
+  </data>
+  <data name="WinMenu_Help" xml:space="preserve">
+    <value>_Help</value>
+  </data>
+  <data name="WinMenu_OnlineHelp" xml:space="preserve">
+    <value>On_line Help</value>
+  </data>
+  <data name="WinMenu_CheckForUpdates" xml:space="preserve">
+    <value>Check for _Updates...</value>
+  </data>
+  <data name="WinMenu_About" xml:space="preserve">
+    <value>_About...</value>
+  </data>
+  <data name="WinMenu_License" xml:space="preserve">
+    <value>_License...</value>
+  </data>
+  <data name="Dialog_ConfirmTitle" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="PostPpap_LeaveVerifyTitle" xml:space="preserve">
+    <value>Email verification is not finished</value>
+  </data>
+  <data name="PostPpap_LeaveVerifyMessage" xml:space="preserve">
+    <value>The verification email has not been confirmed yet. If you leave this screen, automatic detection stops and clicking the link will not complete the registration. Also, registering the same address again is limited to 3 times per 10 minutes.
+
+Leave anyway?</value>
+  </data>
+  <data name="Settings_Theme" xml:space="preserve">
+    <value>Theme:</value>
+  </data>
+  <data name="Settings_ThemeAuto" xml:space="preserve">
+    <value>Auto (follow OS)</value>
+  </data>
+  <data name="Settings_ThemeLight" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="Settings_ThemeDark" xml:space="preserve">
+    <value>Dark</value>
+  </data>
+  <data name="Settings_RememberSection" xml:space="preserve">
+    <value>Remembered passwords</value>
+  </data>
+  <data name="Settings_RememberHint" xml:space="preserve">
+    <value>Passwords are stored in an encrypted vault (_AtcVault.json) protected by this computer's key store — never in the settings file. Even if the vault file is copied elsewhere, it cannot be opened without a migration code.</value>
+  </data>
+  <data name="Settings_RememberEncrypt" xml:space="preserve">
+    <value>Remember the encryption password and pre-fill it</value>
+  </data>
+  <data name="Settings_RememberDecrypt" xml:space="preserve">
+    <value>Remember the decryption password and pre-fill it</value>
+  </data>
+  <data name="Settings_RememberClear" xml:space="preserve">
+    <value>Erase all remembered data</value>
+  </data>
+  <data name="Settings_RememberClearConfirm" xml:space="preserve">
+    <value>All remembered passwords will be erased, including registrations of other trusted computers. This cannot be undone. Continue?</value>
+  </data>
+  <data name="Settings_VaultLockedNotice" xml:space="preserve">
+    <value>Remembered passwords exist, but they cannot be opened on this computer yet. Enter a migration code issued on a trusted computer to register this one. The code becomes invalid once used.</value>
+  </data>
+  <data name="Settings_MigrationCodeLabel" xml:space="preserve">
+    <value>Migration code:</value>
+  </data>
+  <data name="Settings_RegisterDevice" xml:space="preserve">
+    <value>Register this computer</value>
+  </data>
+  <data name="Settings_RegisterDeviceFailed" xml:space="preserve">
+    <value>Could not register. The code may be wrong, expired, or already used. Issue a new code on a trusted computer.</value>
+  </data>
+  <data name="Settings_RegisterDeviceDone" xml:space="preserve">
+    <value>This computer has been registered. From now on, remembered passwords open automatically here. The migration code is now invalid.</value>
+  </data>
+  <data name="Settings_IssueCode" xml:space="preserve">
+    <value>Issue a migration code</value>
+  </data>
+  <data name="Settings_IssueCodeHint" xml:space="preserve">
+    <value>Use a migration code to open the remembered passwords once on another computer. It is valid for 7 days, becomes invalid after one use, and issuing a new code invalidates the previous one.</value>
+  </data>
+  <data name="Settings_IssueCodeNeedUnlocked" xml:space="preserve">
+    <value>A migration code cannot be issued. Save a remembered password first, and make sure this computer can open the vault.</value>
+  </data>
+  <data name="Settings_IssuedCodeNotice" xml:space="preserve">
+    <value>Write this code down. It cannot be shown again after leaving this screen.</value>
+  </data>
+  <data name="Settings_PortableSection" xml:space="preserve">
+    <value>Portable settings (Windows)</value>
+  </data>
+  <data name="Settings_PortableHint" xml:space="preserve">
+    <value>Write the settings to _AtcCase.json next to AttacheCase.exe, e.g. for carrying it on a USB drive. When that file exists, it is used instead of this computer's settings (takes effect at next launch). Successor to the _AtcCase.ini of previous versions.</value>
+  </data>
+  <data name="Settings_PortableStatusNormal" xml:space="preserve">
+    <value>Status: using this computer's settings</value>
+  </data>
+  <data name="Settings_PortableStatusInUse" xml:space="preserve">
+    <value>Status: using portable settings ({0})</value>
+  </data>
+  <data name="Settings_PortableStatusPending" xml:space="preserve">
+    <value>Status: a portable settings file exists ({0}) — it will be used from the next launch once approved</value>
+  </data>
+  <data name="Settings_PortableCreate" xml:space="preserve">
+    <value>Create portable settings</value>
+  </data>
+  <data name="Settings_PortableCreated" xml:space="preserve">
+    <value>Portable settings were written to:
+{0}
+
+They take effect at the next launch. Remembered passwords (the vault file) were copied along; to use them on another computer, issue a migration code.</value>
+  </data>
+  <data name="Settings_PortableCreateFailed" xml:space="preserve">
+    <value>Could not create the portable settings file.</value>
+  </data>
+  <data name="Settings_PortableRemove" xml:space="preserve">
+    <value>Remove portable settings</value>
+  </data>
+  <data name="Settings_PortableRemoveConfirm" xml:space="preserve">
+    <value>The portable settings file (_AtcCase.json) will be deleted, and this computer's settings will be used from the next launch. Continue?</value>
+  </data>
+  <data name="Settings_PortableRemoved" xml:space="preserve">
+    <value>Portable settings were removed. This computer's settings will be used from the next launch.</value>
+  </data>
+  <data name="Settings_PortableRemoveFailed" xml:space="preserve">
+    <value>Could not remove the portable settings file. It may be in use by another program.</value>
+  </data>
+  <data name="Error_AtcSetupNotFound" xml:space="preserve">
+    <value>The file association tool (AtcSetup.exe) was not found.</value>
+  </data>
+  <data name="Zxcvbn_LabelEmpty" xml:space="preserve">
+    <value>Empty string</value>
+  </data>
+  <data name="Zxcvbn_Label0" xml:space="preserve">
+    <value>Vulnerable</value>
+  </data>
+  <data name="Zxcvbn_Label1" xml:space="preserve">
+    <value>Weak</value>
+  </data>
+  <data name="Zxcvbn_Label2" xml:space="preserve">
+    <value>Somewhat weak</value>
+  </data>
+  <data name="Zxcvbn_Label3" xml:space="preserve">
+    <value>Good</value>
+  </data>
+  <data name="Zxcvbn_Label4" xml:space="preserve">
+    <value>Strong</value>
+  </data>
+  <data name="Portable_ConfirmTitle" xml:space="preserve">
+    <value>Portable settings found</value>
+  </data>
+  <data name="Portable_ConfirmMessage" xml:space="preserve">
+    <value>A portable settings file was found next to the application:
+
+{0}
+
+Settings files can change where files are saved and how originals are deleted. Load it only if you placed it there yourself.
+
+Trust and use this file?</value>
+  </data>
+  <data name="Portable_EnabledNextLaunch" xml:space="preserve">
+    <value>The portable settings will be used from the next launch.</value>
+  </data>
+  <data name="Update_NotAvailableOnThisBuild" xml:space="preserve">
+    <value>Update delivery for this build has not started yet. Please check https://hibara.org/software/ for new releases.</value>
+  </data>
+  <data name="Update_WinVerify_FileNotFound" xml:space="preserve">
+    <value>The downloaded file could not be found.</value>
+  </data>
+  <data name="Update_WinVerify_NotSigned" xml:space="preserve">
+    <value>The downloaded file does not have a valid digital signature.</value>
+  </data>
+  <data name="Update_WinVerify_SignatureInvalid" xml:space="preserve">
+    <value>The signature of the downloaded file could not be verified.</value>
+  </data>
+  <data name="Update_WinVerify_SignerMismatch" xml:space="preserve">
+    <value>The signer of the downloaded file differs from the running application.</value>
+  </data>
+  <data name="Update_WinVerify_SignerUnavailable" xml:space="preserve">
+    <value>The signature of the running application could not be confirmed, so the update cannot be applied.</value>
+  </data>
+  <data name="Update_WinVerify_Failed" xml:space="preserve">
+    <value>The downloaded file could not be verified.</value>
+  </data>
+  <data name="Update_OpenDownloadPage" xml:space="preserve">
+    <value>This is a portable (ZIP) installation, so the update is not applied automatically. The download page will be opened in your browser.</value>
+  </data>
+  <data name="Error_InvalidKdfParameters" xml:space="preserve">
+    <value>The key derivation parameters are out of range. The file may be corrupted or tampered with.</value>
+  </data>
+  <data name="Error_InvalidKeyProtectionBlock" xml:space="preserve">
+    <value>The key protection block has an invalid size. The file may be corrupted.</value>
+  </data>
+  <data name="Error_WrongPassword" xml:space="preserve">
+    <value>The password is not correct</value>
+  </data>
+  <data name="Error_WrongPasswordOrBroken" xml:space="preserve">
+    <value>The password is wrong, or the encrypted file is damaged</value>
+  </data>
+  <data name="Error_WrongPasswordOrBrokenHeader" xml:space="preserve">
+    <value>The password is wrong, or the encrypted file is damaged (the header was not found)</value>
+  </data>
+  <data name="Error_WrongPasswordOrBrokenList" xml:space="preserve">
+    <value>The password is wrong, or the encrypted file is damaged (could not read the file list)</value>
+  </data>
+  <data name="Error_DecryptFailedPassword" xml:space="preserve">
+    <value>Decryption failed. The password may be wrong</value>
+  </data>
+  <data name="Error_DecryptFailedBothPaths" xml:space="preserve">
+    <value>Decryption failed (both the Windows-compatible and the older Mac-compatible path failed): {0}</value>
+  </data>
+  <data name="Error_UnsupportedDataVersion" xml:space="preserve">
+    <value>Unsupported data version: {0}</value>
+  </data>
+  <data name="Error_UnsupportedSymmetricAlgorithm" xml:space="preserve">
+    <value>Unsupported symmetric algorithm: 0x{0}</value>
+  </data>
+  <data name="Error_InvalidZipAlgorithm" xml:space="preserve">
+    <value>The "ZIP encryption method" setting has an invalid value ({0}). Open Settings and choose it again.</value>
+  </data>
+  <data name="Error_UnsupportedKdf" xml:space="preserve">
+    <value>Unsupported KDF algorithm: 0x{0}</value>
+  </data>
+  <data name="Error_MarkedBroken" xml:space="preserve">
+    <value>This encrypted file is marked as broken</value>
+  </data>
+  <data name="Error_EmptyFileList" xml:space="preserve">
+    <value>The file list is empty</value>
+  </data>
+  <data name="Error_HeaderNonceRead" xml:space="preserve">
+    <value>Could not read the header nonce</value>
+  </data>
+  <data name="Error_BodyNonceRead" xml:space="preserve">
+    <value>Could not read the body nonce</value>
+  </data>
+  <data name="Error_EncryptedHeaderRead" xml:space="preserve">
+    <value>Could not read the encrypted header</value>
+  </data>
+  <data name="Error_SkipHeaderFailed" xml:space="preserve">
+    <value>Could not skip the encrypted header</value>
+  </data>
+  <data name="Error_HeaderTagVerify" xml:space="preserve">
+    <value>Header authentication failed (wrong password, or the file is damaged)</value>
+  </data>
+  <data name="Error_BodyTagVerify" xml:space="preserve">
+    <value>Body authentication failed (the file may be damaged or tampered with)</value>
+  </data>
+  <data name="Error_TruncatedData" xml:space="preserve">
+    <value>The decrypted data ended unexpectedly</value>
+  </data>
+  <data name="Error_TruncatedBody" xml:space="preserve">
+    <value>The decrypted data ended unexpectedly (the file body is incomplete)</value>
+  </data>
+  <data name="Error_TruncatedWhileSkipping" xml:space="preserve">
+    <value>The decrypted data ended while skipping</value>
+  </data>
+  <data name="Error_Crc32Mismatch" xml:space="preserve">
+    <value>CRC32 does not match</value>
+  </data>
+  <data name="Error_Md5Mismatch" xml:space="preserve">
+    <value>MD5 does not match</value>
+  </data>
+  <data name="Error_CanceledByUser" xml:space="preserve">
+    <value>Canceled by the user</value>
+  </data>
+  <data name="Error_PrivateKeyNoGuid" xml:space="preserve">
+    <value>The private key does not contain a GUID</value>
+  </data>
+  <data name="Error_RsaHeaderNotFound" xml:space="preserve">
+    <value>The RSA header was not found</value>
+  </data>
+  <data name="Error_RsaGuidMismatch" xml:space="preserve">
+    <value>The GUID of the private key does not match.</value>
+  </data>
+  <data name="Error_RsaGuidMismatchDetail" xml:space="preserve">
+    <value>The GUID of the private key does not match.&#xA;&#xA;File GUID: {0}&#xA;Private key GUID: {1}</value>
+  </data>
+  <data name="Error_RsaBlockMissing" xml:space="preserve">
+    <value>No RSA-encrypted data was found.</value>
+  </data>
+  <data name="Error_RsaBlockNotFound" xml:space="preserve">
+    <value>No RSA-encrypted data was found. This file may not be encrypted with RSA.</value>
+  </data>
+  <data name="Error_RsaDecryptFailed" xml:space="preserve">
+    <value>RSA decryption failed. The private key may be wrong.</value>
+  </data>
+  <data name="Error_PublicKeyRecoverFailed" xml:space="preserve">
+    <value>Could not recover the common key (the private key does not match)</value>
+  </data>
+  <data name="Error_PostPpapNoAccount" xml:space="preserve">
+    <value>No Post-PPAP account is registered. Register your email address first.</value>
+  </data>
+  <data name="Error_NoMatchingPrivateKey" xml:space="preserve">
+    <value>No private key on this Mac can decrypt this file. You may not be one of the recipients.</value>
+  </data>
+  <data name="Error_RecipientNoMlKem" xml:space="preserve">
+    <value>The hybrid recipient {0} does not have an ML-KEM public key.</value>
+  </data>
+  <data name="Error_ZipExtractFailed" xml:space="preserve">
+    <value>ZIP extraction error: {0} (the password may be wrong)</value>
+  </data>
+  <data name="Error_NoInputPath" xml:space="preserve">
+    <value>No input path was given.</value>
+  </data>
+  <data name="Error_InvalidOutputPath" xml:space="preserve">
+    <value>The output path is not valid.</value>
+  </data>
+  <data name="Error_EmptyPassword" xml:space="preserve">
+    <value>The password is empty.</value>
+  </data>
+  <data name="Error_NoFilesToEncrypt" xml:space="preserve">
+    <value>No files to encrypt were found.</value>
+  </data>
+  <data name="PostPpap_RsaKeyMissing" xml:space="preserve">
+    <value>The RSA private key is not in the Keychain. Register again.</value>
+  </data>
+  <data name="PostPpap_MlKemKeyMissing" xml:space="preserve">
+    <value>The ML-KEM private key is not in the Keychain. Register again.</value>
+  </data>
+  <data name="PostPpap_EnterEmail" xml:space="preserve">
+    <value>Enter an email address.</value>
+  </data>
+  <data name="PostPpap_EnterRecipientEmail" xml:space="preserve">
+    <value>Enter the recipient's email address.</value>
+  </data>
+  <data name="PostPpap_ServerError" xml:space="preserve">
+    <value>Server error: {0} {1}</value>
+  </data>
+  <data name="PostPpap_RecipientNotHybrid" xml:space="preserve">
+    <value>This recipient does not support hybrid encryption (RSA + ML-KEM), so the file cannot be encrypted.</value>
+  </data>
+  <data name="PostPpap_InvalidServerKey" xml:space="preserve">
+    <value>The key server returned inconsistent key data. The file was not encrypted.</value>
+  </data>
+  <data name="PostPpap_TryAgainLater" xml:space="preserve">
+    <value>Please try again in a little while.</value>
+  </data>
+  <data name="PostPpap_ServiceBusy" xml:space="preserve">
+    <value>The service is busy. Please try again in a little while.</value>
+  </data>
+  <data name="PostPpap_TryAgainAfter" xml:space="preserve">
+    <value>You have reached the registration limit. Please try again in about {0}.</value>
+  </data>
+  <data name="PostPpap_ServiceBusyAfter" xml:space="preserve">
+    <value>The service is busy. Please try again in about {0}.</value>
+  </data>
+  <data name="PostPpap_DurationLessThanAMinute" xml:space="preserve">
+    <value>a minute</value>
+  </data>
+  <data name="PostPpap_DurationMinute" xml:space="preserve">
+    <value>{0} minute</value>
+  </data>
+  <data name="PostPpap_DurationMinutes" xml:space="preserve">
+    <value>{0} minutes</value>
+  </data>
+  <data name="PostPpap_DurationHour" xml:space="preserve">
+    <value>{0} hour</value>
+  </data>
+  <data name="PostPpap_DurationHours" xml:space="preserve">
+    <value>{0} hours</value>
+  </data>
+  <data name="PostPpap_MissingInformation" xml:space="preserve">
+    <value>Some required information is missing.</value>
+  </data>
+  <data name="PostPpap_InvalidEmail" xml:space="preserve">
+    <value>The email address is not in a valid format.</value>
+  </data>
+  <data name="PostPpap_KeyDataProblem" xml:space="preserve">
+    <value>There was a problem with the generated key data. Please update the app.</value>
+  </data>
+  <data name="PostPpap_KeyAlreadyRegistered" xml:space="preserve">
+    <value>This key is already registered.</value>
+  </data>
+  <data name="PostPpap_ServerErrorHttp" xml:space="preserve">
+    <value>A server error occurred (HTTP {0}).</value>
+  </data>
+  <data name="PostPpap_SendingRegistration" xml:space="preserve">
+    <value>Sending the registration request…</value>
+  </data>
+  <data name="PostPpap_RegistrationFailed" xml:space="preserve">
+    <value>Registration request failed: {0}</value>
+  </data>
+  <data name="PostPpap_VerificationSent" xml:space="preserve">
+    <value>An email has been sent to {0}. Click the link in it to verify.</value>
+  </data>
+  <data name="PostPpap_RegistrationCompletedNotice" xml:space="preserve">
+    <value>(Registration complete)</value>
+  </data>
+  <data name="PostPpap_VerificationTimedOut" xml:space="preserve">
+    <value>Verification timed out or expired. Please register again.</value>
+  </data>
+  <data name="PostPpap_RegistrationCanceled" xml:space="preserve">
+    <value>Registration was canceled.</value>
+  </data>
+  <data name="PostPpap_VerificationError" xml:space="preserve">
+    <value>Error while waiting for verification: {0}</value>
+  </data>
+  <data name="PostPpap_NoTargetFile" xml:space="preserve">
+    <value>There is no file to encrypt.</value>
+  </data>
+  <data name="PostPpap_LookingUpKey" xml:space="preserve">
+    <value>Looking up the recipient's public key…</value>
+  </data>
+  <data name="PostPpap_RecipientNotRegistered" xml:space="preserve">
+    <value>{0} is not registered.</value>
+  </data>
+  <data name="PostPpap_StartingEncryption" xml:space="preserve">
+    <value>Starting encryption…</value>
+  </data>
+  <data name="PostPpap_EncryptionCompleted" xml:space="preserve">
+    <value>Encryption complete: {0}</value>
+  </data>
+  <data name="PostPpap_EncryptionFailed" xml:space="preserve">
+    <value>Encryption failed: {0}</value>
+  </data>
+  <data name="PostPpap_EncryptionCanceled" xml:space="preserve">
+    <value>Encryption was canceled.</value>
+  </data>
+  <data name="PostPpap_Error" xml:space="preserve">
+    <value>Error: {0}</value>
+  </data>
+  <data name="PostPpap_AccountDeleted" xml:space="preserve">
+    <value>The account has been deleted.</value>
+  </data>
+  <data name="PostPpapView_Title" xml:space="preserve">
+    <value>Post-PPAP public key encryption</value>
+  </data>
+  <data name="PostPpapView_NotRegistered" xml:space="preserve">
+    <value>No Post-PPAP email address is registered on this computer.&#xA;Press the Register button to register one.</value>
+  </data>
+  <data name="PostPpapView_RegisterButton" xml:space="preserve">
+    <value>Register an email address…</value>
+  </data>
+  <data name="PostPpapView_EnterYourEmail" xml:space="preserve">
+    <value>Enter your email address</value>
+  </data>
+  <data name="PostPpapView_SendRequest" xml:space="preserve">
+    <value>Send the request</value>
+  </data>
+  <data name="PostPpapView_VerificationSentTitle" xml:space="preserve">
+      <value>A verification email has been sent</value>
+  </data>
+  <data name="PostPpapView_VerificationGuide" xml:space="preserve">
+    <value>Click the link in the email to finish registering.&#xA;This window detects it automatically.</value>
+  </data>
+  <data name="PostPpapView_RegisteredAccount" xml:space="preserve">
+    <value>✅ Registered account</value>
+  </data>
+  <data name="PostPpapView_EncryptGuide" xml:space="preserve">
+    <value>🔒 To encrypt: drag and drop files onto this screen</value>
+  </data>
+  <data name="PostPpapView_DecryptGuide" xml:space="preserve">
+    <value>🔓 To decrypt: drag and drop an .atc file (your private key is used automatically)</value>
+  </data>
+  <data name="PostPpapView_EncryptTitle" xml:space="preserve">
+    <value>🔒 Encrypt with a public key</value>
+  </data>
+  <data name="PostPpapView_TargetFile" xml:space="preserve">
+    <value>Target file:</value>
+  </data>
+  <data name="PostPpapView_EnterRecipientEmail" xml:space="preserve">
+    <value>Enter the recipient's email address</value>
+  </data>
+  <data name="PostPpapView_LookUpAndEncrypt" xml:space="preserve">
+    <value>Look up the key and encrypt</value>
+  </data>
+  <data name="PostPpapView_DeleteAccount" xml:space="preserve">
+    <value>Delete the account</value>
+  </data>
+  <data name="Settings_Advanced" xml:space="preserve">
+    <value>Advanced</value>
+  </data>
+  <data name="Settings_PasswordFile" xml:space="preserve">
+    <value>Password file</value>
+  </data>
+  <data name="Settings_AllowPasswordFileDragDrop" xml:space="preserve">
+    <value>Allow dragging and dropping a password file</value>
+  </data>
+  <data name="Settings_AllowPasswordFileDragDropHint" xml:space="preserve">
+    <value>When on, a file can be dropped directly onto the password box of the encryption and decryption screens.</value>
+  </data>
+  <data name="Settings_CheckPasswordFileOnEncrypt" xml:space="preserve">
+    <value>Check for a password file when encrypting</value>
+  </data>
+  <data name="Settings_CheckPasswordFileOnDecrypt" xml:space="preserve">
+    <value>Check for a password file when decrypting</value>
+  </data>
+  <data name="Settings_CheckPasswordFileHint" xml:space="preserve">
+    <value>If the file exists, its hash is computed and used as the password.</value>
+  </data>
+  <data name="Settings_NoErrorWhenPasswordFileMissing" xml:space="preserve">
+    <value>Do not show an error when the password file is missing</value>
+  </data>
+  <data name="Settings_ExecuteWithPasswordFileWithoutConfirm" xml:space="preserve">
+    <value>Run without confirmation when a password file is used</value>
+  </data>
+  <data name="Settings_ExecuteWithPasswordFileHint" xml:space="preserve">
+    <value>Skips the password screen and starts the work straight away.</value>
+  </data>
+  <data name="Settings_SelectPasswordFile" xml:space="preserve">
+    <value>Select a password file</value>
+  </data>
+  <data name="PasswordFile_InUse" xml:space="preserve">
+    <value>Password file: {0}</value>
+  </data>
+  <data name="PasswordFile_Clear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="PasswordFile_NotFoundTitle" xml:space="preserve">
+    <value>Password file</value>
+  </data>
+  <data name="PasswordFile_NotFound" xml:space="preserve">
+    <value>The password file was not found:&#xA;{0}</value>
+  </data>
+  <data name="PasswordFile_ReadFailed" xml:space="preserve">
+    <value>Could not read the password file:&#xA;{0}</value>
+  </data>
+  <data name="Settings_PasswordLimit" xml:space="preserve">
+    <value>Password entry limit</value>
+  </data>
+  <data name="Settings_PasswordLimitNotice" xml:space="preserve">
+    <value>⚠️ These settings are stored in the encrypted file itself, not in AttacheCase.</value>
+  </data>
+  <data name="Settings_MissTypeLimitsLabel" xml:space="preserve">
+    <value>Limit the number of password attempts on the encrypted file</value>
+  </data>
+  <data name="Settings_MissTypeLimitsUnit" xml:space="preserve">
+    <value>times</value>
+  </data>
+  <data name="Settings_BreakFileWhenLimitExceeded" xml:space="preserve">
+    <value>Destroy the encrypted file after that many wrong attempts</value>
+  </data>
+  <data name="Decryption_FileBroken" xml:space="preserve">
+    <value>The encrypted file has been destroyed because the number of password attempts was exceeded.</value>
+  </data>
+  <data name="Error_FileAlreadyBroken" xml:space="preserve">
+    <value>This encrypted file has been destroyed.</value>
+  </data>
+  <data name="Settings_CamouflageSection" xml:space="preserve">
+    <value>Extension camouflage</value>
+  </data>
+  <data name="Settings_CamouflageHint" xml:space="preserve">
+    <value>The file is still an encrypted file. Drop it onto AttacheCase and it opens as usual.</value>
+  </data>
+  <data name="PostPpapView_Register" xml:space="preserve">
+    <value>Register</value>
+  </data>
+  <data name="PostPpapView_RecipientLabel" xml:space="preserve">
+    <value>Recipient email address:</value>
+  </data>
+  <data name="PostPpapView_Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="PostPpapView_RecipientFound" xml:space="preserve">
+    <value>Registered</value>
+  </data>
+  <data name="PostPpapView_RecipientFoundDetail" xml:space="preserve">
+      <value>Can be sent securely without a password</value>
+  </data>
+  <data name="PostPpapView_RecipientNotFound" xml:space="preserve">
+      <value>Not registered</value>
+  </data>
+  <data name="PostPpapView_RecipientNotFoundDetail" xml:space="preserve">
+      <value>Encrypted with a password</value>
+  </data>
+  <data name="PostPpapView_DropGuideRegistered" xml:space="preserve">
+    <value>The recipient's email address is registered.&#xA;The file can be encrypted and sent securely without a password.&#xA;&#xA;Drag and drop the file or folder to encrypt here.</value>
+  </data>
+  <data name="PostPpapView_DropGuideNotRegistered" xml:space="preserve">
+      <value>Please send the file as a regular encrypted file. After sending it, you will need to share the password.
+
+At that time, if the recipient registers their email address with this Post-PPAP service, you’ll be able to exchange files using password-free encryption from then on.
+
+Please drag and drop the file or folder you want to encrypt here.</value>
+  </data>
+  <data name="PostPpapView_PendingFile" xml:space="preserve">
+    <value>File to encrypt: {0}</value>
+  </data>
+  <data name="PublicKey_EncryptionRetiredMessage" xml:space="preserve">
+    <value>Encryption with RSA key files is no longer available in AttacheCase5.
+
+To send a file without sharing a password, use Post-PPAP.
+You can still decrypt files made with an older version by dropping your private key (.atcpvt).</value>
+  </data>
+  <data name="Error_RsaEncryptionRetired" xml:space="preserve">
+    <value>Encryption with RSA key files is not available in AttacheCase5. Use Post-PPAP instead.</value>
+  </data>
+  <data name="PublicKey_DropFilesToDecrypt" xml:space="preserve">
+    <value>Drag &amp; drop a file that was encrypted&#xA;with a public key.</value>
+  </data>
+  <data name="Settings_ZipCryptoWarning" xml:space="preserve">
+    <value>ZipCrypto is an old, weak method and can be broken. Choose it only when you need compatibility with Windows Explorer.</value>
+  </data>
+  <data name="ZipEncryption_ZipCryptoWarning" xml:space="preserve">
+    <value>The encryption method is ZipCrypto, which is weak. For important files, use AES-256 (changeable in Settings).</value>
+  </data>
+  <data name="PublicKey_KeyFileReadFailed" xml:space="preserve">
+    <value>Could not read the key file: {0}</value>
+  </data>
+  <data name="Error_RsaKeyFileUnsupportedSize" xml:space="preserve">
+    <value>The RSA key is {0} bits long. Only 2048-bit or 4096-bit keys can be used.</value>
+  </data>
+  <data name="Error_RsaKeyFileInvalid" xml:space="preserve">
+    <value>Could not read the RSA key file: {0}</value>
+  </data>
+  <data name="Error_RsaKeyFileNoMatch" xml:space="preserve">
+    <value>This private key does not match any recipient of the file.</value>
+  </data>
+  <data name="Error_RsaKeyFileHybridFile" xml:space="preserve">
+    <value>This file was encrypted with Post-PPAP (RSA + ML-KEM). A private key file cannot open it; decrypt it with the Post-PPAP account registered on this computer.</value>
+  </data>
+</root>

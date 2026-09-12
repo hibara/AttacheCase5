@@ -1,0 +1,31 @@
+# Windows と macOS の両方で開発するため、リポジトリ内は LF に正規化する。
+# 作業ツリー側の改行は各自の core.autocrlf に従う。
+* text=auto
+
+# シェルスクリプトは macOS 上で bash が実行する。CRLF が混ざると壊れるので
+# どの OS でチェックアウトしても LF に固定する。
+*.sh text eol=lf
+*.plist text eol=lf
+*.strings text eol=lf
+
+# PowerShell スクリプトは Windows 実行が主。CRLF に固定する。
+*.ps1 text eol=crlf
+
+# バイナリ
+*.png binary
+*.pdf binary
+*.icns binary
+*.atc binary
+*.ico binary
+
+# =============================================================================
+# ソースアベイラブル公開（Public リポジトリ AttacheCase5）に含めないもの。
+# 秘密ではないが内部運用の文書・雛形。公開用の快照は `git archive` で作るので、
+# ここに export-ignore を付けたものは快照に入らない（_installer/publish_public.sh）。
+# 秘密そのもの（_secrets/ 等）は .gitignore の /_* で git にすら入れない。
+# =============================================================================
+CLAUDE.md                          export-ignore
+RELEASE.md                         export-ignore
+RELEASE.pdf                        export-ignore
+src/AttacheCase/release.env.example export-ignore
+test_compatibility.sh              export-ignore

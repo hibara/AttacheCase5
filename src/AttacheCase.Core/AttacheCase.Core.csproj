@@ -1,0 +1,83 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <!-- 既存コードの名前空間（AttacheCase.Crypto / AttacheCase.Services など）と
+             リソース名（AttacheCase.Resources.Strings）を変えないため、
+             ルート名前空間はアプリ本体と同じにする。 -->
+        <RootNamespace>AttacheCase</RootNamespace>
+        <AssemblyVersion>5.5.0</AssemblyVersion>
+        <FileVersion>5.5.0</FileVersion>
+        <Company>HiBARA Software, LLC</Company>
+        <Version>5.5.0</Version>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
+        <PackageReference Include="SharpZipLib" Version="1.4.2" />
+        <!-- 旧形式 v105 (AttacheCase 2) のヘッダ・パスワードは Shift-JIS (CP932)。
+             .NET (Core) 系は既定で CP932 を持たないため、このパッケージで供給する
+             （登録は ModuleInit.cs） -->
+        <PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.0" />
+        <!-- Windows での秘密情報保護（DPAPI）。macOS はキーチェーンを使う -->
+        <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="9.0.0" />
+    </ItemGroup>
+
+    <!-- 更新確認などの内部ロジックを単体テストから検証するため -->
+    <ItemGroup>
+        <InternalsVisibleTo Include="AttacheCase.Tests" />
+    </ItemGroup>
+
+    <!-- 自己実行形式スタブの埋め込みソース Exeout48.cs は生成物（tools\ExeToHex が
+         Exeout.exe を byte[] 化して差し込む。実質バイナリなので git 追跡しない）。
+         生成物と雛形（Exeout48.template.cs、空版）の両方を既定グロブから外し、
+         ファイル末尾の静的な ItemGroup で「本物があればそれ、無ければ雛形」を
+         明示的にコンパイル対象へ加える。これで ExeToHex を通していない素の
+         dotnet build/test でも通り（空スタブ＝実行時に InvalidData で弾く）、
+         ビルドバッチが ExeToHex で満たせば本物のスタブが埋め込まれる。
+         雛形の拡張子は必ず .cs にする（Rider は実ファイルの拡張子で言語を決めるので、
+         .template だと Link で C# 扱いにしても解析されず、型が未解決になる）。 -->
+    <ItemGroup>
+        <Compile Remove="Exeout48.cs" />
+        <Compile Remove="Exeout48.template.cs" />
+        <Compile Remove="Services\LicenseRegister.Secret.template.cs" />
+    </ItemGroup>
+    <!-- 商用ライセンス復号鍵（LicenseRegister の partial）。本物はリポジトリ外
+         （_secrets\LicenseRegister.Secret.cs、git 追跡外・Dropbox 同期のみ）。
+         無ければ空鍵の雛形をそのままコンパイルする（コピーはしない。コピーすると
+         後から本物を置いたとき二重定義になる）。空鍵 = ライセンス検証は常に失敗。 -->
+    <PropertyGroup>
+        <LicenseSecretFile>$(MSBuildProjectDirectory)\..\..\_secrets\LicenseRegister.Secret.cs</LicenseSecretFile>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="$(LicenseSecretFile)"
+                 Link="Services\LicenseRegister.Secret.cs"
+                 Condition="Exists('$(LicenseSecretFile)')" />
+        <Compile Include="Services\LicenseRegister.Secret.template.cs"
+                 Link="Services\LicenseRegister.Secret.cs"
+                 Condition="!Exists('$(LicenseSecretFile)')" />
+    </ItemGroup>
+
+    <!-- 自己実行形式（.exe）スタブの埋め込みは Windows 専用。Windows 以外の OS では
+         生成物 Exeout48.cs（ExeToHex が差し込む約 3MB の byte[]）を取り込まず、
+         空版のテンプレートをコンパイルする（Mac の .app に Windows 用 EXE を同梱しない。
+         rawData が空でも EncryptionService.WriteExecutableStub は先に OS で弾く）。
+         【注意】Compile の登録は Target の中ではなく静的な ItemGroup に置く。
+         Rider / VS のプロジェクトモデルは MSBuild の「評価」しか見ず Target を
+         実行しないので、Target 内の Compile は IDE に見えず FileEncrypt5 が
+         未解決になる（ビルドは通るのに IDE だけ赤くなる。2026-09-11 Mac の Rider で実測）。
+         2 つの ItemGroup は条件が排他（本物があればそれ、無ければ雛形）で、
+         両方が入って二重定義になることはない。雛形はコピーしない
+         （ビルドバッチが ExeToHex の前に自分でコピーする）。 -->
+    <PropertyGroup>
+        <EmbedExeoutStub Condition="'$(EmbedExeoutStub)' == ''">$([MSBuild]::IsOSPlatform('Windows'))</EmbedExeoutStub>
+        <ExeoutStubSource>$(MSBuildProjectDirectory)\Exeout48.cs</ExeoutStubSource>
+        <UseGeneratedExeoutStub Condition="'$(EmbedExeoutStub)' == 'true' And Exists('$(ExeoutStubSource)')">true</UseGeneratedExeoutStub>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(UseGeneratedExeoutStub)' == 'true'">
+        <Compile Include="Exeout48.cs" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(UseGeneratedExeoutStub)' != 'true'">
+        <Compile Include="Exeout48.template.cs" Link="Exeout48.cs" />
+    </ItemGroup>
+</Project>

@@ -1,0 +1,342 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AttacheCase.ViewModels"
+             xmlns:l="using:AttacheCase.Markup"
+             x:Class="AttacheCase.Views.PostPpapView"
+             x:DataType="vm:PostPpapViewModel"
+             KeyDown="OnKeyDown">
+
+    <Border Background="{DynamicResource AppDropAreaBackground}"
+            BorderBrush="{DynamicResource AppDropAreaBorder}"
+            BorderThickness="2"
+            CornerRadius="8">
+
+        <Grid RowDefinitions="*,Auto" Margin="40">
+
+            <!-- ===== 未登録（メアド登録なし） ===== -->
+            <StackPanel Grid.Row="0"
+                        IsVisible="{Binding IsNotRegistered}"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Spacing="20"
+                        MaxWidth="600">
+                <TextBlock Text="{l:Localize PostPpapView_Title}"
+                           FontSize="20"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="{l:Localize PostPpapView_NotRegistered}"
+                           FontSize="14"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"
+                           LineHeight="22" />
+                <Button Classes="Primary"
+                        Content="{l:Localize PostPpapView_RegisterButton}"
+                        Command="{Binding ShowRegisterCommand}"
+                        HorizontalAlignment="Center"
+                        Height="40"
+                        FontSize="14"
+                        Padding="20,0" />
+            </StackPanel>
+
+            <!-- ===== メアド入力中 ===== -->
+            <StackPanel Grid.Row="0"
+                        x:Name="RegisterPanel"
+                        IsVisible="{Binding IsRegistering}"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Spacing="15"
+                        MaxWidth="500">
+                <TextBlock Text="{l:Localize PostPpapView_EnterYourEmail}"
+                           FontSize="16"
+                           HorizontalAlignment="Center" />
+                <TextBox x:Name="EmailBox"
+                         Text="{Binding EmailInput, Mode=TwoWay}"
+                         Watermark="you@example.com"
+                         FontSize="14"
+                         Width="400">
+                    <TextBox.KeyBindings>
+                        <KeyBinding Gesture="Enter" Command="{Binding RegisterEmailCommand}" />
+                    </TextBox.KeyBindings>
+                </TextBox>
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            Spacing="10">
+                    <Button Classes="action Primary" Content="{l:Localize PostPpapView_Register}"
+                            Command="{Binding RegisterEmailCommand}" />
+                    <Button Classes="action" Content="{l:Localize Button_Cancel}"
+                            Command="{Binding CancelRegistrationCommand}" />
+                </StackPanel>
+
+                <!-- 通信中であることを示す細いマーキー -->
+                <ProgressBar IsIndeterminate="True"
+                             IsVisible="{Binding IsBusy}"
+                             Height="4"
+                             Width="400" />
+
+                <TextBlock Text="{Binding StatusText}"
+                           Foreground="{DynamicResource AppMutedForeground}"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== 認証メール待ち ===== -->
+            <StackPanel Grid.Row="0"
+                        IsVisible="{Binding IsAwaitingVerification}"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Spacing="15"
+                        MaxWidth="500">
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Spacing="10">
+                    <Image Height="24" Width="24" VerticalAlignment="Center">
+                        <Image.Source>
+                            <SvgImage Source="avares://AttacheCase/Assets/Icons/mail.svg" />
+                        </Image.Source>
+                    </Image>
+                    <TextBlock Text="{l:Localize PostPpapView_VerificationSentTitle}"
+                               FontSize="18"
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+
+                <TextBlock Text="{Binding VerificationEmail}"
+                           FontWeight="Bold"
+                           FontSize="14"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="{l:Localize PostPpapView_VerificationGuide}"
+                           FontSize="13"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource AppMutedForeground}" />
+                <TextBlock Text="{Binding StatusText}"
+                           Foreground="{DynamicResource AppAccentForeground}"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+
+            <!-- ===== ホーム（登録済み）: 宛先を検索してドロップする ===== -->
+            <ScrollViewer Grid.Row="0"
+                          IsVisible="{Binding IsHome}"
+                          VerticalScrollBarVisibility="Auto"
+                          Margin="0,0,0,12">
+                <StackPanel MaxWidth="640" HorizontalAlignment="Stretch">
+
+                    <!-- 自分の登録アカウント -->
+                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,0,16">
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Spacing="10">
+                            <Image Height="20" Width="20" VerticalAlignment="Center">
+                                <Image.Source>
+                                    <SvgImage Source="avares://AttacheCase/Assets/Icons/mail.svg" />
+                                </Image.Source>
+                            </Image>
+                            <TextBlock Text="{Binding SelfAccountSummary}"
+                                       FontSize="14"
+                                       VerticalAlignment="Center" />
+                        </StackPanel>
+
+                        <!-- 登録直後の一言。宛先の検索結果と紛れないよう、ここに出す -->
+                        <TextBlock Text="{Binding SelfAccountNotice}"
+                                   IsVisible="{Binding HasSelfAccountNotice}"
+                                   FontSize="13"
+                                   Foreground="{DynamicResource AppAccentForeground}"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <!-- 宛先メールアドレス -->
+                    <TextBlock Text="{l:Localize PostPpapView_RecipientLabel}"
+                               FontSize="13"
+                               Margin="0,0,0,4" />
+
+                    <!-- 入力欄はテーマ既定の大きさ（登録画面のメール入力と同じ）。
+                         余計な Padding を足すと高さが変わり、ボタンと中心が合わなくなる -->
+                    <Grid ColumnDefinitions="*,Auto">
+                        <TextBox Grid.Column="0"
+                                 x:Name="RecipientBox"
+                                 Text="{Binding RecipientEmailInput, Mode=TwoWay}"
+                                 Watermark="sendTo@example.com"
+                                 FontSize="14"
+                                 VerticalAlignment="Center">
+                            <TextBox.KeyBindings>
+                                <KeyBinding Gesture="Enter" Command="{Binding SearchRecipientCommand}" />
+                            </TextBox.KeyBindings>
+                        </TextBox>
+                        <Button Grid.Column="1"
+                                Classes="Primary"
+                                Content="{l:Localize PostPpapView_Search}"
+                                Command="{Binding SearchRecipientCommand}"
+                                Padding="16,6"
+                                VerticalAlignment="Center"
+                                Margin="6,0,0,0" />
+                    </Grid>
+
+                    <!-- 通信中の細いマーキー -->
+                    <ProgressBar IsIndeterminate="True"
+                                 IsVisible="{Binding IsBusy}"
+                                 Height="4"
+                                 Margin="0,6,0,0" />
+
+                    <!-- 検索結果（見つかった） -->
+                    <StackPanel Orientation="Horizontal"
+                                Margin="0,4,0,0"
+                                Spacing="4"
+                                VerticalAlignment="Center" IsVisible="{Binding IsRecipientFound}">
+                        <!-- 左側: SVG画像 -->
+                        <Image Width="12" Height="12" VerticalAlignment="Center">
+                            <Image.Source>
+                                <SvgImage Source="avares://AttacheCase/Assets/Icons/checkmark.svg" />
+                            </Image.Source>
+                        </Image>
+
+                        <!-- 右側: テキスト -->
+                        <TextBlock Text="{l:Localize PostPpapView_RecipientFound}"
+                                   FontSize="12" Foreground="{DynamicResource AppSuccessForeground}"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal"
+                                Margin="0,4,0,0"
+                                Spacing="4"
+                                VerticalAlignment="Center" IsVisible="{Binding IsRecipientFound}">
+                        <!-- 左側: SVG画像 -->
+                        <Image Width="12" Height="12" VerticalAlignment="Center">
+                            <Image.Source>
+                                <SvgImage Source="avares://AttacheCase/Assets/Icons/lock.svg" />
+                            </Image.Source>
+                        </Image>
+
+                        <!-- 右側: テキスト -->
+                        <TextBlock Text="{l:Localize PostPpapView_RecipientFoundDetail}"
+                                   FontSize="12" Foreground="{DynamicResource AppSuccessForeground}"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+
+
+                    <!-- 検索結果（見つからなかった）-->
+                    <StackPanel Orientation="Horizontal"
+                                Margin="0,10,0,0"
+                                Spacing="4"
+                                VerticalAlignment="Center" IsVisible="{Binding IsRecipientNotFound}">
+                        <!-- 左側: SVG画像 -->
+                        <Image Width="12" Height="12" VerticalAlignment="Center">
+                            <Image.Source>
+                                <SvgImage Source="avares://AttacheCase/Assets/Icons/batsu.svg" />
+                            </Image.Source>
+                        </Image>
+
+                        <!-- 右側: テキスト -->
+                        <TextBlock Text="{l:Localize PostPpapView_RecipientNotFound}"
+                                   FontSize="12" Foreground="{DynamicResource AppErrorForeground}"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal"
+                                Margin="0,10,0,0"
+                                Spacing="4"
+                                VerticalAlignment="Center" IsVisible="{Binding IsRecipientNotFound}">
+                        <!-- 左側: SVG画像 -->
+                        <Image Width="12" Height="12" VerticalAlignment="Center">
+                            <Image.Source>
+                                <SvgImage Source="avares://AttacheCase/Assets/Icons/encryption.svg" />
+                            </Image.Source>
+                        </Image>
+
+                        <!-- 右側: テキスト -->
+                        <TextBlock Text="{l:Localize PostPpapView_RecipientNotFoundDetail}"
+                                   FontSize="12" Foreground="{DynamicResource AppMutedForeground}"
+                                   VerticalAlignment="Center" />
+                    </StackPanel>
+
+                    <!-- <StackPanel Spacing="2" Margin="0,6,0,0" IsVisible="{Binding IsRecipientNotFound}"> -->
+                    <!--     <TextBlock Text="{l:Localize PostPpapView_RecipientNotFound}" -->
+                    <!--                FontSize="12" Foreground="{DynamicResource AppErrorForeground}" /> -->
+                    <!--     <TextBlock Text="{l:Localize PostPpapView_RecipientNotFoundDetail}" -->
+                    <!--                FontSize="12" Foreground="{DynamicResource AppMutedForeground}" /> -->
+                    <!-- </StackPanel> -->
+
+                    <!-- 進捗ステータス -->
+                    <TextBlock Text="{Binding StatusText}"
+                               Foreground="{DynamicResource AppAccentForeground}"
+                               TextWrapping="Wrap"
+                               Margin="0,6,0,0" />
+
+                    <!-- 暗号化の進捗。完了後も 100% のまま残して、何が出来たかを見せる -->
+                    <StackPanel IsVisible="{Binding IsEncryptionVisible}"
+                                Spacing="4"
+                                Margin="0,6,0,0">
+                        <TextBlock Text="{Binding EncryptFilePath}"
+                                   FontSize="11"
+                                   Opacity="0.75"
+                                   TextWrapping="NoWrap"
+                                   TextTrimming="CharacterEllipsis" />
+                        <ProgressBar Value="{Binding EncryptProgress}"
+                                     Minimum="0"
+                                     Maximum="100"
+                                     Height="20"
+                                     Foreground="{DynamicResource AppSuccessForeground}" />
+                        <TextBlock Text="{Binding EncryptProgress, StringFormat='{}{0}%'}"
+                                   FontSize="12"
+                                   HorizontalAlignment="Center" />
+                    </StackPanel>
+
+                    <!-- ドロップ領域（検索するまでは出さない） -->
+                    <Grid Margin="0,8,0,0" IsVisible="{Binding HasRecipientResult}">
+                        <!-- Avalonia の Border は破線を描けないので Rectangle を敷く -->
+                        <Rectangle Stroke="#999999"
+                                   StrokeThickness="1"
+                                   StrokeDashArray="4,3"
+                                   RadiusX="4"
+                                   RadiusY="4" />
+                        <!-- 案内文は検索結果で出し分ける。
+                             登録済みならパスワード不要、未登録ならパスワード共有が必要。 -->
+
+                        <!--
+                        送信先のメールアドレスの登録がありました。
+                        パスワードなしで安全に暗号化して送信できます。
+
+                        ここに暗号化するファイルまたはフォルダーをドラッグ＆ドロップしてください。
+                        -->
+                        <TextBlock Text="{l:Localize PostPpapView_DropGuideRegistered}"
+                                   IsVisible="{Binding IsRecipientFound}"
+                                   FontSize="13"
+                                   TextWrapping="Wrap"
+                                   LineHeight="15"
+                                   Margin="10" />
+
+                        <!--
+                        通常の暗号化ファイルで送信してください。
+                        送信後、パスワードを共有する必要があります。
+
+                        ここに暗号化するファイルまたはフォルダーをドラッグ＆ドロップしてください。
+                        -->
+                        <TextBlock Text="{l:Localize PostPpapView_DropGuideNotRegistered}"
+                                   IsVisible="{Binding IsRecipientNotFound}"
+                                   FontSize="13"
+                                   TextWrapping="Wrap"
+                                   LineHeight="15"
+                                   Margin="10" />
+                    </Grid>
+
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- メール認証の待ち画面には他に抜ける手段がないので、そこだけ「戻る」を出す。
+                 ホームや登録画面では左メニューで移動できるため出さない -->
+            <StackPanel Grid.Row="1"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Spacing="10"
+                        IsVisible="{Binding IsAwaitingVerification}">
+                <Button Classes="action" Content="{l:Localize Button_Back}"
+                        Command="{Binding CancelCommand}" />
+            </StackPanel>
+
+        </Grid>
+    </Border>
+</UserControl>

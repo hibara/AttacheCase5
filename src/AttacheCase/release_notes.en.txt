@@ -1,0 +1,25 @@
+# Release notes for AttacheCase for macOS (English)
+#
+# Read by appcast_generate.sh and embedded in the manifest. Shown in the
+# update dialog.
+#
+# Format
+#   [new]
+#   [improvements]
+#   [fixes]
+#
+# Use one of the three headings above. The displayed wording ("New", ...) lives
+# in the app, so do not write it here; that keeps the Japanese and English
+# headings from drifting apart.
+#
+# Lines starting with # and blank lines are ignored. One line is one item.
+# Rewrite this for every release. Leftovers from the previous release would be
+# shipped as if they were new changes.
+
+[new]
+Initial release
+Encrypt files and folders with a password (AES-256-GCM and Argon2id)
+Post-PPAP: send encrypted files without sharing a password (hybrid RSA-4096 and ML-KEM-768)
+Creating and opening password-protected ZIP files are now supported
+Opening files (.atc format) created in AttacheCase 4 is supported. However, the reverse is not possible. AC5 → AC4 ❌
+Command-line arguments in a format nearly identical to that of the Windows version is now supported

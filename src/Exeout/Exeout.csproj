@@ -1,0 +1,59 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <!--
+      自己実行形式（SFX）のスタブ本体（net48 / WinExe）。暗号化データの先頭に
+      このスタブを付けて 1 つの .exe にし、受信者の PC で単独実行させる。
+      net48 なのは意図的: .NET Framework 4.8 は Windows 10/11 に同梱されており、
+      受信者に何も入れさせずに動く（.NET 10 自己完結だと 70MB 超がファイルごとに付く）。
+      旧 Windows 版の Exeout（旧形式 csproj + packages.config）を SDK スタイル化し、
+      ExeOutShared\ のソースをリンクコンパイルする。BouncyCastle は Costura.Fody で
+      単一 exe にマージする。
+      ※ このスタブ exe は配布物として単独では置かない。tools\ExeToHex で byte[] 化し、
+        本体（Core の Exeout48.cs）へ埋め込んで使う。
+    -->
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net48</TargetFramework>
+        <UseWindowsForms>true</UseWindowsForms>
+        <AssemblyName>Exeout</AssemblyName>
+        <RootNamespace>Exeout</RootNamespace>
+        <LangVersion>8.0</LangVersion>
+        <DefineConstants>$(DefineConstants);AESCRYPTO;EXEOUT</DefineConstants>
+        <ApplicationIcon>..\ExeOutShared\main_icon.ico</ApplicationIcon>
+        <!-- SDK 既定の暗黙 using は使わない（旧コードは明示 using 済み） -->
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+        <AssemblyVersion>5.5.0</AssemblyVersion>
+        <FileVersion>5.5.0</FileVersion>
+        <Company>HiBARA Software, LLC</Company>
+        <!-- どの OS でもコンパイルできるよう参照アセンブリを使う -->
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+        <!-- dotnet CLI (Core MSBuild) は BinaryFormatter 形式の resx 書き出しを
+             サポートしないため preserialized 形式にし、読み取りに必要な
+             System.Resources.Extensions は Costura で exe に埋め込む。 -->
+        <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="..\ExeOutShared\**\*.cs" LinkBase="ExeOutShared" />
+        <EmbeddedResource Include="..\ExeOutShared\Form1.resx" Link="ExeOutShared\Form1.resx" LogicalName="Exeout.Form1.resources" />
+        <EmbeddedResource Include="..\ExeOutShared\Form2.resx" Link="ExeOutShared\Form2.resx" LogicalName="Exeout.Form2.resources" />
+        <EmbeddedResource Include="..\ExeOutShared\Properties\Resources.resx" Link="ExeOutShared\Properties\Resources.resx" LogicalName="Exeout.Properties.Resources.resources" />
+        <!-- 日本語リソースは衛星アセンブリにせず、メインアセンブリへ文化を付けて
+             埋め込む（WithCulture="false" + LogicalName。実行時は
+             EmbeddedCultureResourceManager が直接読む）。SFX は単一 exe で衛星 dll を
+             置けず、Resource.Embedder は dotnet CLI ビルドで Costura と衝突して
+             起動前にクラッシュするため使わない。 -->
+        <EmbeddedResource Include="..\ExeOutShared\Form1.ja-JP.resx" Link="ExeOutShared\Form1.ja-JP.resx" LogicalName="Exeout.Form1.ja-JP.resources" WithCulture="false" />
+        <EmbeddedResource Include="..\ExeOutShared\Form2.ja-JP.resx" Link="ExeOutShared\Form2.ja-JP.resx" LogicalName="Exeout.Form2.ja-JP.resources" WithCulture="false" />
+        <EmbeddedResource Include="..\ExeOutShared\Properties\Resources.ja-JP.resx" Link="ExeOutShared\Properties\Resources.ja-JP.resx" LogicalName="Exeout.Properties.Resources.ja-JP.resources" WithCulture="false" />
+        <None Include="..\ExeOutShared\App.config" Link="App.config" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
+        <PackageReference Include="System.Resources.Extensions" Version="9.0.0" />
+        <PackageReference Include="Costura.Fody" Version="6.0.0" PrivateAssets="all" />
+        <PackageReference Include="Fody" Version="6.9.3" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    </ItemGroup>
+</Project>

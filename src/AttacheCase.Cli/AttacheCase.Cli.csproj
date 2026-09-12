@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <RootNamespace>AttacheCase.CliApp</RootNamespace>
+        <AssemblyName>AttacheCase.Cli</AssemblyName>
+        <AssemblyVersion>5.5.0</AssemblyVersion>
+        <FileVersion>5.5.0</FileVersion>
+        <Company>HiBARA Software, LLC</Company>
+        <Version>5.5.0</Version>
+        <!-- コンソール出力は UTF-8。日本語 Windows の既定コードページ (CP932) の
+             端末でも化けないよう、Program.cs で OutputEncoding を設定する。 -->
+        <InvariantGlobalization>false</InvariantGlobalization>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\AttacheCase.Core\AttacheCase.Core.csproj" />
+    </ItemGroup>
+
+    <!-- 自己実行形式（/exeout）のスタブは Core に byte[] で埋め込む方式に戻した
+         （Exeout48.cs の rawData）。CLI も Core 経由でそれを使うため、併置＋SHA-256 の
+         BundleExeoutStub は廃止（本体・CLI とも同方式）。 -->
+</Project>

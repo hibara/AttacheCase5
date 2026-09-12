@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg fill="#DBDBDB" id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 32 32">
+  <!-- Generator: Adobe Illustrator 30.4.0, SVG Export Plug-In . SVG Version: 2.1.4 Build 226)  -->
+  <defs>
+    <style>
+      .st0, .st1 {
+        fill: none;
+      }
+
+      .st1 {
+        stroke: #DBDBDB;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 2px;
+      }
+    </style>
+  </defs>
+  <path class="st1" d="M5.2,30h19.8c1.1,0,2-.9,2-2V10L19,2H7c-1.1,0-2,.9-2,2v5l.2,21Z"/>
+  <path class="st1" d="M27,10h-6c-1.1,0-2-.9-2-2V2l8,8Z"/>
+  <rect x="9.4" y="2.7" width="2.4" height="2.5" fill="#DBDBDB"/>
+  <rect x="11.8" y="5.2" width="2.4" height="2.5" fill="#DBDBDB"/>
+  <rect x="9.4" y="7.6" width="2.4" height="2.5" fill="#DBDBDB"/>
+  <rect x="11.8" y="10.1" width="2.4" height="2.5" fill="#DBDBDB"/>
+  <rect x="9.4" y="12.6" width="2.4" height="2.5" fill="#DBDBDB"/>
+  <rect x="11.8" y="15.1" width="2.4" height="2.5" fill="#DBDBDB"/>
+  <rect x="9.4" y="17.6" width="2.4" height="2.5" fill="#DBDBDB"/>
+  <line class="st0" x1="9.4" y1="23" x2="11.8" y2="23"/>
+  <path d="M9.4,20.1v4h4.8v-4h-4.8ZM13.4,23.3h-3.1v-1.6h3.1v1.6Z" fill="#DBDBDB"/>
+</svg>

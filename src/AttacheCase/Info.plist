@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>AttacheCase</string>
+    <key>CFBundleDisplayName</key>
+    <string>AttacheCase</string>
+    <key>CFBundleIdentifier</key>
+    <string>jp.hibara.attachecase</string>
+    <!-- ビルド時に build_and_release.sh が csproj の Version で上書きする。
+         ここは読んだ人が取り違えないよう、同じ値にしておく -->
+    <key>CFBundleVersion</key>
+    <string>5.5.0</string>
+    <key>CFBundleShortVersionString</key>
+    <string>5.5.0</string>
+    <key>CFBundleIconFile</key>
+    <string>main-icon</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleExecutable</key>
+    <string>AttacheCase</string>
+    <!-- 最低動作 macOS。ここが唯一の決め場所。
+
+         これ未満では Finder が起動を拒む。配信マニフェストの
+         minimumSystemVersion も appcast_generate.sh がここから読むので、
+         変えるときはこの 1 行だけを直せばよい。
+
+         14.0 は .NET 10 が公式にサポートする下限（14 / 15 / 26）。
+         実行できる下限そのものは 12.0（libcoreclr の minos）だが、
+         13 以下は Microsoft の試験対象外。Avalonia 側は macOS 11 相当なので
+         制約にならない -->
+    <key>LSMinimumSystemVersion</key>
+    <string>14.0</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+    <key>NSHumanReadableCopyright</key>
+    <string>Copyright © 2026 HiBARA Software, LLC</string>
+
+    <!-- 暗号化ファイル（.atc）の関連付け
+
+         UTExportedTypeDeclarations で「.atc とはこういう型だ」と名乗り、
+         CFBundleDocumentTypes で「その型はこのアプリが扱う」と宣言する。
+         両方を書かないと、Finder は専用アイコンを出さない。
+
+         アイコンは Contents/Resources に置いた atc-icon.icns。
+         拡張子は書かない（LaunchServices が .icns を補う）。
+
+         ダブルクリックで開いたときの受け取りは、コマンドライン引数ではなく
+         Apple Event で届く。App.axaml.cs の OnLifetimeActivated で処理済み。 -->
+    <key>UTExportedTypeDeclarations</key>
+    <array>
+        <dict>
+            <key>UTTypeIdentifier</key>
+            <string>jp.hibara.attachecase.atc</string>
+            <key>UTTypeDescription</key>
+            <string>AttacheCase Encrypted File</string>
+            <!-- 中身は暗号化された独自形式。public.data 止まりにして、
+                 テキストや書庫として開かれないようにする -->
+            <key>UTTypeConformsTo</key>
+            <array>
+                <string>public.data</string>
+            </array>
+            <key>UTTypeIconFile</key>
+            <string>atc-icon</string>
+            <key>UTTypeTagSpecification</key>
+            <dict>
+                <key>public.filename-extension</key>
+                <array>
+                    <string>atc</string>
+                </array>
+            </dict>
+        </dict>
+    </array>
+
+    <key>CFBundleDocumentTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeName</key>
+            <string>AttacheCase Encrypted File</string>
+            <key>CFBundleTypeIconFile</key>
+            <string>atc-icon</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>jp.hibara.attachecase.atc</string>
+            </array>
+            <!-- この形式を作るのも開くのもこのアプリ。Owner にしておくと、
+                 ほかのアプリが横から既定を取りにくい -->
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>LSHandlerRank</key>
+            <string>Owner</string>
+        </dict>
+    </array>
+</dict>
+</plist>

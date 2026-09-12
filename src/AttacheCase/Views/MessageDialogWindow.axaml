@@ -1,0 +1,73 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="AttacheCase.Views.MessageDialogWindow"
+        SizeToContent="WidthAndHeight"
+        CanResize="False"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner">
+
+    <Window.Styles>
+        <Style Selector="Button.dialog">
+            <Setter Property="MinWidth" Value="100" />
+            <Setter Property="Height" Value="40" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <!-- フォーカスのあるボタンを macOS の既定ボタンのように青く塗る。
+             どちらが Enter で実行されるのかを一目で分かるようにするため -->
+        <Style Selector="Button.dialog:focus /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#0A84FF" />
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+        <Style Selector="Button.dialog:focus:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="Background" Value="#0A84FF" />
+            <Setter Property="Foreground" Value="White" />
+        </Style>
+    </Window.Styles>
+
+    <StackPanel Margin="24,22,24,20" Spacing="22" MinWidth="360" MaxWidth="560">
+
+        <StackPanel Orientation="Horizontal" Spacing="16">
+            <!-- SvgImage は Source を差し替えても Image が再描画されないため、
+                 4 枚を用意して表示を切り替える -->
+            <Panel Width="40" Height="40" VerticalAlignment="Center">
+                <Image x:Name="IconInfo" Stretch="Uniform" IsVisible="False">
+                    <Image.Source>
+                        <SvgImage Source="avares://AttacheCase/Assets/dialog/info.svg" />
+                    </Image.Source>
+                </Image>
+                <Image x:Name="IconQuestion" Stretch="Uniform" IsVisible="False">
+                    <Image.Source>
+                        <SvgImage Source="avares://AttacheCase/Assets/dialog/question.svg" />
+                    </Image.Source>
+                </Image>
+                <Image x:Name="IconWarning" Stretch="Uniform" IsVisible="False">
+                    <Image.Source>
+                        <SvgImage Source="avares://AttacheCase/Assets/dialog/warning.svg" />
+                    </Image.Source>
+                </Image>
+                <Image x:Name="IconError" Stretch="Uniform" IsVisible="False">
+                    <Image.Source>
+                        <SvgImage Source="avares://AttacheCase/Assets/dialog/error.svg" />
+                    </Image.Source>
+                </Image>
+            </Panel>
+            <TextBlock x:Name="MessageText"
+                       FontSize="13"
+                       MaxWidth="440"
+                       TextWrapping="Wrap"
+                       VerticalAlignment="Center" />
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal"
+                    Spacing="12"
+                    HorizontalAlignment="Right">
+            <Button x:Name="YesButton" Classes="dialog" Click="OnYesClick" />
+            <Button x:Name="NoButton" Classes="dialog" Click="OnNoClick" />
+            <Button x:Name="OkButton" Classes="dialog" Click="OnOkClick" />
+        </StackPanel>
+
+    </StackPanel>
+
+</Window>

@@ -1,0 +1,132 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <AssemblyVersion>5.5.0</AssemblyVersion>
+        <FileVersion>5.5.0</FileVersion>
+        <Company>HiBARA Software, LLC</Company>
+        <Version>5.5.0</Version>
+        <!-- Windows の実行ファイルアイコン（旧版の main_icon.ico）。
+             macOS は .app バンドルの icns（CFBundleIconFile）を使うので影響しない -->
+        <ApplicationIcon>Assets\main-icon.ico</ApplicationIcon>
+    </PropertyGroup>
+
+    <!-- macOS用設定 -->
+    <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
+        <CFBundleName>AttacheCase</CFBundleName>
+        <CFBundleDisplayName>AttacheCase</CFBundleDisplayName>
+        <CFBundleIdentifier>com.hibara.attachecase</CFBundleIdentifier>
+        <CFBundleVersion>5.5.0</CFBundleVersion>
+        <CFBundleShortVersionString>5.5.0</CFBundleShortVersionString>
+        <CFBundlePackageType>APPL</CFBundlePackageType>
+        <CFBundleIconFile>main-icon</CFBundleIconFile>
+        <NSHighResolutionCapable>true</NSHighResolutionCapable>
+        
+        <!-- .appバンドル作成を有効化 -->
+        <UseAppHost>true</UseAppHost>
+        <!-- RuntimeIdentifier はここに書かない。Windows での dotnet build / test を
+             素で通すため、RID の指定は publish スクリプト側
+             （build_and_release.sh / build-windows.ps1）で行う。 -->
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- 関連付け用の .ico は avares ではなく「実ファイル」として使う
+             （レジストリの DefaultIcon がディスク上のパスを指すため）。下の Content 参照 -->
+        <AvaloniaResource Include="Assets\**" Exclude="Assets\AssociationIcons\*.ico" />
+    </ItemGroup>
+
+    <!-- 関連付けアイコン（.atc / .atcpvt / .atcpub 用）を出力の Icons\ へ配置する。
+         エクスプローラーの表示はレジストリの DefaultIcon がこのパスを指す。
+         Windows 専用機能なので、他 OS のビルドでは同梱しない -->
+    <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+        <!-- ExcludeFromSingleFile: 単一ファイル発行でも exe に取り込まず、
+             必ずディスク上の Icons\*.ico として置く（レジストリの DefaultIcon が
+             パスで参照するため、exe の中に入ってしまうと意味がない） -->
+        <Content Include="Assets\AssociationIcons\*.ico"
+                 Link="Icons\%(Filename)%(Extension)"
+                 CopyToOutputDirectory="PreserveNewest"
+                 CopyToPublishDirectory="PreserveNewest"
+                 ExcludeFromSingleFile="true" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\AttacheCase.Core\AttacheCase.Core.csproj" />
+    </ItemGroup>
+
+    <!-- ライセンス文書は、リポジトリの .md をそのまま埋め込む。
+         表示用の写しを別に持つと、依存を足したときに片方だけ直して食い違う。
+         第三者ライセンスの表示は MIT などの条件そのものなので、食い違いは
+         条件違反になりうる（LicenseDocuments.cs / LicenseWindow）。
+
+         LogicalName は LicenseDocuments.ResourceNameOf と対応する。
+         片方だけ変えると実行時に落ちる（テストが見張っている）。 -->
+    <ItemGroup>
+        <EmbeddedResource Include="..\..\LICENSE.md" LogicalName="LICENSE.md" />
+        <EmbeddedResource Include="..\..\COMMERCIAL-LICENSE.md" LogicalName="COMMERCIAL-LICENSE.md" />
+        <EmbeddedResource Include="..\..\THIRD_PARTY_NOTICES.md" LogicalName="THIRD_PARTY_NOTICES.md" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Avalonia" Version="11.3.10" />
+        <PackageReference Include="Avalonia.Desktop" Version="11.3.10" />
+        <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.10" />
+        <PackageReference Include="Avalonia.Diagnostics" Version="11.3.10">
+            <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+            <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+        <PackageReference Include="SharpZipLib" Version="1.4.2" />
+        <!-- Avalonia 11.3.10 が引き込む 0.21.2 には既知の脆弱性がある
+             (GHSA-xrw6-gwf8-vvr9)。修正版を直接参照して上書きする。
+             Avalonia 側が追いついたら外してよい。 -->
+        <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.3" />
+        <PackageReference Include="Avalonia.Themes.Simple" Version="11.3.10" />
+        <!-- 【お試し】shad-ui テーマ（shadcn/ui 風）。0.1.6 が Avalonia 11.3.10 対応の
+             最終版（0.2.x は Avalonia 12 が必要）。やめるときはこの参照と
+             App.axaml の <shad:ShadTheme /> を消して <SimpleTheme /> に戻すだけ -->
+        <PackageReference Include="ShadUI" Version="0.1.6" />
+        <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="11.3.6.2" />
+        <!-- パスワード強度メーター（zxcvbn の C# 実装、MIT）。
+             Windows 版は出所不明だった Zxcvbn.dll（バイナリ）を使っていたが、
+             統合版は NuGet の実装に置き換える（THIRD_PARTY_NOTICES に記載） -->
+        <PackageReference Include="zxcvbn-core" Version="7.0.92" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="Assets\Icons\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="Views\ZipPasswordDecryptionView.axaml.cs">
+            <SubType>Code</SubType>
+        </Compile>
+    </ItemGroup>
+
+    <!-- 更新確認の内部ロジックを単体テストから検証するため -->
+    <ItemGroup>
+        <InternalsVisibleTo Include="AttacheCase.Tests" />
+        <!-- appcast 検証ツール（tools\CheckAppcast）が VerifySignature を使う -->
+        <InternalsVisibleTo Include="CheckAppcast" />
+    </ItemGroup>
+
+    <!-- 自己実行形式（/exeout）のスタブは本体に byte[] で埋め込む方式に戻した。
+         Exeout.exe のビルド→tools\ExeToHex で Exeout48.cs へ差し込み→本体ビルド、
+         の順はビルドバッチ側で行う（併置＋SHA-256 の BundleExeoutStub は廃止）。 -->
+
+    <!-- 関連付けツール（AtcSetup、昇格ヘルパー）を出力の AtcSetup\ へ同梱する。
+         設定画面の「関連付けする / 解除」から起動される。Windows でのみ行う -->
+    <Target Name="BundleAtcSetup" AfterTargets="Build" Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+        <MSBuild Projects="..\AtcSetup\AtcSetup.csproj" Properties="Configuration=Release" Targets="Build" RemoveProperties="RuntimeIdentifier;SelfContained;PublishSingleFile;PublishDir" />
+        <ItemGroup>
+            <AtcSetupFiles Include="..\AtcSetup\bin\Release\net48\**\*.*" Exclude="..\AtcSetup\bin\Release\net48\*.pdb" />
+        </ItemGroup>
+        <Copy SourceFiles="@(AtcSetupFiles)"
+              DestinationFiles="@(AtcSetupFiles->'$(OutDir)AtcSetup\%(RecursiveDir)%(Filename)%(Extension)')"
+              SkipUnchangedFiles="true" />
+    </Target>
+
+</Project>

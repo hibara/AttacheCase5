@@ -1,0 +1,72 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:l="using:AttacheCase.Markup"
+        xmlns:shadui="clr-namespace:ShadUI;assembly=ShadUI"
+        mc:Ignorable="d"
+        x:Class="AttacheCase.Views.LicenseRegistrationWindow"
+        Title="{l:Localize LicenseReg_Title}"
+        Width="520"
+        Height="560"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner">
+
+    <Grid RowDefinitions="Auto, Auto, *, Auto, Auto" Margin="24" >
+
+        <!-- 登録状態 -->
+        <TextBlock x:Name="StatusText"
+                   Grid.Row="0"
+                   FontWeight="Bold"
+                   TextWrapping="Wrap"
+                   Margin="0,0,0,12" />
+
+        <!-- 説明 -->
+        <TextBlock x:Name="CodeLabel"
+                   Grid.Row="1"
+                   Text="{l:Localize LicenseReg_CodeLabel}"
+                   Margin="0,0,0,6" />
+
+        <!-- コード入力（半角英数小文字 32 文字 × 16 行の複数行コード）。
+             ShadUI の TextBox は内側 Border の高さを ControlAssist.Height で決める
+             （通常の Height/MinHeight は内側に効かない。既定 36 = 一行のまま）。
+             行 * いっぱい（ボタンの手前まで）に伸ばすため自身の実高さを渡す -->
+        <TextBox x:Name="CodeTextBox"
+                 Grid.Row="2"
+                 AcceptsReturn="True"
+                 TextWrapping="NoWrap"
+                 FontFamily="Consolas, Menlo, monospace"
+                 FontSize="13"
+                 shadui:ControlAssist.Height="{Binding $self.Bounds.Height}"
+                 VerticalContentAlignment="Top" />
+
+        <!-- 結果メッセージ -->
+        <TextBlock x:Name="ResultText"
+                   Grid.Row="3"
+                   TextWrapping="Wrap"
+                   MinHeight="20"
+                   Margin="0,10,0,0" />
+
+        <!-- ボタン -->
+        <StackPanel Grid.Row="4"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="10"
+                    Margin="0,12,0,0">
+            <!-- 「ライセンスを削除」ボタンは置かない。この画面は未登録時しか
+                 開けず、削除はバージョン情報のアイコン右クリック（隠し機能）に一本化 -->
+            <Button x:Name="RegisterButton" Classes="Primary"
+                    Content="{l:Localize LicenseReg_Register}"
+                    MinWidth="100"
+                    MinHeight="40"
+                    FontSize="14" />
+            <Button x:Name="CloseButton"
+                    Content="{l:Localize About_Close}"
+                    MinWidth="90"
+                    MinHeight="40"
+                    FontSize="14" />
+        </StackPanel>
+
+    </Grid>
+
+</Window>

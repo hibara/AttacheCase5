@@ -1,0 +1,594 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AttacheCase.ViewModels"
+             xmlns:l="using:AttacheCase.Markup"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="AttacheCase.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="TextBlock.section">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Margin" Value="0,4,0,2" />
+        </Style>
+        <Style Selector="TextBlock.hint">
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Opacity" Value="0.7" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+        <Style Selector="CheckBox">
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+        <Style Selector="RadioButton">
+            <Setter Property="FontSize" Value="12" />
+        </Style>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="{DynamicResource AppCardBackground}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource AppCardBorder}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="12" />
+        </Style>
+    </UserControl.Styles>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- 見出し -->
+        <StackPanel Grid.Row="0" Spacing="2" Margin="0,0,0,10">
+            <TextBlock Text="{l:Localize Settings_Title}" FontSize="18" FontWeight="Bold" />
+            <TextBlock Text="{l:Localize Settings_CommandLineNote}" Classes="hint" />
+        </StackPanel>
+
+        <!-- 設定項目 -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="12" Margin="0,0,12,0">
+
+                <!-- 一般 -->
+                <TextBlock Text="{l:Localize Settings_General}" Classes="section" />
+                <Border Classes="card">
+                    <StackPanel Spacing="8">
+                        <CheckBox Content="{l:Localize Settings_ExitAfterProcess}"
+                                  IsChecked="{Binding ExitAfterProcess}" />
+                        <CheckBox Content="{l:Localize Settings_OpenDecryptedFile}"
+                                  IsChecked="{Binding OpenDecryptedFile}" />
+                        <CheckBox Content="{l:Localize Settings_NotMaskPassword}"
+                                  IsChecked="{Binding NotMaskPassword}" />
+                        <CheckBox Content="{l:Localize Settings_CheckForUpdatesOnStartup}"
+                                  IsChecked="{Binding CheckForUpdatesOnStartup}" />
+
+                        <!-- テーマ（保存で即反映。auto は OS の設定に追従） -->
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="{l:Localize Settings_Theme}"
+                                       FontSize="12" VerticalAlignment="Center" />
+                            <ComboBox SelectedIndex="{Binding ThemeIndex}"
+                                      Width="160" FontSize="12">
+                                <ComboBoxItem Content="{l:Localize Settings_ThemeAuto}" />
+                                <ComboBoxItem Content="{l:Localize Settings_ThemeLight}" />
+                                <ComboBoxItem Content="{l:Localize Settings_ThemeDark}" />
+                            </ComboBox>
+                        </StackPanel>
+
+                        <!-- 表示言語（保存で反映。以前は下段のボタン列に居たが、
+                             設定項目なので一般カードのテーマの隣へ） -->
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="{l:Localize Settings_Language}"
+                                       FontSize="12" VerticalAlignment="Center" />
+                            <ComboBox SelectedIndex="{Binding LanguageIndex}"
+                                      Width="160" FontSize="12">
+                                <ComboBoxItem Content="{l:Localize Settings_LanguageSystem}" />
+                                <ComboBoxItem Content="{l:Localize Settings_LanguageJapanese}" />
+                                <ComboBoxItem Content="{l:Localize Settings_LanguageEnglish}" />
+                            </ComboBox>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- ウィンドウ -->
+                <TextBlock Text="{l:Localize Settings_Window}" Classes="section" />
+                <Border Classes="card">
+                    <StackPanel Spacing="8">
+                        <CheckBox Content="{l:Localize Settings_MinimizeWhileProcessing}"
+                                  IsChecked="{Binding MinimizeWhileProcessing}" />
+                        <TextBlock Text="{l:Localize Settings_MinimizeHint}"
+                                   Classes="hint" Margin="24,-4,0,0" />
+
+                        <CheckBox Content="{l:Localize Settings_ShowMenuBarIcon}"
+                                  IsChecked="{Binding ShowMenuBarIcon}" />
+                        <TextBlock Text="{l:Localize Settings_MenuBarIconHint}"
+                                   Classes="hint" Margin="24,-4,0,0" />
+
+                        <CheckBox Content="{l:Localize Settings_WindowForeground}"
+                                  IsChecked="{Binding WindowForeground}" />
+
+                        <CheckBox Content="{l:Localize Settings_NoMultipleInstance}"
+                                  IsChecked="{Binding NoMultipleInstance}" />
+                        <TextBlock Text="{l:Localize Settings_NoMultipleInstanceHint}"
+                                   Classes="hint" Margin="24,-4,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <!-- 暗号化 -->
+                <TextBlock Text="{l:Localize Settings_Encrypt}" Classes="section" />
+                <Border Classes="card">
+                    <StackPanel Spacing="8">
+
+                        <TextBlock Text="{l:Localize Settings_EncryptionFileType}" FontSize="12" />
+                        <StackPanel Orientation="Horizontal" Spacing="16" Margin="12,0,0,0">
+                            <RadioButton GroupName="FileType"
+                                         Content="{l:Localize Settings_FileTypeAtc}"
+                                         IsChecked="{Binding IsFileTypeAtc}" />
+                            <RadioButton GroupName="FileType"
+                                         Content="{l:Localize Settings_FileTypeZip}"
+                                         IsChecked="{Binding IsFileTypeZip}" />
+                        </StackPanel>
+
+                        <CheckBox Content="{l:Localize Settings_SaveToSameFolder}"
+                                  IsChecked="{Binding SaveToSameFolder}" />
+                        <Grid ColumnDefinitions="*,Auto" Margin="24,0,0,0">
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding SaveToFolderPath}"
+                                     IsEnabled="{Binding SaveToSameFolder}"
+                                     FontSize="12" />
+                            <Button Grid.Column="1"
+                                    Content="{l:Localize Settings_Browse}" Padding="16,6"
+                                    Command="{Binding BrowseSaveToFolderCommand}"
+                                    IsEnabled="{Binding SaveToSameFolder}"
+                                    FontSize="12"
+                                    Margin="6,0,0,0" />
+                        </Grid>
+
+                        <CheckBox Content="{l:Localize Settings_ConfirmOverwrite}"
+                                  IsChecked="{Binding ConfirmOverwrite}" />
+                        <CheckBox Content="{l:Localize Settings_EncryptOneByOne}"
+                                  IsChecked="{Binding EncryptOneByOne}" />
+                        <CheckBox Content="{l:Localize Settings_KeepTimeStamp}"
+                                  IsChecked="{Binding KeepTimeStamp}" />
+                        <CheckBox Content="{l:Localize Settings_IncludeOriginalExtension}"
+                                  IsChecked="{Binding IncludeOriginalExtension}" />
+
+                        <CheckBox Content="{l:Localize Settings_UseAutoName}"
+                                  IsChecked="{Binding UseAutoName}" />
+                        <StackPanel Margin="24,0,0,0" Spacing="4">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBox Grid.Column="0"
+                                         Name="AutoNameFormatBox"
+                                         Text="{Binding AutoNameFormat}"
+                                         IsEnabled="{Binding UseAutoName}"
+                                         FontSize="12" />
+                                <Button Grid.Column="1"
+                                        Content="{l:Localize Settings_AutoNameInsert}" Padding="16,6"
+                                        IsEnabled="{Binding UseAutoName}"
+                                        FontSize="12"
+                                        Margin="6,0,0,0">
+                                    <Button.Flyout>
+                                        <MenuFlyout>
+                                            <MenuItem Header="{l:Localize Settings_AutoNameFileName}"
+                                                      Tag="&lt;filename&gt;"
+                                                      Click="OnInsertAutoNameToken" />
+                                            <MenuItem Header="{l:Localize Settings_AutoNameExtension}"
+                                                      Tag="&lt;ext&gt;"
+                                                      Click="OnInsertAutoNameToken" />
+                                            <Separator />
+                                            <MenuItem Header="{l:Localize Settings_AutoNameDate}"
+                                                      Tag="&lt;date:yyyy-MM-dd&gt;"
+                                                      Click="OnInsertAutoNameToken" />
+                                            <MenuItem Header="{l:Localize Settings_AutoNameNumber}"
+                                                      Tag="&lt;num:3&gt;"
+                                                      Click="OnInsertAutoNameToken" />
+                                            <MenuItem Header="{l:Localize Settings_AutoNameRandom}"
+                                                      Tag="&lt;random:8&gt;"
+                                                      Click="OnInsertAutoNameToken" />
+                                        </MenuFlyout>
+                                    </Button.Flyout>
+                                </Button>
+                            </Grid>
+                            <TextBlock Text="{Binding AutoNameExample}" Classes="hint" />
+
+                            <TextBlock Text="{l:Localize Settings_AutoNameRandomCharset}"
+                                       FontSize="12" Margin="0,4,0,0" />
+                            <StackPanel Orientation="Horizontal" Spacing="14" Margin="12,0,0,0">
+                                <CheckBox Content="{l:Localize Settings_AutoNameUpperCase}"
+                                          IsChecked="{Binding AutoNameRandomUpperCase}"
+                                          IsEnabled="{Binding UseAutoName}" />
+                                <CheckBox Content="{l:Localize Settings_AutoNameLowerCase}"
+                                          IsChecked="{Binding AutoNameRandomLowerCase}"
+                                          IsEnabled="{Binding UseAutoName}" />
+                                <CheckBox Content="{l:Localize Settings_AutoNameNumbers}"
+                                          IsChecked="{Binding AutoNameRandomNumbers}"
+                                          IsEnabled="{Binding UseAutoName}" />
+                                <CheckBox Content="{l:Localize Settings_AutoNameSymbols}"
+                                          IsChecked="{Binding AutoNameRandomSymbols}"
+                                          IsEnabled="{Binding UseAutoName}" />
+                            </StackPanel>
+                            <TextBlock Text="{l:Localize Settings_AutoNameSymbolsHint}"
+                                       Classes="hint" Margin="12,0,0,0" />
+                        </StackPanel>
+
+                        <TextBlock Text="{l:Localize Settings_CompressionLevel}" FontSize="12" />
+                        <StackPanel Orientation="Horizontal" Spacing="16" Margin="12,0,0,0">
+                            <RadioButton GroupName="Compression"
+                                         Content="{l:Localize Settings_CompressionNone}"
+                                         IsChecked="{Binding IsCompressionNone}" />
+                            <RadioButton GroupName="Compression"
+                                         Content="{l:Localize Settings_CompressionFastest}"
+                                         IsChecked="{Binding IsCompressionFastest}" />
+                            <RadioButton GroupName="Compression"
+                                         Content="{l:Localize Settings_CompressionOptimal}"
+                                         IsChecked="{Binding IsCompressionOptimal}" />
+                        </StackPanel>
+
+                    </StackPanel>
+                </Border>
+
+                <!-- パスワード ZIP -->
+                <TextBlock Text="{l:Localize Settings_Zip}" Classes="section" />
+                <Border Classes="card">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="{l:Localize Settings_ZipAlgorithm}" FontSize="12" />
+                        <StackPanel Orientation="Horizontal" Spacing="16" Margin="12,0,0,0">
+                            <RadioButton GroupName="ZipAlgo"
+                                         Content="{l:Localize ZipGuide_None}"
+                                         IsChecked="{Binding IsZipNone}" />
+                            <RadioButton GroupName="ZipAlgo"
+                                         Content="{l:Localize Settings_ZipCrypto}"
+                                         IsChecked="{Binding IsZipCrypto}" />
+                            <RadioButton GroupName="ZipAlgo"
+                                         Content="{l:Localize Settings_ZipAes128}"
+                                         IsChecked="{Binding IsZipAes128}" />
+                            <RadioButton GroupName="ZipAlgo"
+                                         Content="{l:Localize Settings_ZipAes256}"
+                                         IsChecked="{Binding IsZipAes256}" />
+                        </StackPanel>
+
+                        <!-- ZipCrypto は既知平文攻撃が通る古い方式。選んでいる間だけ注意を出す -->
+                        <TextBlock Text="{l:Localize Settings_ZipCryptoWarning}"
+                                   IsVisible="{Binding IsZipCrypto}"
+                                   FontSize="11"
+                                   Foreground="#B71C1C"
+                                   TextWrapping="Wrap"
+                                   Margin="12,0,0,0" />
+
+                        <CheckBox Content="{l:Localize Settings_ZipSaveToSameFolder}"
+                                  IsChecked="{Binding ZipSaveToSameFolder}" />
+                        <Grid ColumnDefinitions="*,Auto" Margin="24,0,0,0">
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding ZipSaveToFolderPath}"
+                                     IsEnabled="{Binding ZipSaveToSameFolder}"
+                                     FontSize="12" />
+                            <Button Grid.Column="1"
+                                    Content="{l:Localize Settings_Browse}" Padding="16,6"
+                                    Command="{Binding BrowseZipSaveToFolderCommand}"
+                                    IsEnabled="{Binding ZipSaveToSameFolder}"
+                                    FontSize="12"
+                                    Margin="6,0,0,0" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- 復号 -->
+                <TextBlock Text="{l:Localize Settings_Decrypt}" Classes="section" />
+                <Border Classes="card">
+                    <StackPanel Spacing="8">
+                        <CheckBox Content="{l:Localize Settings_DecryptSaveToSameFolder}"
+                                  IsChecked="{Binding DecryptSaveToSameFolder}" />
+                        <Grid ColumnDefinitions="*,Auto" Margin="24,0,0,0">
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding DecryptSaveToFolderPath}"
+                                     IsEnabled="{Binding DecryptSaveToSameFolder}"
+                                     FontSize="12" />
+                            <Button Grid.Column="1"
+                                    Content="{l:Localize Settings_Browse}" Padding="16,6"
+                                    Command="{Binding BrowseDecryptSaveToFolderCommand}"
+                                    IsEnabled="{Binding DecryptSaveToSameFolder}"
+                                    FontSize="12"
+                                    Margin="6,0,0,0" />
+                        </Grid>
+
+                        <CheckBox Content="{l:Localize Settings_NoParentFolder}"
+                                  IsChecked="{Binding NoParentFolder}" />
+                        <CheckBox Content="{l:Localize Settings_SetTimeStampToNow}"
+                                  IsChecked="{Binding SetTimeStampToNow}" />
+                        <CheckBox Content="{l:Localize Settings_ContinueOnHashMismatch}"
+                                  IsChecked="{Binding ContinueOnHashMismatch}" />
+                    </StackPanel>
+                </Border>
+
+                <!-- 削除 -->
+                <TextBlock Text="{l:Localize Settings_Delete}" Classes="section" />
+                <Border Classes="card">
+                    <StackPanel Spacing="8">
+
+                        <TextBlock Text="{l:Localize Settings_DeleteMode}" FontSize="12" />
+                        <ComboBox SelectedIndex="{Binding DeleteMode}"
+                                  Width="260" HorizontalAlignment="Left"
+                                  FontSize="12" Margin="12,0,0,0">
+                            <ComboBoxItem Content="{l:Localize Settings_DeleteNone}" />
+                            <ComboBoxItem Content="{l:Localize Settings_DeleteNormal}" />
+                            <ComboBoxItem Content="{l:Localize Settings_DeleteTrash}" />
+                            <ComboBoxItem Content="{l:Localize Settings_DeleteWipe}" />
+                        </ComboBox>
+
+                        <TextBlock Text="{l:Localize Settings_DeleteEncMode}" FontSize="12" />
+                        <ComboBox SelectedIndex="{Binding DeleteEncryptedFileMode}"
+                                  Width="260" HorizontalAlignment="Left"
+                                  FontSize="12" Margin="12,0,0,0">
+                            <ComboBoxItem Content="{l:Localize Settings_DeleteNone}" />
+                            <ComboBoxItem Content="{l:Localize Settings_DeleteNormal}" />
+                            <ComboBoxItem Content="{l:Localize Settings_DeleteTrash}" />
+                            <ComboBoxItem Content="{l:Localize Settings_DeleteWipe}" />
+                        </ComboBox>
+
+                        <CheckBox Content="{l:Localize Settings_ConfirmDelete}"
+                                  IsChecked="{Binding ConfirmDelete}" />
+
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="{l:Localize Settings_DeleteRandomTimes}"
+                                       FontSize="12" VerticalAlignment="Center" />
+                            <NumericUpDown Value="{Binding DeleteRandomTimesValue}"
+                                           Minimum="0" Maximum="99" Increment="1"
+                                           FormatString="0"
+                                           Width="110" FontSize="12" />
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="{l:Localize Settings_DeleteZeroTimes}"
+                                       FontSize="12" VerticalAlignment="Center" />
+                            <NumericUpDown Value="{Binding DeleteZeroTimesValue}"
+                                           Minimum="0" Maximum="99" Increment="1"
+                                           FormatString="0"
+                                           Width="110" FontSize="12" />
+                        </StackPanel>
+
+                    </StackPanel>
+                </Border>
+
+                <!-- 高度な設定（パスワードファイル） -->
+                <TextBlock Text="{l:Localize Settings_Advanced}" Classes="section" />
+                <Border Classes="card">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="{l:Localize Settings_PasswordFile}" FontSize="12" FontWeight="SemiBold" />
+
+                        <CheckBox Content="{l:Localize Settings_AllowPasswordFileDragDrop}"
+                                  IsChecked="{Binding AllowPasswordFileDragDrop}" />
+                        <TextBlock Text="{l:Localize Settings_AllowPasswordFileDragDropHint}"
+                                   Classes="hint" Margin="24,-4,0,0" />
+
+                        <CheckBox Content="{l:Localize Settings_CheckPasswordFileOnEncrypt}"
+                                  IsChecked="{Binding CheckPasswordFileOnEncrypt}" />
+                        <Grid ColumnDefinitions="*,Auto" Margin="24,0,0,0">
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding EncryptPasswordFilePath}"
+                                     IsEnabled="{Binding CheckPasswordFileOnEncrypt}"
+                                     FontSize="12" />
+                            <Button Grid.Column="1"
+                                    Content="{l:Localize Settings_Browse}" Padding="16,6"
+                                    Command="{Binding BrowseEncryptPasswordFileCommand}"
+                                    IsEnabled="{Binding CheckPasswordFileOnEncrypt}"
+                                    FontSize="12"
+                                    Margin="6,0,0,0" />
+                        </Grid>
+
+                        <CheckBox Content="{l:Localize Settings_CheckPasswordFileOnDecrypt}"
+                                  IsChecked="{Binding CheckPasswordFileOnDecrypt}" />
+                        <Grid ColumnDefinitions="*,Auto" Margin="24,0,0,0">
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding DecryptPasswordFilePath}"
+                                     IsEnabled="{Binding CheckPasswordFileOnDecrypt}"
+                                     FontSize="12" />
+                            <Button Grid.Column="1"
+                                    Content="{l:Localize Settings_Browse}" Padding="16,6"
+                                    Command="{Binding BrowseDecryptPasswordFileCommand}"
+                                    IsEnabled="{Binding CheckPasswordFileOnDecrypt}"
+                                    FontSize="12"
+                                    Margin="6,0,0,0" />
+                        </Grid>
+                        <TextBlock Text="{l:Localize Settings_CheckPasswordFileHint}"
+                                   Classes="hint" Margin="24,0,0,0" />
+
+                        <CheckBox Content="{l:Localize Settings_NoErrorWhenPasswordFileMissing}"
+                                  IsChecked="{Binding NoErrorWhenPasswordFileMissing}" />
+
+                        <CheckBox Content="{l:Localize Settings_ExecuteWithPasswordFileWithoutConfirm}"
+                                  IsChecked="{Binding ExecuteWithPasswordFileWithoutConfirm}" />
+                        <TextBlock Text="{l:Localize Settings_ExecuteWithPasswordFileHint}"
+                                   Classes="hint" Margin="24,-4,0,0" />
+
+                        <Separator Margin="0,6" />
+
+                        <TextBlock Text="{l:Localize Settings_PasswordLimit}"
+                                   FontSize="12" FontWeight="SemiBold" />
+                        <TextBlock Text="{l:Localize Settings_PasswordLimitNotice}"
+                                   Classes="hint" TextWrapping="Wrap" />
+
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="{l:Localize Settings_MissTypeLimitsLabel}"
+                                       FontSize="12" VerticalAlignment="Center" />
+                            <ComboBox SelectedIndex="{Binding MissTypeLimitsIndex}"
+                                      Width="70" FontSize="12" VerticalAlignment="Center">
+                                <ComboBoxItem Content="1" />
+                                <ComboBoxItem Content="2" />
+                                <ComboBoxItem Content="3" />
+                                <ComboBoxItem Content="4" />
+                                <ComboBoxItem Content="5" />
+                                <ComboBoxItem Content="6" />
+                                <ComboBoxItem Content="7" />
+                                <ComboBoxItem Content="8" />
+                                <ComboBoxItem Content="9" />
+                                <ComboBoxItem Content="10" />
+                            </ComboBox>
+                            <TextBlock Text="{l:Localize Settings_MissTypeLimitsUnit}"
+                                       FontSize="12" VerticalAlignment="Center" />
+                        </StackPanel>
+
+                        <CheckBox Content="{l:Localize Settings_BreakFileWhenLimitExceeded}"
+                                  IsChecked="{Binding BreakFileWhenLimitExceeded}" />
+
+                        <Separator Margin="0,6" />
+
+                        <TextBlock Text="{l:Localize Settings_CamouflageSection}"
+                                   FontSize="12" FontWeight="SemiBold" />
+
+                        <CheckBox Content="{l:Localize Settings_UseCamouflageExtension}"
+                                  IsChecked="{Binding UseCamouflageExtension}" />
+                        <TextBox Text="{Binding CamouflageExtension}"
+                                 IsEnabled="{Binding UseCamouflageExtension}"
+                                 Width="120"
+                                 HorizontalAlignment="Left"
+                                 FontSize="12"
+                                 Margin="24,0,0,0" />
+                        <TextBlock Text="{l:Localize Settings_CamouflageHint}"
+                                   Classes="hint" Margin="24,0,0,0" />
+                    </StackPanel>
+                </Border>
+
+                <!-- ファイルの関連付け（Windows のみ表示） -->
+                <TextBlock Text="{l:Localize Settings_AssociationSection}"
+                           Classes="section"
+                           IsVisible="{Binding IsWindows}" />
+                <Border Classes="card" IsVisible="{Binding IsWindows}">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="{l:Localize Settings_AssociationHint}" Classes="hint" />
+
+                        <!-- .atc に表示するアイコンの選択（同梱 Icons\atc1〜4.ico に対応） -->
+                        <TextBlock Text="{l:Localize Settings_AssociationIconLabel}" FontSize="12" />
+                        <StackPanel Orientation="Horizontal" Spacing="14">
+                            <RadioButton GroupName="AssocIcon" IsChecked="{Binding IsAssociationIcon1}">
+                                <Image Source="avares://AttacheCase/Assets/AssociationIcons/atc1.png"
+                                       Width="32" Height="32" />
+                            </RadioButton>
+                            <RadioButton GroupName="AssocIcon" IsChecked="{Binding IsAssociationIcon2}">
+                                <Image Source="avares://AttacheCase/Assets/AssociationIcons/atc2.png"
+                                       Width="32" Height="32" />
+                            </RadioButton>
+                            <RadioButton GroupName="AssocIcon" IsChecked="{Binding IsAssociationIcon3}">
+                                <Image Source="avares://AttacheCase/Assets/AssociationIcons/atc3.png"
+                                       Width="32" Height="32" />
+                            </RadioButton>
+                            <RadioButton GroupName="AssocIcon" IsChecked="{Binding IsAssociationIcon4}">
+                                <Image Source="avares://AttacheCase/Assets/AssociationIcons/atc4.png"
+                                       Width="32" Height="32" />
+                            </RadioButton>
+                        </StackPanel>
+                        <TextBlock Text="{l:Localize Settings_AssociationIconHint}" Classes="hint" />
+
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <Button Content="{l:Localize Settings_Associate}"
+                                    Command="{Binding AssociateFilesCommand}"
+                                    FontSize="12" Height="32" MinWidth="130" />
+                            <Button Content="{l:Localize Settings_Unassociate}"
+                                    Command="{Binding UnassociateFilesCommand}"
+                                    FontSize="12" Height="32" MinWidth="130" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- パスワードの記憶（実体は _AtcVault.json、settings.json には入らない） -->
+                <TextBlock Text="{l:Localize Settings_RememberSection}" Classes="section" />
+                <Border Classes="card">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="{l:Localize Settings_RememberHint}" Classes="hint" />
+
+                        <!-- 初めての PC: 移行コードで登録するまで編集不可 -->
+                        <StackPanel Spacing="8" IsVisible="{Binding IsVaultLocked}">
+                            <TextBlock Text="{l:Localize Settings_VaultLockedNotice}"
+                                       Classes="hint" TextWrapping="Wrap" />
+                            <StackPanel Orientation="Horizontal" Spacing="10">
+                                <TextBlock Text="{l:Localize Settings_MigrationCodeLabel}"
+                                           FontSize="12" VerticalAlignment="Center" />
+                                <TextBox Text="{Binding MigrationCodeInput}"
+                                         Watermark="XXXX-XXXX-XXXX-XXXX"
+                                         Width="220" FontSize="12" FontFamily="Consolas,Menlo,monospace" />
+                                <Button Content="{l:Localize Settings_RegisterDevice}"
+                                        Command="{Binding RegisterDeviceWithCodeCommand}"
+                                        FontSize="12" Height="32" MinWidth="120" />
+                            </StackPanel>
+                        </StackPanel>
+
+                        <StackPanel Spacing="8" IsVisible="{Binding CanEditRememberedPasswords}">
+                            <CheckBox Content="{l:Localize Settings_RememberEncrypt}"
+                                      IsChecked="{Binding RememberEncryptPassword}"
+                                      FontSize="12" />
+                            <TextBox Text="{Binding RememberedEncryptPassword}"
+                                     PasswordChar="●"
+                                     IsEnabled="{Binding RememberEncryptPassword}"
+                                     Width="260" HorizontalAlignment="Left"
+                                     FontSize="12" Margin="24,0,0,0" />
+
+                            <CheckBox Content="{l:Localize Settings_RememberDecrypt}"
+                                      IsChecked="{Binding RememberDecryptPassword}"
+                                      FontSize="12" />
+                            <TextBox Text="{Binding RememberedDecryptPassword}"
+                                     PasswordChar="●"
+                                     IsEnabled="{Binding RememberDecryptPassword}"
+                                     Width="260" HorizontalAlignment="Left"
+                                     FontSize="12" Margin="24,0,0,0" />
+
+                            <Button Content="{l:Localize Settings_RememberClear}"
+                                    Command="{Binding ClearRememberedPasswordsCommand}"
+                                    FontSize="12" Height="32" MinWidth="160"
+                                    HorizontalAlignment="Left" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- 設定の持ち運び（ポータブル設定。旧版の INI ファイルオプション相当、Windows のみ表示） -->
+                <TextBlock Text="{l:Localize Settings_PortableSection}"
+                           Classes="section"
+                           IsVisible="{Binding IsWindows}" />
+                <Border Classes="card" IsVisible="{Binding IsWindows}">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="{l:Localize Settings_PortableHint}" Classes="hint" />
+                        <TextBlock Text="{Binding PortableStatusText}" FontSize="12" TextWrapping="Wrap" />
+
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <Button Content="{l:Localize Settings_PortableCreate}"
+                                    Command="{Binding CreatePortableCommand}"
+                                    FontSize="12" Height="32" MinWidth="160" />
+                            <Button Content="{l:Localize Settings_PortableRemove}"
+                                    Command="{Binding RemovePortableCommand}"
+                                    FontSize="12" Height="32" MinWidth="160" />
+                        </StackPanel>
+
+                        <!-- 移行コード（別の PC で記憶パスワードを開くための使い捨てコード） -->
+                        <TextBlock Text="{l:Localize Settings_IssueCodeHint}" Classes="hint" />
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <Button Content="{l:Localize Settings_IssueCode}"
+                                    Command="{Binding IssueMigrationCodeCommand}"
+                                    FontSize="12" Height="32" MinWidth="160" />
+                            <TextBox Text="{Binding IssuedMigrationCode}"
+                                     IsReadOnly="True"
+                                     IsVisible="{Binding HasIssuedMigrationCode}"
+                                     Width="220" FontSize="13" FontFamily="Consolas,Menlo,monospace"
+                                     VerticalAlignment="Center" />
+                        </StackPanel>
+                        <TextBlock Text="{l:Localize Settings_IssuedCodeNotice}"
+                                   Classes="hint"
+                                   IsVisible="{Binding HasIssuedMigrationCode}" />
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- ボタン。右寄せだと DPI スケールの端数で右端の枠線が
+             1px 削れることがあるため、左寄せで余白を右に逃がす。
+             表示言語は一般カードへ移した -->
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Left"
+                    Spacing="10"
+                    Margin="0,12,0,0">
+            <Button Classes="action Primary" Content="{l:Localize Settings_Save}"
+                    Command="{Binding SaveCommand}" />
+            <Button Classes="action" Content="{l:Localize Button_Cancel}"
+                    Command="{Binding CancelCommand}" />
+            <Button Classes="action" Content="{l:Localize Settings_RestoreDefaults}"
+                    Command="{Binding RestoreDefaultsCommand}" />
+        </StackPanel>
+
+    </Grid>
+
+</UserControl>

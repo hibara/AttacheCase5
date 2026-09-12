@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Error" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 64 64">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+        fill-rule: evenodd;
+      }
+    </style>
+  </defs>
+  <g id="Question" data-name="Question">
+    <image id="Question" data-name="Question" width="64" height="63" xlink:href="data:image/png;base64,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"/>
+  </g>
+  <g id="長方形" data-name="長方形">
+    <polygon class="cls-1" points="51.65 18.92 44.58 11.85 31.5 24.93 18.42 11.85 11.35 18.92 24.43 32 11.35 45.08 18.42 52.15 31.5 39.07 44.58 52.15 51.65 45.08 38.57 32 51.65 18.92"/>
+  </g>
+</svg>

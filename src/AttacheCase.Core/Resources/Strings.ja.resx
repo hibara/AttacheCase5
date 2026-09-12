@@ -1,0 +1,1721 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter</value>
+  </resheader>
+
+  <!-- アプリ全般 -->
+  <data name="AppName" xml:space="preserve">
+    <value>アタッシェケース</value>
+  </data>
+
+  <!-- メニュー項目 -->
+  <data name="Menu_Encryption" xml:space="preserve">
+    <value>暗号化</value>
+  </data>
+  <data name="Menu_Decryption" xml:space="preserve">
+    <value>復号</value>
+  </data>
+  <data name="Menu_PublicKey" xml:space="preserve">
+    <value>公開鍵暗号</value>
+  </data>
+  <data name="Menu_PostPpap" xml:space="preserve">
+    <value>Post-PPAP</value>
+  </data>
+  <data name="Menu_Rsa" xml:space="preserve">
+    <value>RSA公開鍵</value>
+  </data>
+  <data name="Menu_ZipPassword" xml:space="preserve">
+    <value>パスワードZIP</value>
+  </data>
+  <data name="ZipGuide_ExtractHint" xml:space="preserve">
+    <value>ZIP ファイルを落とすと展開します。暗号化されていれば、パスワードを訊きます。</value>
+  </data>
+  <data name="ZipGuide_CreateHint" xml:space="preserve">
+    <value>それ以外のファイルやフォルダーを落とすと、暗号化 ZIP を作ります。
+方式は以下から選んでください。</value>
+  </data>
+  <data name="ZipGuide_None" xml:space="preserve">
+    <value>なし</value>
+  </data>
+  <data name="ZipGuide_Standard" xml:space="preserve">
+    <value>Standard ZIP 2.0（Windows互換だが、セキュリティ面に脆弱性あり）</value>
+  </data>
+  <data name="ZipGuide_Aes128" xml:space="preserve">
+    <value>AES128（暗号強度は高いがWindowsで開けないこともある）</value>
+  </data>
+  <data name="ZipGuide_Aes256" xml:space="preserve">
+    <value>AES256（この中では最も強固だが、Windowsで開けないこともある）</value>
+  </data>
+  <data name="Menu_Settings" xml:space="preserve">
+    <value>設定</value>
+  </data>
+
+  <!-- メイン画面 -->
+  <data name="Main_DropMessage" xml:space="preserve">
+    <value>暗号化、または復号するファイル、フォルダを&#xA;このエリアにドラッグ&amp;ドロップしてください。</value>
+  </data>
+  <data name="Main_DropFilesToEncrypt" xml:space="preserve">
+    <value>暗号化するファイル、フォルダを&#xA;ドラッグ&amp;ドロップしてください。</value>
+  </data>
+  <data name="Main_DropFilesToDecrypt" xml:space="preserve">
+    <value>復号する暗号化ファイルを&#xA;ドラッグ&amp;ドロップしてください。</value>
+  </data>
+
+  <!-- 暗号化画面 -->
+  <data name="Encryption_Title" xml:space="preserve">
+    <value>暗号化</value>
+  </data>
+  <data name="Encryption_Password" xml:space="preserve">
+    <value>パスワード</value>
+  </data>
+  <data name="Encryption_PasswordConfirm" xml:space="preserve">
+    <value>パスワード（確認）</value>
+  </data>
+  <data name="Encryption_PasswordPlaceholder" xml:space="preserve">
+    <value>パスワードを入力</value>
+  </data>
+  <data name="Encryption_PasswordConfirmPlaceholder" xml:space="preserve">
+    <value>パスワードを再入力</value>
+  </data>
+  <data name="Encryption_PasswordMismatch" xml:space="preserve">
+    <value>パスワードが一致しません</value>
+  </data>
+  <data name="Encryption_Start" xml:space="preserve">
+    <value>暗号化開始</value>
+  </data>
+  <data name="Encryption_Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="Encryption_Processing" xml:space="preserve">
+    <value>暗号化中...</value>
+  </data>
+  <data name="Encryption_Complete" xml:space="preserve">
+    <value>暗号化完了</value>
+  </data>
+  <data name="Encryption_Failed" xml:space="preserve">
+    <value>暗号化失敗</value>
+  </data>
+  <data name="Encryption_FileCount" xml:space="preserve">
+    <value>{0} 個のファイルを選択中</value>
+  </data>
+  <data name="Encryption_HeaderFormat" xml:space="preserve">
+    <value>ATC暗号化: </value>
+  </data>
+  <data name="Encryption_HeaderFormatExe" xml:space="preserve">
+    <value>自己実行形式で暗号化: </value>
+  </data>
+
+  <!-- 復号画面 -->
+  <data name="Decryption_Title" xml:space="preserve">
+    <value>復号</value>
+  </data>
+  <data name="Decryption_Password" xml:space="preserve">
+    <value>パスワード</value>
+  </data>
+  <data name="Decryption_PasswordPlaceholder" xml:space="preserve">
+    <value>パスワードを入力</value>
+  </data>
+  <data name="Decryption_Start" xml:space="preserve">
+    <value>復号開始</value>
+  </data>
+  <data name="Decryption_Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="Decryption_Processing" xml:space="preserve">
+    <value>復号中...</value>
+  </data>
+  <data name="Decryption_Complete" xml:space="preserve">
+    <value>復号完了</value>
+  </data>
+  <data name="Decryption_Failed" xml:space="preserve">
+    <value>復号失敗</value>
+  </data>
+  <data name="Decryption_WrongPassword" xml:space="preserve">
+    <value>パスワードが間違っています</value>
+  </data>
+
+  <!-- 公開鍵画面 -->
+  <data name="PublicKey_Title" xml:space="preserve">
+    <value>公開鍵暗号</value>
+  </data>
+  <data name="PublicKey_GenerateKeyPair" xml:space="preserve">
+    <value>鍵ペアを生成</value>
+  </data>
+  <data name="PublicKey_DropPublicKey" xml:space="preserve">
+    <value>公開鍵ファイル（.atcpub）をドロップ</value>
+  </data>
+  <data name="PublicKey_DropPrivateKey" xml:space="preserve">
+    <value>秘密鍵ファイル（.atcpvt）をドロップ</value>
+  </data>
+  <data name="PublicKey_WaitingForFile" xml:space="preserve">
+    <value>暗号化するファイルを待機中...</value>
+  </data>
+  <data name="PublicKey_WaitingForEncryptedFile" xml:space="preserve">
+    <value>暗号化ファイルを待機中...</value>
+  </data>
+  <data name="PublicKey_KeyGenerated" xml:space="preserve">
+    <value>鍵ペアを生成しました</value>
+  </data>
+
+  <!-- ZIPパスワード画面 -->
+  <data name="ZipPassword_Title" xml:space="preserve">
+    <value>ZIPパスワード</value>
+  </data>
+  <data name="ZipPassword_CreateZip" xml:space="preserve">
+    <value>パスワード付きZIPを作成</value>
+  </data>
+  <data name="ZipPassword_ExtractZip" xml:space="preserve">
+    <value>パスワード付きZIPを解凍</value>
+  </data>
+  <data name="ZipPassword_DropFiles" xml:space="preserve">
+    <value>パスワード付きZIPにするファイルを&#xA;ドラッグ&amp;ドロップしてください。</value>
+  </data>
+
+  <!-- 公開鍵画面追加 -->
+  <data name="PublicKey_DropFilesToEncrypt" xml:space="preserve">
+    <value>公開鍵暗号で暗号化するファイルを&#xA;ドラッグ&amp;ドロップしてください。</value>
+  </data>
+
+  <!-- 共通ボタン -->
+  <data name="Button_OK" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="Button_Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="Button_Yes" xml:space="preserve">
+    <value>はい</value>
+  </data>
+  <data name="Button_No" xml:space="preserve">
+    <value>いいえ</value>
+  </data>
+  <data name="Button_Close" xml:space="preserve">
+    <value>閉じる</value>
+  </data>
+  <data name="Button_Back" xml:space="preserve">
+    <value>戻る</value>
+  </data>
+
+  <!-- ダイアログ -->
+  <data name="Dialog_OverwriteTitle" xml:space="preserve">
+    <value>上書き確認</value>
+  </data>
+  <data name="Dialog_OverwriteMessage" xml:space="preserve">
+    <value>以下のファイルは既に存在します。上書きしますか？</value>
+  </data>
+  <data name="Dialog_ErrorTitle" xml:space="preserve">
+    <value>エラー</value>
+  </data>
+  <data name="Dialog_SuccessTitle" xml:space="preserve">
+    <value>成功</value>
+  </data>
+
+  <!-- 進捗 -->
+  <data name="Progress_Processing" xml:space="preserve">
+    <value>処理中...</value>
+  </data>
+  <data name="Progress_Percent" xml:space="preserve">
+      <value>{0}％</value>
+  </data>
+
+  <!-- macOS メニュー -->
+  <data name="MacMenu_About" xml:space="preserve">
+    <value>アタッシェケースについて</value>
+  </data>
+  <data name="MacMenu_Preferences" xml:space="preserve">
+    <value>環境設定...</value>
+  </data>
+  <data name="MacMenu_Services" xml:space="preserve">
+    <value>サービス</value>
+  </data>
+  <data name="MacMenu_Hide" xml:space="preserve">
+      <value>アタッシェケースを非表示</value>
+  </data>
+  <data name="MacMenu_HideOthers" xml:space="preserve">
+      <value>他を非表示</value>
+  </data>
+  <data name="MacMenu_ShowAll" xml:space="preserve">
+    <value>すべてを表示</value>
+  </data>
+  <data name="MacMenu_Quit" xml:space="preserve">
+    <value>アタッシェケースを終了</value>
+  </data>
+  <data name="MacMenu_File" xml:space="preserve">
+    <value>ファイル</value>
+  </data>
+  <data name="MacMenu_Edit" xml:space="preserve">
+    <value>編集</value>
+  </data>
+  <data name="MacMenu_Window" xml:space="preserve">
+    <value>ウインドウ</value>
+  </data>
+  <data name="MacMenu_Help" xml:space="preserve">
+    <value>ヘルプ</value>
+  </data>
+
+  <!-- ファイルメニュー -->
+  <data name="Menu_OpenFileToEncrypt" xml:space="preserve">
+    <value>暗号化するファイルを開く...</value>
+  </data>
+  <data name="Menu_OpenFolderToEncrypt" xml:space="preserve">
+    <value>暗号化するフォルダーを開く...</value>
+  </data>
+  <data name="Menu_OpenEncryptedFile" xml:space="preserve">
+    <value>暗号化ファイルを復号する...</value>
+  </data>
+  <data name="Menu_OpenFileForZip" xml:space="preserve">
+    <value>パスワードZIPにするファイルを開く...</value>
+  </data>
+  <data name="Menu_OpenFolderForZip" xml:space="preserve">
+    <value>パスワードZIPにするフォルダーを開く...</value>
+  </data>
+  <data name="Menu_OpenZipFile" xml:space="preserve">
+    <value>パスワードZIPを解凍する...</value>
+  </data>
+  <data name="Menu_GenerateKeyPair" xml:space="preserve">
+    <value>公開鍵ペアの生成...</value>
+  </data>
+  <data name="Menu_LoadPublicKey" xml:space="preserve">
+    <value>公開鍵ファイルの読み込み...</value>
+  </data>
+  <data name="Menu_LoadPrivateKey" xml:space="preserve">
+    <value>秘密鍵ファイルの読み込み...</value>
+  </data>
+  <data name="Menu_Close" xml:space="preserve">
+    <value>閉じる</value>
+  </data>
+
+  <!-- ウィンドウメニュー -->
+  <data name="Menu_Minimize" xml:space="preserve">
+    <value>しまう</value>
+  </data>
+  <data name="Menu_Zoom" xml:space="preserve">
+    <value>拡大/縮小</value>
+  </data>
+  <data name="Menu_BringAllToFront" xml:space="preserve">
+    <value>すべてを手前に移動</value>
+  </data>
+
+  <!-- ヘルプメニュー -->
+  <data name="Menu_Website" xml:space="preserve">
+    <value>アタッシェケースのウェブサイト</value>
+  </data>
+
+  <!-- About画面 -->
+  <data name="About_Title" xml:space="preserve">
+    <value>アタッシェケースについて</value>
+  </data>
+  <data name="About_Version" xml:space="preserve">
+    <value>バージョン {0}</value>
+  </data>
+  <data name="About_Copyright" xml:space="preserve">
+      <value>© 2016-2026 HiBARA Software, LLC</value>
+  </data>
+  <data name="About_Close" xml:space="preserve">
+    <value>閉じる</value>
+  </data>
+  <data name="About_License" xml:space="preserve">
+    <value>ライセンス…</value>
+  </data>
+  <data name="Menu_License" xml:space="preserve">
+    <value>ライセンス…</value>
+  </data>
+  <data name="License_Title" xml:space="preserve">
+    <value>ライセンス</value>
+  </data>
+  <data name="License_Tab_SourceAvailable" xml:space="preserve">
+    <value>本体の利用条件</value>
+  </data>
+  <data name="License_Tab_Commercial" xml:space="preserve">
+    <value>業務・商用利用</value>
+  </data>
+  <data name="License_Tab_ThirdParty" xml:space="preserve">
+    <value>第三者ライセンス</value>
+  </data>
+  <data name="License_Copy" xml:space="preserve">
+    <value>本文を複製</value>
+  </data>
+
+  <!-- ファイルダイアログ -->
+  <data name="Dialog_SelectFileToEncrypt" xml:space="preserve">
+    <value>暗号化するファイルを選択</value>
+  </data>
+  <data name="Dialog_SelectFolderToEncrypt" xml:space="preserve">
+    <value>暗号化するフォルダーを選択</value>
+  </data>
+  <data name="Dialog_SelectEncryptedFile" xml:space="preserve">
+    <value>復号する暗号化ファイル (.atc) を選択</value>
+  </data>
+  <data name="Dialog_SelectFileForZip" xml:space="preserve">
+    <value>パスワードZIPにするファイルを選択</value>
+  </data>
+  <data name="Dialog_SelectFolderForZip" xml:space="preserve">
+    <value>パスワードZIPにするフォルダーを選択</value>
+  </data>
+  <data name="Dialog_SelectZipFile" xml:space="preserve">
+    <value>解凍するパスワードZIPファイルを選択</value>
+  </data>
+  <data name="Dialog_SelectPublicKey" xml:space="preserve">
+    <value>公開鍵ファイル (.atcpub) を選択</value>
+  </data>
+  <data name="Dialog_SelectPrivateKey" xml:space="preserve">
+    <value>秘密鍵ファイル (.atcpvt) を選択</value>
+  </data>
+  <data name="Encryption_PasswordPrompt" xml:space="preserve">
+    <value>パスワードを入力してください</value>
+  </data>
+  <data name="Encryption_FileTypeTooltip" xml:space="preserve">
+    <value>出力するファイルの種類（ATC / 自己実行形式 EXE / パスワード ZIP）</value>
+  </data>
+  <data name="Encryption_PasswordConfirmPrompt" xml:space="preserve">
+    <value>確認のためもう一度、同じパスワードを入力してください</value>
+  </data>
+  <data name="Button_Next" xml:space="preserve">
+    <value>次へ</value>
+  </data>
+  <data name="Button_Encrypt" xml:space="preserve">
+    <value>暗号化</value>
+  </data>
+  <data name="Encryption_RsaProcessing" xml:space="preserve">
+    <value>RSA暗号化中...</value>
+  </data>
+  <data name="Encryption_Cancelled" xml:space="preserve">
+    <value>キャンセルされました</value>
+  </data>
+  <data name="Encryption_Error" xml:space="preserve">
+    <value>エラー: {0}</value>
+  </data>
+  <data name="Dialog_OverwriteFileMessage" xml:space="preserve">
+    <value>'{0}' は既に存在します。
+上書きしますか？</value>
+  </data>
+  <data name="Decryption_PasswordPrompt" xml:space="preserve">
+    <value>パスワードを入力してください</value>
+  </data>
+  <data name="Decryption_HeaderFormat" xml:space="preserve">
+    <value>ATC復号: </value>
+  </data>
+  <data name="Decryption_RsaProcessing" xml:space="preserve">
+    <value>RSA復号中...</value>
+  </data>
+  <data name="Decryption_Cancelled" xml:space="preserve">
+    <value>キャンセルされました</value>
+  </data>
+  <data name="Decryption_Error" xml:space="preserve">
+    <value>エラー: {0}</value>
+  </data>
+  <data name="Decryption_FileListFailed" xml:space="preserve">
+    <value>ファイルリストの取得に失敗しました</value>
+  </data>
+  <data name="Decryption_DecryptionFailed" xml:space="preserve">
+    <value>復号に失敗しました</value>
+  </data>
+  <data name="Decryption_UnknownError" xml:space="preserve">
+    <value>不明なエラー</value>
+  </data>
+  <data name="Decryption_PasswordMissExceeded" xml:space="preserve">
+    <value>パスワードのミスが続いたので、いったんやり直してください</value>
+  </data>
+  <data name="Decryption_PasswordWrongRemaining" xml:space="preserve">
+    <value>パスワードが正しくありません（残り{0}回）</value>
+  </data>
+  <data name="Button_Decrypt" xml:space="preserve">
+    <value>復号</value>
+  </data>
+  <data name="Dialog_OverwriteMultipleFiles" xml:space="preserve">
+    <value>以下のファイルが既に存在します。
+上書きしますか？
+
+{0}</value>
+  </data>
+  <data name="Dialog_OverwriteCountFiles" xml:space="preserve">
+    <value>{0}個のファイルが既に存在します。
+上書きしますか？</value>
+  </data>
+  <data name="PublicKey_InitialDropMessage" xml:space="preserve">
+    <value>以前のバージョンで RSA 鍵ファイルを使って&#xA;暗号化したファイルを、ここで復号できます。&#xA;&#xA;暗号化されたファイル、または秘密鍵（.atcpvt）を&#xA;ドラッグ&amp;ドロップしてください。&#xA;&#xA;ファイルを暗号化するには、Post-PPAP をご利用ください。</value>
+  </data>
+  <data name="PublicKey_PublicKeyLoadedMessage" xml:space="preserve">
+    <value>公開鍵が読み込まれました。暗号化したいファイルまたはフォルダーを&#xA;ここへドラッグ&amp;ドロップしてください。</value>
+  </data>
+  <data name="PublicKey_PrivateKeyLoadedMessage" xml:space="preserve">
+    <value>秘密鍵が読み込まれました。復号したい暗号化ファイルを&#xA;ここへドラッグ&amp;ドロップしてください。</value>
+  </data>
+  <data name="PublicKey_WaitingForPublicKeyMessage" xml:space="preserve">
+    <value>ファイル「{0}」が読み込まれました。
+公開鍵(.atcpub)をドラッグ&amp;ドロップしてください。</value>
+  </data>
+  <data name="PublicKey_WaitingForPrivateKeyMessage" xml:space="preserve">
+    <value>暗号化ファイル「{0}」が読み込まれました。
+秘密鍵(.atcpvt)をドラッグ&amp;ドロップしてください。</value>
+  </data>
+  <data name="PublicKey_KeyPairGeneratedMessage" xml:space="preserve">
+    <value>鍵ペアを生成しました。
+
+公開鍵: {0}
+秘密鍵: {1}</value>
+  </data>
+  <data name="PublicKey_SaveKeyPairTitle" xml:space="preserve">
+    <value>公開暗号鍵ペアのファイル保存先を選択</value>
+  </data>
+  <data name="PublicKey_AllFiles" xml:space="preserve">
+    <value>すべてのファイル</value>
+  </data>
+  <data name="PublicKey_NoGuid" xml:space="preserve">
+    <value>（GUIDなし）</value>
+  </data>
+  <data name="PublicKey_ReadError" xml:space="preserve">
+    <value>（読み取りエラー）</value>
+  </data>
+  <data name="PublicKey_ErrorDropNormalFile" xml:space="preserve">
+    <value>エラー: 暗号化する通常のファイルまたはフォルダーをドロップしてください。</value>
+  </data>
+  <data name="PublicKey_ErrorDropUnsupported" xml:space="preserve">
+    <value>エラー: この画面では扱えないファイルです。RSA暗号化ファイル(.atc)または秘密鍵(.atcpvt)をドロップしてください。</value>
+  </data>
+  <data name="PublicKey_InvalidBaseFileName" xml:space="preserve">
+    <value>エラー: ファイル名を入力してください（拡張子だけの名前は使えません）。</value>
+  </data>
+  <data name="PublicKey_ErrorDropEncryptedFile" xml:space="preserve">
+    <value>エラー: RSA暗号化ファイル(.atc)をドロップしてください。</value>
+  </data>
+  <data name="PublicKey_ErrorDropPublicKey" xml:space="preserve">
+    <value>エラー: 公開鍵(.atcpub)をドロップしてください。</value>
+  </data>
+  <data name="PublicKey_ErrorDropPrivateKeyNotPublic" xml:space="preserve">
+    <value>エラー: 公開鍵では復号できません。秘密鍵(.atcpvt)をドロップしてください。</value>
+  </data>
+  <data name="PublicKey_ErrorDropPrivateKey" xml:space="preserve">
+    <value>エラー: 秘密鍵(.atcpvt)をドロップしてください。</value>
+  </data>
+  <data name="PublicKey_GuidLabel" xml:space="preserve">
+    <value>GUID</value>
+  </data>
+  <data name="PublicKey_GuidWarningPublicKey" xml:space="preserve">
+    <value>公開鍵とは別に、相手から同一のユニークID（GUID）を受け取り、同じものであることを確認することで、なりすまし・改ざんの可能性を低くします。</value>
+  </data>
+  <data name="PublicKey_GuidWarningPrivateKey" xml:space="preserve">
+    <value>公開鍵を送った経路とは別に表示されているユニークID（GUID）を相手へ伝えることで、なりすまし・改ざんの可能性を低くします。</value>
+  </data>
+  <data name="PublicKey_TargetFileLabel" xml:space="preserve">
+    <value>📁 対象ファイル</value>
+  </data>
+  <data name="PublicKey_EncryptedFileLabel" xml:space="preserve">
+    <value>🔒 暗号化ファイル</value>
+  </data>
+  <data name="Button_GenerateKey" xml:space="preserve">
+    <value>鍵生成(_G)</value>
+  </data>
+  <data name="Button_CancelWithKey" xml:space="preserve">
+    <value>キャンセル(_C)</value>
+  </data>
+  <data name="ZipEncryption_HeaderFormat" xml:space="preserve">
+    <value>パスワードZIP作成: </value>
+  </data>
+  <data name="ZipEncryption_PasswordPrompt" xml:space="preserve">
+    <value>ZIPファイルのパスワードを設定してください</value>
+  </data>
+  <data name="ZipEncryption_Processing" xml:space="preserve">
+    <value>ZIP作成中...</value>
+  </data>
+  <data name="Button_CreateZip" xml:space="preserve">
+    <value>ZIP作成</value>
+  </data>
+  <data name="ZipDecryption_HeaderFormat" xml:space="preserve">
+    <value>ZIP解凍: </value>
+  </data>
+  <data name="ZipDecryption_PasswordPrompt" xml:space="preserve">
+    <value>パスワードを入力してください</value>
+  </data>
+  <data name="ZipDecryption_Processing" xml:space="preserve">
+    <value>解凍中...</value>
+  </data>
+  <data name="ZipDecryption_ExtractionFailed" xml:space="preserve">
+    <value>解凍に失敗しました</value>
+  </data>
+  <data name="Button_Extract" xml:space="preserve">
+    <value>解凍</value>
+  </data>
+  <data name="MainWindow_Title" xml:space="preserve">
+      <value>アタッシェケース</value>
+  </data>
+  <data name="Menu_About" xml:space="preserve">
+      <value>{0}について...</value>
+  </data>
+  <data name="MacMenu_HideFormat" xml:space="preserve">
+      <value>{0}を非表示</value>
+  </data>
+  <data name="MacMenu_QuitFormat" xml:space="preserve">
+      <value>{0}を終了</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>設定</value>
+  </data>
+  <data name="Settings_Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Settings_RestoreDefaults" xml:space="preserve">
+    <value>既定値に戻す</value>
+  </data>
+  <data name="Settings_Browse" xml:space="preserve">
+    <value>参照…</value>
+  </data>
+  <data name="Settings_SelectFolder" xml:space="preserve">
+    <value>フォルダーを選択</value>
+  </data>
+  <data name="Settings_CommandLineNote" xml:space="preserve">
+    <value>コマンドライン引数で指定した値は、その実行にだけ適用され、ここには保存されません。</value>
+  </data>
+  <data name="Settings_General" xml:space="preserve">
+    <value>一般</value>
+  </data>
+  <data name="Settings_ExitAfterProcess" xml:space="preserve">
+    <value>処理後にアタッシェケースを終了する</value>
+  </data>
+  <data name="Settings_OpenDecryptedFile" xml:space="preserve">
+    <value>復号したファイルを関連付けられたアプリで開く</value>
+  </data>
+  <data name="Settings_CheckForUpdatesOnStartup" xml:space="preserve">
+    <value>起動時に更新を確認する（1 日 1 回）</value>
+  </data>
+  <data name="Update_Title" xml:space="preserve">
+    <value>アタッシェケースの更新</value>
+  </data>
+  <data name="Update_Cancel" xml:space="preserve">
+    <value>中止</value>
+  </data>
+  <data name="Update_Downloading" xml:space="preserve">
+    <value>新しいバージョンをダウンロードしています…</value>
+  </data>
+  <data name="Update_Extracting" xml:space="preserve">
+    <value>ダウンロードしたファイルを展開しています…</value>
+  </data>
+  <data name="Update_Verifying" xml:space="preserve">
+    <value>署名と公証を確認しています…</value>
+  </data>
+  <data name="Update_ReadyToRestart" xml:space="preserve">
+    <value>更新の準備ができました。
+アタッシェケースを再起動します。</value>
+  </data>
+  <data name="Update_Failed" xml:space="preserve">
+    <value>更新できませんでした。</value>
+  </data>
+  <data name="Update_ContentMismatch" xml:space="preserve">
+    <value>配信されているファイルが、更新情報と一致しません。</value>
+  </data>
+  <data name="Update_ContentMismatchAdvice" xml:space="preserve">
+    <value>このパソコンには何も変更していません。AttacheCase は差し替えられていないので、いまの版をそのままお使いいただけます。
+
+配信側の問題です。しばらく時間をおいてからもう一度お試しになるか、下記のサイトから最新版を入手してください。
+https://hibara.jp/software/attachecase/</value>
+  </data>
+  <data name="Update_Verify_SignatureInvalid" xml:space="preserve">
+    <value>ダウンロードしたアプリの署名が正しくありません。</value>
+  </data>
+  <data name="Update_Verify_TeamIdMismatch" xml:space="preserve">
+    <value>ダウンロードしたアプリの署名者が異なります。中断しました。</value>
+  </data>
+  <data name="Update_Verify_NotNotarized" xml:space="preserve">
+    <value>ダウンロードしたアプリが Apple の公証を受けていません。</value>
+  </data>
+  <data name="Update_Verify_Rejected" xml:space="preserve">
+    <value>ダウンロードしたアプリが macOS に受け入れられませんでした。</value>
+  </data>
+  <data name="Update_Verify_Failed" xml:space="preserve">
+    <value>ダウンロードしたアプリを確認できませんでした。</value>
+  </data>
+  <data name="Update_Cannot_NotInAppBundle" xml:space="preserve">
+    <value>アプリケーションとして起動されていないため、自動更新は行えません。</value>
+  </data>
+  <data name="Update_Cannot_Translocated" xml:space="preserve">
+    <value>アタッシェケースが一時的な場所で実行されています。
+一度「アプリケーション」フォルダへ移動してから起動し直してください。</value>
+  </data>
+  <data name="Update_Cannot_ReadOnly" xml:space="preserve">
+    <value>ディスクイメージから直接実行されています。
+「アプリケーション」フォルダへコピーしてから起動し直してください。</value>
+  </data>
+  <data name="Update_Cannot_NotWritable" xml:space="preserve">
+    <value>アタッシェケースのある場所に書き込む権限がありません。
+お手数ですが、手動で更新してください。</value>
+  </data>
+  <data name="Update_DownloadSize" xml:space="preserve">
+    <value>{0} / {1}</value>
+  </data>
+  <data name="Update_Headline" xml:space="preserve">
+    <value>新しいバージョンの{0}が入手できます！</value>
+  </data>
+  <data name="Update_SubText" xml:space="preserve">
+    <value>{0} {1} が入手できます（使用中のバージョンは {2} です）。今すぐダウンロードしますか？</value>
+  </data>
+  <data name="Update_NotesHeading" xml:space="preserve">
+    <value>アタッシェケース {0}</value>
+  </data>
+  <data name="Update_NoNotes" xml:space="preserve">
+    <value>このバージョンの変更点は公開されていません。</value>
+  </data>
+  <data name="Update_Section_New" xml:space="preserve">
+    <value>新機能</value>
+  </data>
+  <data name="Update_Section_Improvements" xml:space="preserve">
+    <value>改善</value>
+  </data>
+  <data name="Update_Section_Fixes" xml:space="preserve">
+    <value>修正</value>
+  </data>
+  <data name="Update_SkipVersion" xml:space="preserve">
+    <value>このバージョンはスキップ</value>
+  </data>
+  <data name="Update_RemindLater" xml:space="preserve">
+    <value>あとで通知</value>
+  </data>
+  <data name="Update_Install" xml:space="preserve">
+    <value>アップデートをインストール</value>
+  </data>
+  <data name="Menu_CheckForUpdates" xml:space="preserve">
+    <value>アップデートを確認…</value>
+  </data>
+  <data name="Update_UpToDate" xml:space="preserve">
+    <value>お使いのバージョン {0} は最新です。</value>
+  </data>
+  <data name="Update_CheckFailed" xml:space="preserve">
+    <value>更新を確認できませんでした。</value>
+  </data>
+  <data name="Update_Checking" xml:space="preserve">
+    <value>更新を確認しています…</value>
+  </data>
+  <data name="Update_Available" xml:space="preserve">
+    <value>新しいバージョン {0} が公開されています。
+（お使いのバージョン: {1}）
+
+いま更新しますか？</value>
+  </data>
+  <data name="Settings_NotMaskPassword" xml:space="preserve">
+    <value>パスワードを隠さずに入力する</value>
+  </data>
+  <data name="Settings_Encrypt" xml:space="preserve">
+    <value>暗号化</value>
+  </data>
+  <data name="Settings_EncryptionFileType" xml:space="preserve">
+    <value>暗号化ファイルの種類</value>
+  </data>
+  <data name="Settings_FileTypeAtc" xml:space="preserve">
+    <value>暗号化ファイル（.atc）</value>
+  </data>
+  <data name="Settings_FileTypeZip" xml:space="preserve">
+    <value>パスワード付き ZIP</value>
+  </data>
+  <data name="Settings_SaveToSameFolder" xml:space="preserve">
+    <value>暗号化ファイルは常に同じ場所に保存する</value>
+  </data>
+  <data name="Settings_ConfirmOverwrite" xml:space="preserve">
+    <value>同名ファイルがあるときは上書きの確認をする</value>
+  </data>
+  <data name="Settings_EncryptOneByOne" xml:space="preserve">
+    <value>フォルダー内のファイルは個別に暗号化する</value>
+  </data>
+  <data name="Settings_KeepTimeStamp" xml:space="preserve">
+    <value>暗号化ファイルのタイムスタンプを元ファイルに合わせる</value>
+  </data>
+  <data name="Settings_IncludeOriginalExtension" xml:space="preserve">
+    <value>暗号化ファイル名に元の拡張子を含める</value>
+  </data>
+  <data name="Settings_UseAutoName" xml:space="preserve">
+    <value>暗号化ファイル名を書式から自動で付ける</value>
+  </data>
+  <data name="Settings_AutoNameHint" xml:space="preserve">
+    <value>書式指定子: &lt;filename&gt; &lt;ext&gt; &lt;date:yyyyMMdd&gt; &lt;num:3&gt; &lt;random:8&gt;</value>
+  </data>
+  <data name="Settings_UseCamouflageExtension" xml:space="preserve">
+    <value>暗号化ファイルの拡張子を偽装する</value>
+  </data>
+  <data name="Settings_CompressionLevel" xml:space="preserve">
+    <value>圧縮</value>
+  </data>
+  <data name="Settings_CompressionNone" xml:space="preserve">
+    <value>無圧縮</value>
+  </data>
+  <data name="Settings_CompressionFastest" xml:space="preserve">
+    <value>速度優先</value>
+  </data>
+  <data name="Settings_CompressionOptimal" xml:space="preserve">
+    <value>サイズ優先</value>
+  </data>
+  <data name="Settings_MissTypeLimits" xml:space="preserve">
+    <value>暗号化ファイルに記録するパスワード入力回数の上限</value>
+  </data>
+  <data name="Settings_Zip" xml:space="preserve">
+    <value>パスワード ZIP</value>
+  </data>
+  <data name="Settings_ZipAlgorithm" xml:space="preserve">
+    <value>暗号方式</value>
+  </data>
+  <data name="Settings_ZipCrypto" xml:space="preserve">
+    <value>ZipCrypto（互換性重視）</value>
+  </data>
+  <data name="Settings_ZipAes128" xml:space="preserve">
+    <value>AES-128</value>
+  </data>
+  <data name="Settings_ZipAes256" xml:space="preserve">
+    <value>AES-256</value>
+  </data>
+  <data name="Settings_ZipSaveToSameFolder" xml:space="preserve">
+    <value>パスワード ZIP は常に同じ場所に保存する</value>
+  </data>
+  <data name="Settings_Decrypt" xml:space="preserve">
+    <value>復号</value>
+  </data>
+  <data name="Settings_DecryptSaveToSameFolder" xml:space="preserve">
+    <value>復号したファイルは常に同じ場所に保存する</value>
+  </data>
+  <data name="Settings_NoParentFolder" xml:space="preserve">
+    <value>復号時に親フォルダーを生成しない</value>
+  </data>
+  <data name="Settings_SetTimeStampToNow" xml:space="preserve">
+    <value>復号したファイルのタイムスタンプを復号時に合わせる</value>
+  </data>
+  <data name="Settings_ContinueOnHashMismatch" xml:space="preserve">
+    <value>CRC32 が一致しなくても復号を続行する</value>
+  </data>
+  <data name="Settings_Delete" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="Settings_DeleteMode" xml:space="preserve">
+    <value>暗号化に成功したら元ファイルを削除する</value>
+  </data>
+  <data name="Settings_DeleteEncMode" xml:space="preserve">
+    <value>復号に成功したら暗号化ファイルを削除する</value>
+  </data>
+  <data name="Settings_DeleteNone" xml:space="preserve">
+    <value>削除しない</value>
+  </data>
+  <data name="Settings_DeleteNormal" xml:space="preserve">
+    <value>通常削除</value>
+  </data>
+  <data name="Settings_DeleteTrash" xml:space="preserve">
+    <value>ごみ箱へ移動</value>
+  </data>
+  <data name="Settings_DeleteWipe" xml:space="preserve">
+    <value>完全削除（上書きしてから削除）</value>
+  </data>
+  <data name="Settings_DeleteRandomTimes" xml:space="preserve">
+    <value>完全削除でランダム値を書き込む回数</value>
+  </data>
+  <data name="Settings_DeleteZeroTimes" xml:space="preserve">
+    <value>完全削除でゼロを書き込む回数</value>
+  </data>
+  <data name="Settings_ConfirmDelete" xml:space="preserve">
+    <value>削除の前に確認する</value>
+  </data>
+  <data name="Dialog_DeleteTitle" xml:space="preserve">
+    <value>削除の確認</value>
+  </data>
+  <data name="Dialog_DeleteMessage" xml:space="preserve">
+    <value>「{0}」を削除します。よろしいですか？</value>
+  </data>
+  <data name="Dialog_DeleteCountFiles" xml:space="preserve">
+    <value>{0} 個の項目</value>
+  </data>
+  <data name="Dialog_DeleteFailed" xml:space="preserve">
+    <value>削除できませんでした: {0}</value>
+  </data>
+  <data name="Password_Show" xml:space="preserve">
+    <value>パスワードを表示する</value>
+  </data>
+  <data name="Password_Hide" xml:space="preserve">
+    <value>パスワードを隠す</value>
+  </data>
+  <data name="Settings_Window" xml:space="preserve">
+    <value>ウィンドウ</value>
+  </data>
+  <data name="Settings_MinimizeWhileProcessing" xml:space="preserve">
+    <value>処理中は常に最小化する</value>
+  </data>
+  <data name="Settings_MinimizeHint" xml:space="preserve">
+    <value>最小化中は Dock アイコンのバッジに進捗を表示します。</value>
+  </data>
+  <data name="Settings_ShowMenuBarIcon" xml:space="preserve">
+    <value>メニューバーにアイコンを表示する</value>
+  </data>
+  <data name="Settings_MenuBarIconHint" xml:space="preserve">
+    <value>アイコンをクリックするとウィンドウが最前面に出ます。</value>
+  </data>
+  <data name="Settings_WindowForeground" xml:space="preserve">
+    <value>ウィンドウを最前面にする</value>
+  </data>
+  <data name="Settings_NoMultipleInstance" xml:space="preserve">
+    <value>アタッシェケースを複数起動しない</value>
+  </data>
+  <data name="Settings_NoMultipleInstanceHint" xml:space="preserve">
+    <value>次回の起動から有効になります。</value>
+  </data>
+  <data name="Settings_AutoNameInsert" xml:space="preserve">
+    <value>挿入</value>
+  </data>
+  <data name="Settings_AutoNameFileName" xml:space="preserve">
+    <value>ファイル名</value>
+  </data>
+  <data name="Settings_AutoNameExtension" xml:space="preserve">
+    <value>拡張子</value>
+  </data>
+  <data name="Settings_AutoNameDate" xml:space="preserve">
+    <value>日付</value>
+  </data>
+  <data name="Settings_AutoNameNumber" xml:space="preserve">
+    <value>連番</value>
+  </data>
+  <data name="Settings_AutoNameRandom" xml:space="preserve">
+    <value>ランダムな文字列</value>
+  </data>
+  <data name="Settings_AutoNameExample" xml:space="preserve">
+    <value>ex). {0}</value>
+  </data>
+  <data name="Settings_AutoNameRandomCharset" xml:space="preserve">
+    <value>ランダム文字列に使う文字</value>
+  </data>
+  <data name="Settings_AutoNameUpperCase" xml:space="preserve">
+    <value>英大文字</value>
+  </data>
+  <data name="Settings_AutoNameLowerCase" xml:space="preserve">
+    <value>英小文字</value>
+  </data>
+  <data name="Settings_AutoNameNumbers" xml:space="preserve">
+    <value>数字</value>
+  </data>
+  <data name="Settings_AutoNameSymbols" xml:space="preserve">
+    <value>記号</value>
+  </data>
+  <data name="Settings_AutoNameSymbolsHint" xml:space="preserve">
+    <value>Windows と macOS のどちらでもファイル名に使えない文字は除いています。</value>
+  </data>
+  <data name="Error_OneByOneWithOutFile" xml:space="preserve">
+    <value>/oneby と /out=&lt;ファイル名&gt; は同時に指定できません。/out にはフォルダーを指定してください。</value>
+  </data>
+  <data name="Error_AutoNameInvalidChar" xml:space="preserve">
+    <value>自動ファイル名に使えない文字が含まれています: {0}</value>
+  </data>
+  <data name="Error_NotEncryptedFile" xml:space="preserve">
+    <value>暗号化ファイルではありません: {0}</value>
+  </data>
+  <data name="Settings_Language" xml:space="preserve">
+    <value>表示言語</value>
+  </data>
+  <data name="Settings_LanguageSystem" xml:space="preserve">
+    <value>システムに従う</value>
+  </data>
+  <data name="Settings_LanguageJapanese" xml:space="preserve">
+    <value>日本語</value>
+  </data>
+  <data name="Settings_LanguageEnglish" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Progress_BuildingFileList" xml:space="preserve">
+    <value>ファイルリストを作成中...</value>
+  </data>
+  <data name="Progress_ReadingFileInfo" xml:space="preserve">
+    <value>ファイル情報を取得中... ({0} items)</value>
+  </data>
+  <data name="Progress_EncryptingFile" xml:space="preserve">
+    <value>暗号化中: {0}</value>
+  </data>
+  <data name="Progress_Finishing" xml:space="preserve">
+    <value>書き込みを終了しています...</value>
+  </data>
+  <data name="Progress_Verifying" xml:space="preserve">
+    <value>整合性を確認しています...</value>
+  </data>
+  <data name="Progress_Decrypting" xml:space="preserve">
+    <value>復号中...</value>
+  </data>
+  <data name="Progress_Completed" xml:space="preserve">
+    <value>完了</value>
+  </data>
+  <data name="Progress_SkippedUnsafePath" xml:space="preserve">
+    <value>危険なパスのためスキップ</value>
+  </data>
+  <data name="Progress_Extracting" xml:space="preserve">
+    <value>解凍中: {0}</value>
+  </data>
+  <data name="Progress_PreparingZip" xml:space="preserve">
+    <value>ZIP作成の準備中...</value>
+  </data>
+  <data name="Progress_AddingToZip" xml:space="preserve">
+    <value>ZIPに追加中...</value>
+  </data>
+  <data name="Error_FileNotFound" xml:space="preserve">
+    <value>ファイルが見つかりません</value>
+  </data>
+  <data name="Error_HeaderNotFound" xml:space="preserve">
+    <value>ヘッダーが見つかりません</value>
+  </data>
+  <data name="Error_ExeoutWindowsOnly" xml:space="preserve">
+    <value>自己実行形式（.exe）の作成は Windows でのみ利用できます。</value>
+  </data>
+  <data name="Error_ExeoutStubMissing" xml:space="preserve">
+    <value>アプリに同梱される復号プログラム（Exeout\Exeout.exe）が見つかりません。アプリを入れ直してください。</value>
+  </data>
+  <data name="Error_ExeoutStubCorrupted" xml:space="preserve">
+    <value>同梱の復号プログラムの整合性検査（SHA-256）に失敗しました。アプリを入れ直してください。</value>
+  </data>
+  <data name="LicenseReg_Title" xml:space="preserve">
+    <value>商用ライセンスの登録</value>
+  </data>
+  <data name="LicenseReg_StatusRegistered" xml:space="preserve">
+    <value>登録済み: {0} &lt;{1}&gt;</value>
+  </data>
+  <data name="LicenseReg_StatusNotRegistered" xml:space="preserve">
+    <value>未登録</value>
+  </data>
+  <data name="LicenseReg_CodeLabel" xml:space="preserve">
+    <value>レジストレーションコードを貼り付けてください:</value>
+  </data>
+  <data name="LicenseReg_Register" xml:space="preserve">
+    <value>登録</value>
+  </data>
+  <data name="LicenseReg_Delete" xml:space="preserve">
+    <value>ライセンスを削除</value>
+  </data>
+  <data name="LicenseReg_Success" xml:space="preserve">
+    <value>ライセンスを登録しました。ありがとうございます！</value>
+  </data>
+  <data name="LicenseReg_Invalid" xml:space="preserve">
+    <value>レジストレーションコードが正しくありません。</value>
+  </data>
+  <data name="LicenseReg_Deleted" xml:space="preserve">
+    <value>ライセンスを削除しました。</value>
+  </data>
+  <data name="About_LicenseRegistration" xml:space="preserve">
+    <value>商用ライセンス...</value>
+  </data>
+  <data name="About_FreeVersionNotice" xml:space="preserve">
+    <value>現在、アタッシェケース5はフリー版として利用中です。</value>
+  </data>
+  <data name="About_CommercialRegister" xml:space="preserve">
+    <value>商用利用登録</value>
+  </data>
+  <data name="About_CommercialUse" xml:space="preserve">
+    <value>商用利用</value>
+  </data>
+  <data name="About_LicUserName" xml:space="preserve">
+    <value>ユーザー名 :</value>
+  </data>
+  <data name="About_LicEmail" xml:space="preserve">
+    <value>E-mail :</value>
+  </data>
+  <data name="About_DeleteLicenseMenu" xml:space="preserve">
+    <value>商用ライセンスを削除</value>
+  </data>
+  <data name="About_DeleteLicenseTitle" xml:space="preserve">
+    <value>商用ライセンスの削除</value>
+  </data>
+  <data name="About_DeleteLicenseConfirm" xml:space="preserve">
+    <value>この商用ライセンスを削除しますか？</value>
+  </data>
+  <data name="Settings_AssociationSection" xml:space="preserve">
+    <value>ファイルの関連付け（Windows）</value>
+  </data>
+  <data name="Settings_AssociationHint" xml:space="preserve">
+    <value>.atc / .atcpvt / .atcpub をエクスプローラーに登録し、ダブルクリックでアタッシェケースが開くようにします。管理者権限を求めるのは小さな設定ツールだけです。</value>
+  </data>
+  <data name="Settings_Associate" xml:space="preserve">
+    <value>関連付けする</value>
+  </data>
+  <data name="Settings_Unassociate" xml:space="preserve">
+    <value>関連付けを解除</value>
+  </data>
+  <data name="Settings_AssociationIconLabel" xml:space="preserve">
+    <value>.atc ファイルに表示するアイコン:</value>
+  </data>
+  <data name="Settings_AssociationIconHint" xml:space="preserve">
+    <value>関連付け済みのファイルに新しいアイコンを反映するには、もう一度「関連付けする」を押してください。</value>
+  </data>
+  <data name="Dialog_InfoTitle" xml:space="preserve">
+    <value>情報</value>
+  </data>
+  <data name="WinMenu_File" xml:space="preserve">
+    <value>ファイル(_F)</value>
+  </data>
+  <data name="WinMenu_Encrypt" xml:space="preserve">
+    <value>暗号化する(_E)</value>
+  </data>
+  <data name="WinMenu_EncryptOpenFiles" xml:space="preserve">
+    <value>暗号化するファイルを開く(_O)...</value>
+  </data>
+  <data name="WinMenu_EncryptOpenFolder" xml:space="preserve">
+    <value>暗号化するフォルダーを開く(_R)...</value>
+  </data>
+  <data name="WinMenu_ZipFromFiles" xml:space="preserve">
+    <value>ファイルから暗号化ZIPを作る(_Z)...</value>
+  </data>
+  <data name="WinMenu_ZipFromFolder" xml:space="preserve">
+    <value>フォルダーから暗号化ZIPを作る(_A)...</value>
+  </data>
+  <data name="WinMenu_Decrypt" xml:space="preserve">
+    <value>復号する(_D)</value>
+  </data>
+  <data name="WinMenu_DecryptOpenFile" xml:space="preserve">
+    <value>暗号化ファイル（.atc など）を開く(_O)...</value>
+  </data>
+  <data name="WinMenu_DecryptOpenZip" xml:space="preserve">
+    <value>暗号化ZIPファイルを開く(_Z)...</value>
+  </data>
+  <data name="WinMenu_PublicKey" xml:space="preserve">
+    <value>公開鍵暗号(_R)</value>
+  </data>
+  <data name="WinMenu_PostPpap" xml:space="preserve">
+    <value>Post-PPAP(_P)</value>
+  </data>
+  <data name="WinMenu_Exit" xml:space="preserve">
+    <value>終了する(_X)</value>
+  </data>
+  <data name="WinMenu_Options" xml:space="preserve">
+    <value>オプション(_O)</value>
+  </data>
+  <data name="WinMenu_Setting" xml:space="preserve">
+    <value>動作設定(_T)</value>
+  </data>
+  <data name="WinMenu_Help" xml:space="preserve">
+    <value>ヘルプ(_H)</value>
+  </data>
+  <data name="WinMenu_OnlineHelp" xml:space="preserve">
+    <value>オンラインヘルプ(_C)</value>
+  </data>
+  <data name="WinMenu_CheckForUpdates" xml:space="preserve">
+    <value>更新の確認(_U)...</value>
+  </data>
+  <data name="WinMenu_About" xml:space="preserve">
+    <value>バージョン情報(_A)...</value>
+  </data>
+  <data name="WinMenu_License" xml:space="preserve">
+    <value>ライセンス(_L)...</value>
+  </data>
+  <data name="Dialog_ConfirmTitle" xml:space="preserve">
+    <value>確認</value>
+  </data>
+  <data name="PostPpap_LeaveVerifyTitle" xml:space="preserve">
+    <value>メールの確認がまだ完了していません</value>
+  </data>
+  <data name="PostPpap_LeaveVerifyMessage" xml:space="preserve">
+    <value>認証メールの確認がまだ済んでいません。この画面を離れると確認の自動検出が止まり、メールのリンクを開いても登録は完了しません。また、同じアドレスで登録をやり直せるのは 10 分間に 3 回までです。
+
+それでも戻りますか？</value>
+  </data>
+  <data name="Settings_Theme" xml:space="preserve">
+    <value>テーマ:</value>
+  </data>
+  <data name="Settings_ThemeAuto" xml:space="preserve">
+    <value>自動（OS に従う）</value>
+  </data>
+  <data name="Settings_ThemeLight" xml:space="preserve">
+    <value>ライト</value>
+  </data>
+  <data name="Settings_ThemeDark" xml:space="preserve">
+    <value>ダーク</value>
+  </data>
+  <data name="Settings_RememberSection" xml:space="preserve">
+    <value>パスワードの記憶</value>
+  </data>
+  <data name="Settings_RememberHint" xml:space="preserve">
+    <value>パスワードは設定ファイルではなく、この PC の鍵ストアで保護された保管庫（_AtcVault.json）に暗号化して保存されます。保管庫ファイルだけを持ち出されても、移行コードなしでは開けません。</value>
+  </data>
+  <data name="Settings_RememberEncrypt" xml:space="preserve">
+    <value>暗号化パスワードを記憶して、入力欄に事前入力する</value>
+  </data>
+  <data name="Settings_RememberDecrypt" xml:space="preserve">
+    <value>復号パスワードを記憶して、入力欄に事前入力する</value>
+  </data>
+  <data name="Settings_RememberClear" xml:space="preserve">
+    <value>記憶した内容をすべて消去</value>
+  </data>
+  <data name="Settings_RememberClearConfirm" xml:space="preserve">
+    <value>記憶したパスワードを、他の信頼済み PC の登録も含めてすべて消去します。元に戻せません。続行しますか？</value>
+  </data>
+  <data name="Settings_VaultLockedNotice" xml:space="preserve">
+    <value>記憶パスワードはありますが、この PC ではまだ開けません。信頼済みの PC で発行した移行コードを入力して、この PC を登録してください。コードは一度使うと無効になります。</value>
+  </data>
+  <data name="Settings_MigrationCodeLabel" xml:space="preserve">
+    <value>移行コード:</value>
+  </data>
+  <data name="Settings_RegisterDevice" xml:space="preserve">
+    <value>この PC を登録</value>
+  </data>
+  <data name="Settings_RegisterDeviceFailed" xml:space="preserve">
+    <value>登録できませんでした。コードの誤り・期限切れ・使用済みのいずれかです。信頼済みの PC で新しいコードを発行してください。</value>
+  </data>
+  <data name="Settings_RegisterDeviceDone" xml:space="preserve">
+    <value>この PC を登録しました。次回からは入力なしで記憶パスワードが使えます。移行コードは無効になりました。</value>
+  </data>
+  <data name="Settings_IssueCode" xml:space="preserve">
+    <value>移行コードを発行</value>
+  </data>
+  <data name="Settings_IssueCodeHint" xml:space="preserve">
+    <value>別の PC で記憶パスワードを一度だけ開くための移行コードです。有効期限は 7 日間、一度使うと無効になります。発行し直すと前のコードは無効になります。</value>
+  </data>
+  <data name="Settings_IssueCodeNeedUnlocked" xml:space="preserve">
+    <value>移行コードを発行できません。先に記憶パスワードを保存し、この PC で保管庫を開ける状態にしてください。</value>
+  </data>
+  <data name="Settings_IssuedCodeNotice" xml:space="preserve">
+    <value>このコードを書き写してください。この画面を離れると再表示できません。</value>
+  </data>
+  <data name="Settings_PortableSection" xml:space="preserve">
+    <value>設定の持ち運び（Windows）</value>
+  </data>
+  <data name="Settings_PortableHint" xml:space="preserve">
+    <value>USB メモリなどで持ち歩けるよう、AttacheCase.exe と同じフォルダーの _AtcCase.json に設定を書き出します。このファイルがあると、この PC の設定の代わりに使われます（反映は次回起動から）。旧版の _AtcCase.ini の後継です。</value>
+  </data>
+  <data name="Settings_PortableStatusNormal" xml:space="preserve">
+    <value>状態: この PC の設定を使用中</value>
+  </data>
+  <data name="Settings_PortableStatusInUse" xml:space="preserve">
+    <value>状態: ポータブル設定を使用中（{0}）</value>
+  </data>
+  <data name="Settings_PortableStatusPending" xml:space="preserve">
+    <value>状態: ポータブル設定ファイルがあります（{0}）。承認されると次回起動から使われます</value>
+  </data>
+  <data name="Settings_PortableCreate" xml:space="preserve">
+    <value>ポータブル設定を作成</value>
+  </data>
+  <data name="Settings_PortableCreated" xml:space="preserve">
+    <value>ポータブル設定を書き出しました:
+{0}
+
+次回起動から有効になります。記憶パスワード（保管庫ファイル）も一緒に複製しました。別の PC で使うには移行コードを発行してください。</value>
+  </data>
+  <data name="Settings_PortableCreateFailed" xml:space="preserve">
+    <value>ポータブル設定ファイルを作成できませんでした。</value>
+  </data>
+  <data name="Settings_PortableRemove" xml:space="preserve">
+    <value>ポータブル設定を解除</value>
+  </data>
+  <data name="Settings_PortableRemoveConfirm" xml:space="preserve">
+    <value>ポータブル設定ファイル（_AtcCase.json）を削除し、次回起動からこの PC の設定に戻します。続行しますか？</value>
+  </data>
+  <data name="Settings_PortableRemoved" xml:space="preserve">
+    <value>ポータブル設定を解除しました。次回起動からこの PC の設定が使われます。</value>
+  </data>
+  <data name="Settings_PortableRemoveFailed" xml:space="preserve">
+    <value>ポータブル設定ファイルを削除できませんでした。ほかのプログラムが使用している可能性があります。</value>
+  </data>
+  <data name="Error_AtcSetupNotFound" xml:space="preserve">
+    <value>ファイル関連付けツール（AtcSetup.exe）が見つかりません。</value>
+  </data>
+  <data name="Zxcvbn_LabelEmpty" xml:space="preserve">
+    <value>空文字</value>
+  </data>
+  <data name="Zxcvbn_Label0" xml:space="preserve">
+    <value>脆弱</value>
+  </data>
+  <data name="Zxcvbn_Label1" xml:space="preserve">
+    <value>弱い</value>
+  </data>
+  <data name="Zxcvbn_Label2" xml:space="preserve">
+    <value>やや弱い</value>
+  </data>
+  <data name="Zxcvbn_Label3" xml:space="preserve">
+    <value>安全</value>
+  </data>
+  <data name="Zxcvbn_Label4" xml:space="preserve">
+    <value>高安全</value>
+  </data>
+  <data name="Portable_ConfirmTitle" xml:space="preserve">
+    <value>ポータブル設定が見つかりました</value>
+  </data>
+  <data name="Portable_ConfirmMessage" xml:space="preserve">
+    <value>アプリと同じフォルダーに設定ファイルが見つかりました:
+
+{0}
+
+設定ファイルは保存先や元ファイルの削除方法を変えられます。自分で置いた覚えがある場合だけ読み込んでください。
+
+このファイルを信頼して使いますか？</value>
+  </data>
+  <data name="Portable_EnabledNextLaunch" xml:space="preserve">
+    <value>ポータブル設定は次回起動時から使われます。</value>
+  </data>
+  <data name="Update_NotAvailableOnThisBuild" xml:space="preserve">
+    <value>このビルドの更新配信はまだ開始していません。新しいリリースは https://hibara.org/software/ でご確認ください。</value>
+  </data>
+  <data name="Update_WinVerify_FileNotFound" xml:space="preserve">
+    <value>落としたファイルが見つかりません。</value>
+  </data>
+  <data name="Update_WinVerify_NotSigned" xml:space="preserve">
+    <value>落としたファイルに、正規のデジタル署名がありません。</value>
+  </data>
+  <data name="Update_WinVerify_SignatureInvalid" xml:space="preserve">
+    <value>落としたファイルの署名を検証できませんでした。</value>
+  </data>
+  <data name="Update_WinVerify_SignerMismatch" xml:space="preserve">
+    <value>落としたファイルの署名者が、動作中のアプリと違います。</value>
+  </data>
+  <data name="Update_WinVerify_SignerUnavailable" xml:space="preserve">
+    <value>動作中のアプリの署名を確認できないため、更新を適用できません。</value>
+  </data>
+  <data name="Update_WinVerify_Failed" xml:space="preserve">
+    <value>落としたファイルを検証できませんでした。</value>
+  </data>
+  <data name="Update_OpenDownloadPage" xml:space="preserve">
+    <value>ZIP（ポータブル）版のため、更新は自動では適用されません。ダウンロードページをブラウザで開きます。</value>
+  </data>
+  <data name="Error_InvalidKdfParameters" xml:space="preserve">
+    <value>鍵導出パラメータが不正です。ファイルが破損しているか、改ざんされている可能性があります。</value>
+  </data>
+  <data name="Error_InvalidKeyProtectionBlock" xml:space="preserve">
+    <value>鍵保護ブロックのサイズが不正です。ファイルが破損している可能性があります。</value>
+  </data>
+  <data name="Error_WrongPassword" xml:space="preserve">
+    <value>パスワードが正しくありません</value>
+  </data>
+  <data name="Error_WrongPasswordOrBroken" xml:space="preserve">
+    <value>パスワードが正しくないか、暗号化ファイルが破損しています</value>
+  </data>
+  <data name="Error_WrongPasswordOrBrokenHeader" xml:space="preserve">
+    <value>パスワードが正しくないか、暗号化ファイルが破損しています（ヘッダーが見つかりません）</value>
+  </data>
+  <data name="Error_WrongPasswordOrBrokenList" xml:space="preserve">
+    <value>パスワードが正しくないか、暗号化ファイルが破損しています（ファイルリスト取得失敗）</value>
+  </data>
+  <data name="Error_DecryptFailedPassword" xml:space="preserve">
+    <value>復号に失敗しました。パスワードが正しくない可能性があります</value>
+  </data>
+  <data name="Error_DecryptFailedBothPaths" xml:space="preserve">
+    <value>復号に失敗しました（Windows互換/旧Mac互換の両方で失敗）: {0}</value>
+  </data>
+  <data name="Error_UnsupportedDataVersion" xml:space="preserve">
+    <value>未対応のファイルバージョンです: {0}</value>
+  </data>
+  <data name="Error_UnsupportedSymmetricAlgorithm" xml:space="preserve">
+    <value>未対応の対称暗号アルゴリズムです: 0x{0}</value>
+  </data>
+  <data name="Error_InvalidZipAlgorithm" xml:space="preserve">
+    <value>設定の「ZIP の暗号方式」が不正な値です（{0}）。設定を開いて選び直してください。</value>
+  </data>
+  <data name="Error_UnsupportedKdf" xml:space="preserve">
+    <value>未対応の KDF アルゴリズムです: 0x{0}</value>
+  </data>
+  <data name="Error_MarkedBroken" xml:space="preserve">
+    <value>この暗号化ファイルは破損状態（Broken）としてマークされています</value>
+  </data>
+  <data name="Error_EmptyFileList" xml:space="preserve">
+    <value>ファイルリストが空です</value>
+  </data>
+  <data name="Error_HeaderNonceRead" xml:space="preserve">
+    <value>ヘッダNonce読込失敗</value>
+  </data>
+  <data name="Error_BodyNonceRead" xml:space="preserve">
+    <value>本体Nonce読込失敗</value>
+  </data>
+  <data name="Error_EncryptedHeaderRead" xml:space="preserve">
+    <value>暗号化ヘッダ読込失敗</value>
+  </data>
+  <data name="Error_SkipHeaderFailed" xml:space="preserve">
+    <value>暗号化ヘッダーのスキップに失敗しました</value>
+  </data>
+  <data name="Error_HeaderTagVerify" xml:space="preserve">
+    <value>ヘッダ認証タグの検証に失敗しました（パスワード違いまたはファイル破損）</value>
+  </data>
+  <data name="Error_BodyTagVerify" xml:space="preserve">
+    <value>本体認証タグの検証に失敗しました（ファイル破損または改ざんの可能性）</value>
+  </data>
+  <data name="Error_TruncatedData" xml:space="preserve">
+    <value>復号データが途中で途切れました</value>
+  </data>
+  <data name="Error_TruncatedBody" xml:space="preserve">
+    <value>復号データが途中で途切れました（ファイル本体の読み取り不足）</value>
+  </data>
+  <data name="Error_TruncatedWhileSkipping" xml:space="preserve">
+    <value>スキップ中に復号データが途切れました</value>
+  </data>
+  <data name="Error_Crc32Mismatch" xml:space="preserve">
+    <value>CRC32不一致</value>
+  </data>
+  <data name="Error_Md5Mismatch" xml:space="preserve">
+    <value>MD5不一致</value>
+  </data>
+  <data name="Error_CanceledByUser" xml:space="preserve">
+    <value>ユーザーによってキャンセルされました</value>
+  </data>
+  <data name="Error_PrivateKeyNoGuid" xml:space="preserve">
+    <value>秘密鍵にGUIDが含まれていません</value>
+  </data>
+  <data name="Error_RsaHeaderNotFound" xml:space="preserve">
+    <value>RSAヘッダーが見つかりません</value>
+  </data>
+  <data name="Error_RsaGuidMismatch" xml:space="preserve">
+    <value>秘密鍵のGUIDが一致しません。</value>
+  </data>
+  <data name="Error_RsaGuidMismatchDetail" xml:space="preserve">
+    <value>秘密鍵のGUIDが一致しません。&#xA;&#xA;ファイルのGUID: {0}&#xA;秘密鍵のGUID: {1}</value>
+  </data>
+  <data name="Error_RsaBlockMissing" xml:space="preserve">
+    <value>RSA暗号化データが見つかりません。</value>
+  </data>
+  <data name="Error_RsaBlockNotFound" xml:space="preserve">
+    <value>RSA暗号化データが見つかりません。このファイルはRSA暗号化されていない可能性があります。</value>
+  </data>
+  <data name="Error_RsaDecryptFailed" xml:space="preserve">
+    <value>RSA復号に失敗しました。秘密鍵が正しくない可能性があります。</value>
+  </data>
+  <data name="Error_PublicKeyRecoverFailed" xml:space="preserve">
+    <value>公開鍵方式の共通鍵復元に失敗しました（秘密鍵が一致しません）</value>
+  </data>
+  <data name="Error_PostPpapNoAccount" xml:space="preserve">
+    <value>Post-PPAP の公開鍵アカウントが登録されていません。先にメールアドレスを登録してください。</value>
+  </data>
+  <data name="Error_NoMatchingPrivateKey" xml:space="preserve">
+    <value>このファイルを復号できる秘密鍵が見つかりません。受信者として登録されていない可能性があります。</value>
+  </data>
+  <data name="Error_RecipientNoMlKem" xml:space="preserve">
+    <value>ハイブリッド宛先 {0} に ML-KEM 公開鍵が含まれていません。</value>
+  </data>
+  <data name="Error_ZipExtractFailed" xml:space="preserve">
+    <value>ZIP解凍エラー: {0}（パスワードが正しくない可能性があります）</value>
+  </data>
+  <data name="Error_NoInputPath" xml:space="preserve">
+    <value>入力パスが指定されていません。</value>
+  </data>
+  <data name="Error_InvalidOutputPath" xml:space="preserve">
+    <value>出力パスが不正です。</value>
+  </data>
+  <data name="Error_EmptyPassword" xml:space="preserve">
+    <value>パスワードが空です。</value>
+  </data>
+  <data name="Error_NoFilesToEncrypt" xml:space="preserve">
+    <value>暗号化対象のファイルが見つかりません。</value>
+  </data>
+  <data name="PostPpap_RsaKeyMissing" xml:space="preserve">
+    <value>RSA 秘密鍵が Keychain に見つかりません。再登録が必要です。</value>
+  </data>
+  <data name="PostPpap_MlKemKeyMissing" xml:space="preserve">
+    <value>ML-KEM 秘密鍵が Keychain に見つかりません。再登録が必要です。</value>
+  </data>
+  <data name="PostPpap_EnterEmail" xml:space="preserve">
+    <value>メールアドレスを入力してください。</value>
+  </data>
+  <data name="PostPpap_EnterRecipientEmail" xml:space="preserve">
+    <value>宛先メールアドレスを入力してください。</value>
+  </data>
+  <data name="PostPpap_ServerError" xml:space="preserve">
+    <value>サーバエラー: {0} {1}</value>
+  </data>
+  <data name="PostPpap_RecipientNotHybrid" xml:space="preserve">
+    <value>この宛先はハイブリッド暗号（RSA + ML-KEM）に対応していないため、暗号化できません。</value>
+  </data>
+  <data name="PostPpap_InvalidServerKey" xml:space="preserve">
+    <value>キーサーバの応答に不整合な鍵データが含まれています。暗号化は行いませんでした。</value>
+  </data>
+  <data name="PostPpap_TryAgainLater" xml:space="preserve">
+    <value>しばらく時間をおいてから再度お試しください。</value>
+  </data>
+  <data name="PostPpap_ServiceBusy" xml:space="preserve">
+    <value>現在サービスが混み合っています。しばらくしてから再度お試しください。</value>
+  </data>
+  <data name="PostPpap_TryAgainAfter" xml:space="preserve">
+    <value>登録の回数制限に達しました。約 {0}後に、もう一度お試しください。</value>
+  </data>
+  <data name="PostPpap_ServiceBusyAfter" xml:space="preserve">
+    <value>現在サービスが混み合っています。約 {0}後に、もう一度お試しください。</value>
+  </data>
+  <data name="PostPpap_DurationLessThanAMinute" xml:space="preserve">
+    <value>1 分</value>
+  </data>
+  <data name="PostPpap_DurationMinute" xml:space="preserve">
+    <value>{0} 分</value>
+  </data>
+  <data name="PostPpap_DurationMinutes" xml:space="preserve">
+    <value>{0} 分</value>
+  </data>
+  <data name="PostPpap_DurationHour" xml:space="preserve">
+    <value>{0} 時間</value>
+  </data>
+  <data name="PostPpap_DurationHours" xml:space="preserve">
+    <value>{0} 時間</value>
+  </data>
+  <data name="PostPpap_MissingInformation" xml:space="preserve">
+    <value>必要な情報が不足しています。</value>
+  </data>
+  <data name="PostPpap_InvalidEmail" xml:space="preserve">
+    <value>メールアドレスの形式が正しくありません。</value>
+  </data>
+  <data name="PostPpap_KeyDataProblem" xml:space="preserve">
+    <value>鍵データの生成に問題が発生しました。アプリを更新してください。</value>
+  </data>
+  <data name="PostPpap_KeyAlreadyRegistered" xml:space="preserve">
+    <value>この鍵はすでに登録されています。</value>
+  </data>
+  <data name="PostPpap_ServerErrorHttp" xml:space="preserve">
+    <value>サーバーエラーが発生しました (HTTP {0})。</value>
+  </data>
+  <data name="PostPpap_SendingRegistration" xml:space="preserve">
+    <value>登録要求を送信中...</value>
+  </data>
+  <data name="PostPpap_RegistrationFailed" xml:space="preserve">
+    <value>登録要求失敗: {0}</value>
+  </data>
+  <data name="PostPpap_VerificationSent" xml:space="preserve">
+    <value>{0} 宛にメールを送信しました。リンクをクリックして認証してください。</value>
+  </data>
+  <data name="PostPpap_RegistrationCompletedNotice" xml:space="preserve">
+    <value>（登録が完了しました）</value>
+  </data>
+  <data name="PostPpap_VerificationTimedOut" xml:space="preserve">
+    <value>認証がタイムアウトまたは失効しました。再登録してください。</value>
+  </data>
+  <data name="PostPpap_RegistrationCanceled" xml:space="preserve">
+    <value>登録をキャンセルしました。</value>
+  </data>
+  <data name="PostPpap_VerificationError" xml:space="preserve">
+    <value>認証ポーリング中にエラー: {0}</value>
+  </data>
+  <data name="PostPpap_NoTargetFile" xml:space="preserve">
+    <value>暗号化対象ファイルがありません。</value>
+  </data>
+  <data name="PostPpap_LookingUpKey" xml:space="preserve">
+    <value>宛先の公開鍵をサーバから取得中...</value>
+  </data>
+  <data name="PostPpap_RecipientNotRegistered" xml:space="preserve">
+    <value>宛先 {0} は登録されていません。</value>
+  </data>
+  <data name="PostPpap_StartingEncryption" xml:space="preserve">
+    <value>暗号化を開始します...</value>
+  </data>
+  <data name="PostPpap_EncryptionCompleted" xml:space="preserve">
+    <value>暗号化完了: {0}</value>
+  </data>
+  <data name="PostPpap_EncryptionFailed" xml:space="preserve">
+    <value>暗号化失敗: {0}</value>
+  </data>
+  <data name="PostPpap_EncryptionCanceled" xml:space="preserve">
+    <value>暗号化をキャンセルしました。</value>
+  </data>
+  <data name="PostPpap_Error" xml:space="preserve">
+    <value>エラー: {0}</value>
+  </data>
+  <data name="PostPpap_AccountDeleted" xml:space="preserve">
+    <value>アカウントを削除しました。</value>
+  </data>
+  <data name="PostPpapView_Title" xml:space="preserve">
+    <value>Post-PPAP 公開鍵暗号</value>
+  </data>
+  <data name="PostPpapView_NotRegistered" xml:space="preserve">
+    <value>このコンピュータでは Post-PPAP のメールアドレスがまだ登録されていません。&#xA;「登録」ボタンを押してメールアドレスを登録してください。</value>
+  </data>
+  <data name="PostPpapView_RegisterButton" xml:space="preserve">
+    <value>メールアドレスを登録...</value>
+  </data>
+  <data name="PostPpapView_EnterYourEmail" xml:space="preserve">
+    <value>あなたのメールアドレスを入力してください</value>
+  </data>
+  <data name="PostPpapView_SendRequest" xml:space="preserve">
+    <value>登録要求を送信</value>
+  </data>
+  <data name="PostPpapView_VerificationSentTitle" xml:space="preserve">
+      <value>認証メールを送信しました</value>
+  </data>
+  <data name="PostPpapView_VerificationGuide" xml:space="preserve">
+    <value>メール内のリンクをクリックして登録を完了してください。&#xA;このウィンドウで自動的に検知します。</value>
+  </data>
+  <data name="PostPpapView_RegisteredAccount" xml:space="preserve">
+    <value>✅ 登録済みアカウント</value>
+  </data>
+  <data name="PostPpapView_EncryptGuide" xml:space="preserve">
+    <value>🔒 暗号化する: ファイルをこの画面にドラッグ&amp;ドロップ</value>
+  </data>
+  <data name="PostPpapView_DecryptGuide" xml:space="preserve">
+    <value>🔓 復号する: .atc ファイルをドラッグ&amp;ドロップ（自動的にあなたの秘密鍵で復号されます）</value>
+  </data>
+  <data name="PostPpapView_EncryptTitle" xml:space="preserve">
+    <value>🔒 公開鍵で暗号化</value>
+  </data>
+  <data name="PostPpapView_TargetFile" xml:space="preserve">
+    <value>対象ファイル:</value>
+  </data>
+  <data name="PostPpapView_EnterRecipientEmail" xml:space="preserve">
+    <value>宛先のメールアドレスを入力してください</value>
+  </data>
+  <data name="PostPpapView_LookUpAndEncrypt" xml:space="preserve">
+    <value>公開鍵を検索して暗号化</value>
+  </data>
+  <data name="PostPpapView_DeleteAccount" xml:space="preserve">
+    <value>アカウント削除</value>
+  </data>
+  <data name="Settings_Advanced" xml:space="preserve">
+    <value>高度な設定</value>
+  </data>
+  <data name="Settings_PasswordFile" xml:space="preserve">
+    <value>パスワードファイル</value>
+  </data>
+  <data name="Settings_AllowPasswordFileDragDrop" xml:space="preserve">
+    <value>パスワードファイルのドラッグ＆ドロップを許可する</value>
+  </data>
+  <data name="Settings_AllowPasswordFileDragDropHint" xml:space="preserve">
+    <value>ONにすると、暗号化・復号のパスワード入力欄にファイルを直接ドラッグ＆ドロップできるようになります。</value>
+  </data>
+  <data name="Settings_CheckPasswordFileOnEncrypt" xml:space="preserve">
+    <value>暗号化時にパスワードファイルを自動チェックする</value>
+  </data>
+  <data name="Settings_CheckPasswordFileOnDecrypt" xml:space="preserve">
+    <value>復号時にパスワードファイルを自動チェックする</value>
+  </data>
+  <data name="Settings_CheckPasswordFileHint" xml:space="preserve">
+    <value>ファイルがあれば、自動的にハッシュを計算してパスワードとして使います。</value>
+  </data>
+  <data name="Settings_NoErrorWhenPasswordFileMissing" xml:space="preserve">
+    <value>パスワードファイルがなくともエラーメッセージは表示しない</value>
+  </data>
+  <data name="Settings_ExecuteWithPasswordFileWithoutConfirm" xml:space="preserve">
+    <value>暗号化/復号時、確認無しにパスワードファイルで実行する</value>
+  </data>
+  <data name="Settings_ExecuteWithPasswordFileHint" xml:space="preserve">
+    <value>パスワード入力画面をスキップして、暗号化/復号処理へ直行します。</value>
+  </data>
+  <data name="Settings_SelectPasswordFile" xml:space="preserve">
+    <value>パスワードファイルを選択</value>
+  </data>
+  <data name="PasswordFile_InUse" xml:space="preserve">
+    <value>パスワードファイル: {0}</value>
+  </data>
+  <data name="PasswordFile_Clear" xml:space="preserve">
+    <value>解除</value>
+  </data>
+  <data name="PasswordFile_NotFoundTitle" xml:space="preserve">
+    <value>パスワードファイル</value>
+  </data>
+  <data name="PasswordFile_NotFound" xml:space="preserve">
+    <value>パスワードファイルが見つかりません:&#xA;{0}</value>
+  </data>
+  <data name="PasswordFile_ReadFailed" xml:space="preserve">
+    <value>パスワードファイルを読み込めませんでした:&#xA;{0}</value>
+  </data>
+  <data name="Settings_PasswordLimit" xml:space="preserve">
+    <value>パスワードの入力制限</value>
+  </data>
+  <data name="Settings_PasswordLimitNotice" xml:space="preserve">
+    <value>⚠️ これらの設定はアタッシェケースではなく、暗号化ファイル自体に設定されます。</value>
+  </data>
+  <data name="Settings_MissTypeLimitsLabel" xml:space="preserve">
+    <value>暗号化ファイルにパスワード制限をかける</value>
+  </data>
+  <data name="Settings_MissTypeLimitsUnit" xml:space="preserve">
+    <value>回</value>
+  </data>
+  <data name="Settings_BreakFileWhenLimitExceeded" xml:space="preserve">
+    <value>その回数を間違えたら暗号化ファイルを破壊する</value>
+  </data>
+  <data name="Decryption_FileBroken" xml:space="preserve">
+    <value>パスワード入力の制限回数を超えたため、暗号化ファイルを破壊しました。</value>
+  </data>
+  <data name="Error_FileAlreadyBroken" xml:space="preserve">
+    <value>この暗号化ファイルは破壊されています。</value>
+  </data>
+  <data name="Settings_CamouflageSection" xml:space="preserve">
+    <value>拡張子偽装</value>
+  </data>
+  <data name="Settings_CamouflageHint" xml:space="preserve">
+    <value>拡張子を変えても中身は暗号化ファイルのままです。アタッシェケースにドロップすれば開けます。</value>
+  </data>
+  <data name="PostPpapView_Register" xml:space="preserve">
+    <value>登録</value>
+  </data>
+  <data name="PostPpapView_RecipientLabel" xml:space="preserve">
+    <value>宛先メールアドレス:</value>
+  </data>
+  <data name="PostPpapView_Search" xml:space="preserve">
+    <value>検索</value>
+  </data>
+  <data name="PostPpapView_RecipientFound" xml:space="preserve">
+      <value> 登録済み</value>
+  </data>
+  <data name="PostPpapView_RecipientFoundDetail" xml:space="preserve">
+      <value>パスワード不要で安全に送信可能</value>
+  </data>
+  <data name="PostPpapView_RecipientNotFound" xml:space="preserve">
+      <value>未登録</value>
+  </data>
+  <data name="PostPpapView_RecipientNotFoundDetail" xml:space="preserve">
+      <value>パスワード方式で暗号化</value>
+  </data>
+  <data name="PostPpapView_DropGuideRegistered" xml:space="preserve">
+      <value>送信先のメールアドレスの登録がありました。
+パスワードなしで安全に暗号化して送信できます。
+
+ここに暗号化するファイルまたはフォルダーをドラッグ＆ドロップしてください。</value>
+  </data>
+  <data name="PostPpapView_DropGuideNotRegistered" xml:space="preserve">
+      <value>通常の暗号化ファイルでふつうに送信してください。送信後、パスワードを共有する必要があります。
+
+そのとき相手に、このPost-PPAPにメールアドレスを登録していただくと、次からパスワード無しの暗号化でやりとりできます。
+
+ここに暗号化するファイルまたはフォルダーをドラッグ＆ドロップしてください。</value>
+  </data>
+  <data name="PostPpapView_PendingFile" xml:space="preserve">
+    <value>暗号化するファイル: {0}</value>
+  </data>
+  <data name="PublicKey_EncryptionRetiredMessage" xml:space="preserve">
+    <value>RSA 鍵ファイルによる暗号化は、アタッシェケース5 では行えません。
+
+パスワードを共有せずに送るには、Post-PPAP をご利用ください。
+以前のバージョンで作られたファイルの復号は、秘密鍵（.atcpvt）をドロップすればこれまでどおり行えます。</value>
+  </data>
+  <data name="Error_RsaEncryptionRetired" xml:space="preserve">
+    <value>RSA 鍵ファイルによる暗号化は、アタッシェケース5 では行えません。Post-PPAP をご利用ください。</value>
+  </data>
+  <data name="PublicKey_DropFilesToDecrypt" xml:space="preserve">
+    <value>公開鍵暗号で暗号化されたファイルを&#xA;ドラッグ&amp;ドロップしてください。</value>
+  </data>
+  <data name="Settings_ZipCryptoWarning" xml:space="preserve">
+    <value>ZipCrypto は古い方式で、解読されるおそれがあります。Windows のエクスプローラーとの互換性が必要なときだけ選んでください。</value>
+  </data>
+  <data name="ZipEncryption_ZipCryptoWarning" xml:space="preserve">
+    <value>暗号方式は ZipCrypto です。強度が低いため、大切なファイルには AES-256 をお使いください（設定画面で変更できます）。</value>
+  </data>
+  <data name="PublicKey_KeyFileReadFailed" xml:space="preserve">
+    <value>鍵ファイルを読み込めませんでした: {0}</value>
+  </data>
+  <data name="Error_RsaKeyFileUnsupportedSize" xml:space="preserve">
+    <value>RSA 鍵の長さが {0} ビットです。2048 ビットまたは 4096 ビットの鍵だけが使えます。</value>
+  </data>
+  <data name="Error_RsaKeyFileInvalid" xml:space="preserve">
+    <value>RSA 鍵ファイルを読めません: {0}</value>
+  </data>
+  <data name="Error_RsaKeyFileNoMatch" xml:space="preserve">
+    <value>この秘密鍵は、このファイルの宛先のどれにも一致しません。</value>
+  </data>
+  <data name="Error_RsaKeyFileHybridFile" xml:space="preserve">
+    <value>このファイルは Post-PPAP（RSA + ML-KEM）で暗号化されています。秘密鍵ファイルでは開けないので、この PC に登録した Post-PPAP アカウントで復号してください。</value>
+  </data>
+</root>

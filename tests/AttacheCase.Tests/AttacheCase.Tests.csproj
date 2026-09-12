@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="coverlet.collector" Version="6.0.2" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+        <PackageReference Include="xunit" Version="2.9.2" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="Xunit" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\src\AttacheCase\AttacheCase.csproj" />
+    </ItemGroup>
+
+    <!-- AC4 (v140) 後方互換テスト用のサンプル。Windows 版 ver.4 で作った実物 -->
+    <ItemGroup>
+      <None Include="TestData\**" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+    <!-- 自己実行形式（SFX）のテスト用: 同梱スタブの検査に使う -->
+    <ItemGroup>
+      <PackageReference Include="System.Resources.Extensions" Version="9.0.0" />
+    </ItemGroup>
+
+    <!-- SFX スタブをテスト出力にも同梱する（ExeoutStubTests が読む）。
+         アプリ本体と同じ配置（Exeout\Exeout.exe + .sha256）。Windows のみ -->
+    <Target Name="BundleExeoutStub" AfterTargets="Build" Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+        <!-- スタブは常に Release（Debug にはデバッグ用 MessageBox が残る） -->
+        <MSBuild Projects="..\..\src\Exeout\Exeout.csproj" Properties="Configuration=Release" Targets="Build" RemoveProperties="RuntimeIdentifier;SelfContained;PublishSingleFile;PublishDir" />
+        <MakeDir Directories="$(OutDir)Exeout" />
+        <Copy SourceFiles="..\..\src\Exeout\bin\Release\net48\Exeout.exe" DestinationFolder="$(OutDir)Exeout" SkipUnchangedFiles="true" />
+        <GetFileHash Files="$(OutDir)Exeout\Exeout.exe" Algorithm="SHA256">
+            <Output TaskParameter="Items" ItemName="ExeoutStubHash" />
+        </GetFileHash>
+        <WriteLinesToFile File="$(OutDir)Exeout\Exeout.exe.sha256" Lines="@(ExeoutStubHash->'%(FileHash)')" Overwrite="true" />
+    </Target>
+
+</Project>

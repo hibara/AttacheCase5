@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!--
+      関連付け・コンテキストメニューの昇格ヘルパー（Windows 専用）。
+      HKEY_CLASSES_ROOT へ .atc / .atcpvt / .atcpub の関連付けを書き込むため、
+      app.manifest で requireAdministrator を要求する（本体は昇格せずに済む）。
+
+      Windows 版 AtcSetup.csproj（旧形式）の SDK スタイル化。net48 なのは
+      受信側の環境を選ばないためと、昇格ダイアログに出る小さな単機能ツールに
+      ランタイム同梱が不要なため。ja-JP は通常の衛星アセンブリとして並置する
+      （SFX と違い単一ファイル制約が無い）。
+    -->
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net48</TargetFramework>
+        <UseWindowsForms>true</UseWindowsForms>
+        <RootNamespace>AtcSetup</RootNamespace>
+        <AssemblyName>AtcSetup</AssemblyName>
+        <LangVersion>8.0</LangVersion>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+        <ApplicationIcon>main_icon.ico</ApplicationIcon>
+        <AssemblyVersion>5.5.0</AssemblyVersion>
+        <FileVersion>5.5.0</FileVersion>
+        <Company>HiBARA Software, LLC</Company>
+        <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
+        <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    </PropertyGroup>
+
+    <!-- 表示言語の判定は 1 か所（AppLanguage.cs）に集約し、ソースをリンク取り込みする
+         （旧 Windows 版 csproj と同じ流儀。アセンブリ参照はせず自己完結を保つ） -->
+    <ItemGroup>
+        <Compile Include="..\ExeOutShared\AppLanguage.cs" Link="AppLanguage.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="System.Resources.Extensions" Version="9.0.0" />
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    </ItemGroup>
+</Project>

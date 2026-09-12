@@ -1,0 +1,286 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:AttacheCase.ViewModels"
+        xmlns:views="using:AttacheCase.Views"
+        xmlns:models="using:AttacheCase.Models"
+        xmlns:markup="clr-namespace:AttacheCase.Markup"
+        x:Class="AttacheCase.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="{markup:Localize MainWindow_Title}"
+        Width="680"
+        Height="500"
+        MinWidth="760"
+        MinHeight="500"
+        DragDrop.AllowDrop="True">
+
+    <Window.Styles>
+        <!-- 左メニュー。見た目は元の Border のままにしつつ、
+             Tab で回れて Enter / Space でも押せるように Button にしている。
+             選択・ホバーのハイライトは Button のテンプレートに任せず、
+             中身の Border.sideitem に自前で描く（テーマのテンプレートは
+             背景の届く範囲や余白がまちまちで、狙った形にならないため） -->
+        <Style Selector="Button.sidemenu">
+            <!-- Button の既定サイズが効くと 96px の幅に収まらず、
+                 ラベルが折り返してスクロールバーが出る -->
+            <Setter Property="MinWidth" Value="0" />
+            <Setter Property="MinHeight" Value="0" />
+            <!-- 枠は常に 2px 分の場所を取っておく。フォーカスしたときだけ色を付ける。
+                 太さを出し入れすると、そのたびに中身の幅が変わってレイアウトが動く -->
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="0" />
+            <!-- ハイライト（sideitem の Padding 2,10）が上下に伸びたぶん、
+                 項目間のマージンは最小にして全体をスクロールなしで収める -->
+            <Setter Property="Margin" Value="6,1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        </Style>
+        <!-- テーマ側のホバー描画は消す（ハイライトは Border.sideitem が描く） -->
+        <Style Selector="Button.sidemenu:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <!-- フォーカス枠はキーボード操作（Tab 移動）のときだけ出す。
+             :focus だとクリック後もフォーカスが残り、選択項目に青枠が付いたままになる -->
+        <Style Selector="Button.sidemenu:focus-visible">
+            <Setter Property="BorderBrush" Value="#0A84FF" />
+        </Style>
+
+        <!-- ハイライトの箱。上下に余裕を持たせる（アイコン間のすき間の半分ほど食い込む） -->
+        <Style Selector="Border.sideitem">
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Padding" Value="2,10" />
+        </Style>
+        <Style Selector="Button.sidemenu:pointerover Border.sideitem">
+            <Setter Property="Background" Value="{DynamicResource AppSidebarHover}" />
+        </Style>
+        <!-- 選択中はホバーより優先（あとに書いたほうが勝つ） -->
+        <Style Selector="Border.sideitem.selected">
+            <Setter Property="Background" Value="{DynamicResource AppSidebarSelected}" />
+        </Style>
+    </Window.Styles>
+
+    <DockPanel>
+
+    <!-- Windows 用のメニューバー。macOS では NativeMenu を使うため非表示のまま。
+         項目は App.axaml.cs の SetupWindowsMenu が組み立てる（NativeMenu と同じ動作） -->
+    <Menu x:Name="WindowsMenuBar"
+          DockPanel.Dock="Top"
+          IsVisible="False"
+          Background="{DynamicResource AppMenuBarBackground}" />
+
+    <Grid ColumnDefinitions="Auto,*">
+
+        <!-- 左サイドメニュー -->
+        <Border Grid.Column="0"
+                Background="{DynamicResource AppSidebarBackground}"
+                BorderBrush="{DynamicResource AppSidebarBorder}"
+                BorderThickness="0,0,1,0"
+                Width="104"
+                MaxWidth="104"
+                DragDrop.AllowDrop="True">
+
+            <Grid RowDefinitions="*,Auto">
+
+            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding MenuItems}"
+                              Margin="0,4,0,0">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="models:MenuItemModel">
+                            <Button Classes="sidemenu"
+                                    Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).MenuItemClickCommand}"
+                                    CommandParameter="{Binding}"
+                                    ToolTip.Tip="{Binding Title}">
+
+                                <Border Classes="sideitem" Classes.selected="{Binding IsSelected}">
+                                <!-- 幅はボタンの内側（104 - 余白12 - 枠4 - 内側4 = 84px）に固定する。
+                                     テーマによっては Button テンプレートが中身を左寄せ・内容幅で
+                                     置くため（ShadUI で実測）、中身自身が全幅を占めて子を中央に置く。
+                                     「ZIPパスワード」が 1 行で収まる幅にしてある（折り返すと
+                                     項目が縦に伸びてスクロールバーが出る） -->
+                                <StackPanel Orientation="Vertical"
+                                            Spacing="4"
+                                            Width="84">
+
+                                    <Image Width="26" Height="26" Stretch="Uniform"
+                                           HorizontalAlignment="Center">
+                                        <Image.Source>
+                                            <SvgImage Source="{Binding IconPath}" />
+                                        </Image.Source>
+                                    </Image>
+
+                                    <TextBlock Text="{Binding Title}"
+                                               FontSize="11"
+                                               FontWeight="Medium"
+                                               HorizontalAlignment="Center"
+                                               TextAlignment="Center"
+                                               TextWrapping="Wrap" />
+
+                                </StackPanel>
+                                </Border>
+
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!-- 設定（左下）。機能メニューとは役割が違うので、
+                 区切り線と余白で少し離して置く。選択中は同じ背景色にする -->
+            <StackPanel Grid.Row="1">
+                <Border Height="1"
+                        Background="{DynamicResource AppSidebarBorder}"
+                        Margin="10,8,10,4" />
+                <Button Classes="sidemenu"
+                    Margin="6,0,6,8"
+                    Command="{Binding OpenSettingsCommand}"
+                    ToolTip.Tip="{markup:Localize Menu_Settings}">
+
+                <Border Classes="sideitem" Classes.selected="{Binding IsSettingsSelected}">
+                <!-- 幅 84px 固定の理由は上のメニュー項目と同じ -->
+                <StackPanel Orientation="Vertical"
+                            Spacing="4"
+                            Width="84">
+
+                    <Image Width="26" Height="26" Stretch="Uniform"
+                           HorizontalAlignment="Center">
+                        <Image.Source>
+                            <SvgImage Source="{Binding SettingsIconPath}" />
+                        </Image.Source>
+                    </Image>
+
+                    <TextBlock Text="{markup:Localize Menu_Settings}"
+                               FontSize="11"
+                               FontWeight="Medium"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center" />
+
+                </StackPanel>
+                </Border>
+                </Button>
+            </StackPanel>
+
+            </Grid>
+
+        </Border>
+
+        <!-- 右側メインコンテンツ -->
+        <Grid Grid.Column="1"
+              DragDrop.AllowDrop="True">
+
+            <Border IsVisible="{Binding IsMainView}"
+                    Background="{DynamicResource AppDropAreaBackground}"
+                    BorderBrush="{DynamicResource AppDropAreaBorder}"
+                    BorderThickness="2"
+                    CornerRadius="8"
+                    Margin="20"
+                    DragDrop.AllowDrop="True">
+
+                <Grid>
+                    <TextBlock Text="{Binding DropMessage}"
+                               FontSize="16"
+                               TextAlignment="Center"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center"
+                               TextWrapping="Wrap"
+                               IsVisible="{Binding !IsZipGuideVisible}"
+                               Margin="40" />
+
+                    <!-- パスワードZIP 選択中のガイド（旧 Windows 版の ZIP タブ相当）。
+                         方式の選択はその場で設定に保存される -->
+                    <StackPanel IsVisible="{Binding IsZipGuideVisible}"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Center"
+                                Spacing="28"
+                                Margin="24">
+
+                        <Grid ColumnDefinitions="Auto,*" MaxWidth="480">
+                            <Image Grid.Column="0" Width="48" Height="48"
+                                   VerticalAlignment="Center" Margin="0,0,16,0"
+                                   Source="avares://AttacheCase/Assets/ZipGuide/unzip.png" />
+                            <TextBlock Grid.Column="1"
+                                       Text="{markup:Localize ZipGuide_ExtractHint}"
+                                       FontSize="13" TextWrapping="Wrap"
+                                       VerticalAlignment="Center" />
+                        </Grid>
+
+                        <Grid ColumnDefinitions="Auto,*" MaxWidth="480">
+                            <Image Grid.Column="0" Width="48" Height="48"
+                                   VerticalAlignment="Top" Margin="0,4,16,0"
+                                   Source="avares://AttacheCase/Assets/ZipGuide/zip.png" />
+                            <StackPanel Grid.Column="1" Spacing="10">
+                                <TextBlock Text="{markup:Localize ZipGuide_CreateHint}"
+                                           FontSize="13" TextWrapping="Wrap" />
+                                <!-- 長い説明つきラベルは折り返す（既定の RadioButton は 1 行で切れる） -->
+                                <RadioButton GroupName="ZipGuideAlgo"
+                                             IsChecked="{Binding IsZipGuideNone}">
+                                    <TextBlock Text="{markup:Localize ZipGuide_None}"
+                                               FontSize="12" TextWrapping="Wrap" />
+                                </RadioButton>
+                                <RadioButton GroupName="ZipGuideAlgo"
+                                             IsChecked="{Binding IsZipGuideStandard}">
+                                    <TextBlock Text="{markup:Localize ZipGuide_Standard}"
+                                               FontSize="12" TextWrapping="Wrap" />
+                                </RadioButton>
+                                <RadioButton GroupName="ZipGuideAlgo"
+                                             IsChecked="{Binding IsZipGuideAes128}">
+                                    <TextBlock Text="{markup:Localize ZipGuide_Aes128}"
+                                               FontSize="12" TextWrapping="Wrap" />
+                                </RadioButton>
+                                <RadioButton GroupName="ZipGuideAlgo"
+                                             IsChecked="{Binding IsZipGuideAes256}">
+                                    <TextBlock Text="{markup:Localize ZipGuide_Aes256}"
+                                               FontSize="12" TextWrapping="Wrap" />
+                                </RadioButton>
+                            </StackPanel>
+                        </Grid>
+
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <ContentControl Content="{Binding CurrentView}"
+                            IsVisible="{Binding !IsMainView}"
+                            Margin="20">
+                <ContentControl.DataTemplates>
+
+                    <DataTemplate DataType="vm:EncryptionViewModel">
+                        <views:EncryptionView />
+                    </DataTemplate>
+
+                    <DataTemplate DataType="vm:DecryptionViewModel">
+                        <views:DecryptionView />
+                    </DataTemplate>
+
+                    <DataTemplate DataType="vm:ZipPasswordEncryptionViewModel">
+                        <views:ZipPasswordEncryptionView />
+                    </DataTemplate>
+
+                    <DataTemplate DataType="vm:PostPpapViewModel">
+                        <views:PostPpapView />
+                    </DataTemplate>
+
+                    <DataTemplate DataType="vm:PublicKeyViewModel">
+                        <views:PublicKeyView />
+                    </DataTemplate>
+
+                    <DataTemplate DataType="vm:ZipPasswordDecryptionViewModel">
+                        <views:ZipPasswordDecryptionView />
+                    </DataTemplate>
+
+                    <DataTemplate DataType="vm:SettingsViewModel">
+                        <views:SettingsView />
+                    </DataTemplate>
+
+                </ContentControl.DataTemplates>
+            </ContentControl>
+
+        </Grid>
+
+    </Grid>
+
+    </DockPanel>
+
+</Window>

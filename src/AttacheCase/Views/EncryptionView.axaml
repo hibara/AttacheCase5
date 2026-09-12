@@ -1,0 +1,304 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AttacheCase.ViewModels"
+             xmlns:l="using:AttacheCase.Markup"
+             xmlns:conv="using:AttacheCase.Converters"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="AttacheCase.Views.EncryptionView"
+             x:DataType="vm:EncryptionViewModel">
+
+    <UserControl.Resources>
+        <!-- 出力ファイルの種類コンボボックスの項目（24x24 アイコン + ラベル） -->
+        <DataTemplate x:Key="FileTypeItemTemplate" x:DataType="vm:EncryptionFileTypeOption">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+                <Image Source="{Binding Icon}" Width="24" Height="24"
+                       Stretch="Uniform" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding Label}" VerticalAlignment="Center" />
+            </StackPanel>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid>
+
+      <Grid
+        VerticalAlignment="Top"
+        HorizontalAlignment="Stretch"
+        Margin="20,56,20,0"
+        ColumnDefinitions="Auto,*">
+
+        <TextBlock
+          Grid.Column="0"
+          Text="{Binding HeaderText}"
+          FontSize="18"
+          FontWeight="Bold"
+          VerticalAlignment="Center"/>
+
+        <TextBlock
+          Grid.Column="1"
+          Text="{Binding TargetPath, Converter={x:Static conv:PathDisplayConverter.Instance}}"
+          FontSize="18"
+          FontWeight="Bold"
+          VerticalAlignment="Center"
+          TextWrapping="NoWrap"
+          TextTrimming="CharacterEllipsis"/>
+      </Grid>
+
+      <!-- パスワード入力画面 (Step 1)
+
+             入力欄そのものを画面の中心に据える。上下の * が同じ高さになるので、
+             真ん中の Auto の行がちょうど中心に来る。まとめて中央そろえにすると、
+             説明やボタンの高さのぶんだけ入力欄が下がって見える -->
+        <Grid IsVisible="{Binding IsPasswordInputStep}" RowDefinitions="*,Auto,*">
+
+            <TextBlock Grid.Row="0"
+                      Text="{l:Localize Encryption_PasswordPrompt}"
+                      FontSize="16"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Bottom"
+                      Margin="0,0,0,30"/>
+
+            <!-- パスワード欄は中央のまま（下の強度バーと揃える）。
+                 出力の種類コンボボックスはその左に置く -->
+            <Grid Grid.Row="1" ColumnDefinitions="*,Auto,*">
+              <!-- 出力ファイルの種類（ATC / EXE / ZIP）。ZIP を選ぶとパスワード ZIP 画面へ -->
+              <ComboBox Grid.Column="0"
+                        HorizontalAlignment="Right"
+                        Margin="0,0,4,0"
+                        MinWidth="104"
+                        VerticalAlignment="Center"
+                        ItemsSource="{Binding FileTypeOptions}"
+                        SelectedItem="{Binding SelectedFileType}"
+                        ToolTip.Tip="{l:Localize Encryption_FileTypeTooltip}"
+                        ItemTemplate="{StaticResource FileTypeItemTemplate}" />
+              <Grid Grid.Column="1" Width="400">
+                <TextBox x:Name="PasswordBox"
+                        Text="{Binding Password1}"
+                        IsEnabled="{Binding !IsPasswordFileMode}"
+                        PasswordChar="{Binding PasswordVisibility.PasswordChar}"
+                        Watermark="{l:Localize Encryption_PasswordPlaceholder}"
+                        Padding="10,3,36,0"
+                        Classes="password">
+                    <TextBox.KeyBindings>
+                        <KeyBinding Gesture="Enter" Command="{Binding NextCommand}" />
+                        <KeyBinding Gesture="Escape" Command="{Binding CancelCommand}" />
+                    </TextBox.KeyBindings>
+                </TextBox>
+                <Button Classes="eye"
+                        Command="{Binding PasswordVisibility.ToggleCommand}"
+                        ToolTip.Tip="{Binding PasswordVisibility.ToolTip}">
+                    <!-- SvgImage は Source を差し替えても Image が再描画されないため、
+                         2 枚を用意して表示を切り替える -->
+                    <Panel>
+                        <Image Width="18" Height="18" Stretch="Uniform"
+                               IsVisible="{Binding !PasswordVisibility.IsVisible}">
+                            <Image.Source>
+                                <SvgImage Source="{Binding PasswordVisibility.EyeBlindIconUri}" />
+                            </Image.Source>
+                        </Image>
+                        <Image Width="18" Height="18" Stretch="Uniform"
+                               IsVisible="{Binding PasswordVisibility.IsVisible}">
+                            <Image.Source>
+                                <SvgImage Source="{Binding PasswordVisibility.EyeIconUri}" />
+                            </Image.Source>
+                        </Image>
+                    </Panel>
+                </Button>
+              </Grid>
+            </Grid>
+
+            <StackPanel Grid.Row="2"
+                        VerticalAlignment="Top"
+                        HorizontalAlignment="Center"
+                        Spacing="20"
+                        Margin="0,12,0,0">
+
+                <!-- パスワード強度メーター（zxcvbn）。強度は目安。
+                     バーは入力欄と同じ幅、ラベルはバーの右にはみ出してよい -->
+                <Grid Width="400" Height="16" HorizontalAlignment="Center"
+                      IsVisible="{Binding !IsPasswordFileMode}">
+                    <ProgressBar Minimum="0" Maximum="100"
+                                 Value="{Binding PasswordStrengthValue}"
+                                 Foreground="{Binding PasswordStrengthBrush}"
+                                 Height="6"
+                                 HorizontalAlignment="Stretch"
+                                 VerticalAlignment="Center" />
+                    <!-- ラベルは Canvas で置く。Margin ではみ出させると、親の幅を
+                         超えたぶんが 0 幅に潰されて表示されない（Canvas は子を潰さない） -->
+                    <Canvas>
+                        <TextBlock Canvas.Left="408" Canvas.Top="-5"
+                                   Text="{Binding PasswordStrengthLabel}"
+                                   FontSize="11"
+                                   Foreground="{Binding PasswordStrengthBrush}" />
+                    </Canvas>
+                </Grid>
+
+                <StackPanel Orientation="Horizontal"
+                            Spacing="8"
+                            HorizontalAlignment="Center"
+                            IsVisible="{Binding IsPasswordFileMode}">
+                    <TextBlock Text="{Binding PasswordFileLabel}"
+                               FontSize="12"
+                               VerticalAlignment="Center" />
+                    <Button Content="{l:Localize PasswordFile_Clear}"
+                            Command="{Binding ClearPasswordFileCommand}"
+                            FontSize="11"
+                            Padding="8,2" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal"
+                           HorizontalAlignment="Center"
+                           Spacing="10">
+                    <Button Classes="action Primary" Content="{l:Localize Button_Next}"
+                           Command="{Binding NextCommand}"/>
+                    <Button Classes="action" Content="{l:Localize Button_Cancel}"
+                           Command="{Binding CancelCommand}"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
+        <!-- パスワード確認画面 (Step 2)。Step 1 と同じ位置に入力欄が来るようにする -->
+        <Grid IsVisible="{Binding IsPasswordConfirmStep}" RowDefinitions="*,Auto,*">
+
+            <TextBlock Grid.Row="0"
+                      Text="{l:Localize Encryption_PasswordConfirmPrompt}"
+                      FontSize="16"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Bottom"
+                      TextWrapping="Wrap"
+                      TextAlignment="Center"
+                      MaxWidth="400"
+                      Margin="0,0,0,30"/>
+
+            <Grid Grid.Row="1" ColumnDefinitions="*,Auto,*">
+              <ComboBox Grid.Column="0"
+                        HorizontalAlignment="Right"
+                        Margin="0,0,8,0"
+                        MinWidth="96"
+                        VerticalAlignment="Center"
+                        ItemsSource="{Binding FileTypeOptions}"
+                        SelectedItem="{Binding SelectedFileType}"
+                        ToolTip.Tip="{l:Localize Encryption_FileTypeTooltip}"
+                        ItemTemplate="{StaticResource FileTypeItemTemplate}" />
+              <Grid Grid.Column="1" Width="400">
+                <TextBox x:Name="ConfirmPasswordBox"
+                        Text="{Binding Password2}"
+                        IsEnabled="{Binding !IsPasswordFileMode}"
+                        PasswordChar="{Binding PasswordVisibility.PasswordChar}"
+                        Watermark="{l:Localize Encryption_PasswordConfirmPlaceholder}"
+                        Background="{Binding ConfirmPasswordBackground}"
+                        Padding="10,3,36,0"
+                        Classes="password">
+                    <TextBox.KeyBindings>
+                        <KeyBinding Gesture="Enter" Command="{Binding EncryptCommand}" />
+                        <KeyBinding Gesture="Escape" Command="{Binding BackCommand}" />
+                    </TextBox.KeyBindings>
+                </TextBox>
+                <Button Classes="eye"
+                        Command="{Binding PasswordVisibility.ToggleCommand}"
+                        ToolTip.Tip="{Binding PasswordVisibility.ToolTip}">
+                    <!-- SvgImage は Source を差し替えても Image が再描画されないため、
+                         2 枚を用意して表示を切り替える -->
+                    <Panel>
+                        <Image Width="18" Height="18" Stretch="Uniform"
+                               IsVisible="{Binding !PasswordVisibility.IsVisible}">
+                            <Image.Source>
+                                <SvgImage Source="{Binding PasswordVisibility.EyeBlindIconUri}" />
+                            </Image.Source>
+                        </Image>
+                        <Image Width="18" Height="18" Stretch="Uniform"
+                               IsVisible="{Binding PasswordVisibility.IsVisible}">
+                            <Image.Source>
+                                <SvgImage Source="{Binding PasswordVisibility.EyeIconUri}" />
+                            </Image.Source>
+                        </Image>
+                    </Panel>
+                </Button>
+              </Grid>
+            </Grid>
+
+            <StackPanel Grid.Row="2"
+                        VerticalAlignment="Top"
+                        HorizontalAlignment="Center"
+                        Spacing="20"
+                        Margin="0,12,0,0">
+
+                <!-- 入力画面の強度バーと同じ高さの空き。
+                     ステップ間でボタンの位置が動かないようにする -->
+                <Border Height="16" IsVisible="{Binding !IsPasswordFileMode}" />
+
+                <StackPanel Orientation="Horizontal"
+                            Spacing="8"
+                            HorizontalAlignment="Center"
+                            IsVisible="{Binding IsPasswordFileMode}">
+                    <TextBlock Text="{Binding PasswordFileLabel}"
+                               FontSize="12"
+                               VerticalAlignment="Center" />
+                    <Button Content="{l:Localize PasswordFile_Clear}"
+                            Command="{Binding ClearPasswordFileCommand}"
+                            FontSize="11"
+                            Padding="8,2" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal"
+                           HorizontalAlignment="Center"
+                           Spacing="10">
+                    <Button Classes="action Primary" Content="{l:Localize Button_Encrypt}"
+                           Command="{Binding EncryptCommand}"/>
+                    <Button Classes="action" Content="{l:Localize Button_Back}"
+                           Command="{Binding BackCommand}"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
+        <!-- 暗号化処理中／完了画面 (Step 3, 4) -->
+        <Grid IsVisible="{Binding IsProgressVisible}">
+            <StackPanel VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
+                       Spacing="10"
+                       Width="500">
+
+                <TextBlock Text="{Binding StatusMessage}"
+                          FontSize="18"
+                          HorizontalAlignment="Center"
+                          Margin="0,0,0,10"/>
+
+                <!-- 処理中ファイルのフルパス（プログレスバー左上、長いパスは右側を…で省略） -->
+                <TextBlock Text="{Binding CurrentFilePath}"
+                          FontSize="11"
+                          Opacity="0.75"
+                          HorizontalAlignment="Left"
+                          TextWrapping="NoWrap"
+                          TextTrimming="CharacterEllipsis"/>
+
+                <ProgressBar Value="{Binding Progress}"
+                            Minimum="0"
+                            Maximum="100"
+                            Height="30"
+                            Foreground="Green" />
+
+                <TextBlock Text="{Binding Progress, StringFormat='{}{0}%'}"
+                          FontSize="16"
+                          HorizontalAlignment="Center"/>
+
+                <Button Classes="action" Content="{Binding ProgressButtonText}"
+                        Command="{Binding CancelCommand}"
+                        HorizontalAlignment="Center"
+                        Margin="0,10,0,0"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- 右上の戻るボタン -->
+        <Button Content="←"
+                FontSize="24"
+                Width="44"
+                Height="44"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Margin="0,0,10,0"
+                Command="{Binding BackCommand}"
+                IsVisible="{Binding !IsProcessingStep}"/>
+    </Grid>
+
+</UserControl>

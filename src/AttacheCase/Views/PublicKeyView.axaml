@@ -1,0 +1,117 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:AttacheCase.ViewModels"
+             xmlns:l="using:AttacheCase.Markup"
+             x:Class="AttacheCase.Views.PublicKeyView"
+             x:DataType="vm:PublicKeyViewModel"
+             KeyDown="OnKeyDown">
+
+    <Border Background="{DynamicResource AppDropAreaBackground}"
+            BorderBrush="{DynamicResource AppDropAreaBorder}"
+            BorderThickness="2"
+            CornerRadius="8">
+
+        <Grid RowDefinitions="*,Auto" Margin="40">
+
+            <!-- ===== 初期状態：ファイル/鍵のドロップ待ち ===== -->
+            <StackPanel Grid.Row="0"
+                        IsVisible="{Binding IsInitialState}"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Spacing="20"
+                        MaxWidth="600">
+                <TextBlock Text="{l:Localize PublicKey_Title}"
+                           FontSize="20"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="{l:Localize PublicKey_InitialDropMessage}"
+                           FontSize="14"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"
+                           LineHeight="22" />
+                <!-- 鍵ペアの生成（RSA-4096）。暗号化を再び畳むときは IsVisible="False" に戻す -->
+                <Button Content="{l:Localize PublicKey_GenerateKeyPair}"
+                        Command="{Binding GenerateKeyCommand}"
+                        HorizontalAlignment="Center"
+                        Height="35"
+                        Padding="20,0" />
+                <TextBlock Text="{Binding Message}"
+                           Foreground="{DynamicResource AppMutedForeground}"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"
+                           IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
+            </StackPanel>
+
+            <!-- 公開鍵ドロップ後 -->
+            <Grid Grid.Row="0"
+                  IsVisible="{Binding IsPublicKeyLoaded}"
+                  ColumnDefinitions="Auto,*">
+                <StackPanel Grid.Column="1" Spacing="15" VerticalAlignment="Center">
+                    <TextBlock Text="{l:Localize PublicKey_PublicKeyLoadedMessage}"
+                               FontSize="14" TextWrapping="Wrap" LineHeight="22" />
+                    <StackPanel Spacing="5">
+                        <TextBlock Text="{l:Localize PublicKey_GuidLabel}"
+                                   FontSize="12" Foreground="{DynamicResource AppMutedForeground}" />
+                        <TextBox Text="{Binding KeyGuid, Mode=OneWay}"
+                                 IsReadOnly="True"
+                                 FontFamily="Consolas,Courier New,monospace"
+                                 FontSize="12" />
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+
+            <!-- 秘密鍵ドロップ後 -->
+            <Grid Grid.Row="0"
+                  IsVisible="{Binding IsPrivateKeyLoaded}"
+                  ColumnDefinitions="Auto,*">
+                <StackPanel Grid.Column="1" Spacing="15" VerticalAlignment="Center">
+                    <TextBlock Text="{l:Localize PublicKey_PrivateKeyLoadedMessage}"
+                               FontSize="14" TextWrapping="Wrap" LineHeight="22" />
+                    <StackPanel Spacing="5">
+                        <TextBlock Text="{l:Localize PublicKey_GuidLabel}"
+                                   FontSize="12" Foreground="{DynamicResource AppMutedForeground}" />
+                        <TextBox Text="{Binding KeyGuid, Mode=OneWay}"
+                                 IsReadOnly="True"
+                                 FontFamily="Consolas,Courier New,monospace"
+                                 FontSize="12" />
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+
+            <!-- 通常ファイルドロップ後：公開鍵待ち -->
+            <StackPanel Grid.Row="0"
+                        IsVisible="{Binding IsWaitingForPublicKey}"
+                        Spacing="20"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center">
+                <TextBlock Text="{Binding Message}"
+                           FontSize="16" FontWeight="Medium"
+                           TextWrapping="Wrap" TextAlignment="Center"
+                           LineHeight="28" MaxWidth="600" />
+            </StackPanel>
+
+            <!-- RSA暗号化ファイルドロップ後：秘密鍵待ち -->
+            <StackPanel Grid.Row="0"
+                        IsVisible="{Binding IsRsaEncryptedFileLoaded}"
+                        Spacing="20"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center">
+                <TextBlock Text="{Binding Message}"
+                           FontSize="16" FontWeight="Medium"
+                           TextWrapping="Wrap" TextAlignment="Center"
+                           LineHeight="28" MaxWidth="600" />
+            </StackPanel>
+
+            <!-- ボタンエリア -->
+            <StackPanel Grid.Row="1"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Spacing="10">
+                <Button Classes="action" Content="{l:Localize Button_CancelWithKey}"
+                        Command="{Binding CancelCommand}" />
+            </StackPanel>
+
+        </Grid>
+    </Border>
+</UserControl>

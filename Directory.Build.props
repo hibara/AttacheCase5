@@ -1,0 +1,39 @@
+<Project>
+  <!--
+    Dropbox 同期対策:
+    obj (中間出力) を OS の一時フォルダー (Windows: %TEMP%、macOS: $TMPDIR) に
+    配置して、Dropbox によるディレクトリ削除・同期競合を防ぐ。
+
+    以前は TEMP が無い環境 (macOS) でプロジェクト配下の obj/ に出していたが、
+    その obj/ (自動生成の AssemblyInfo.cs 等) が Dropbox で Windows 側へ同期され、
+    Windows の既定 Compile グロブ (**/*.cs) に拾われて CS0579 (属性の重複) で
+    ビルドが壊れた (2026-09-11 実測)。両 OS とも Dropbox の外へ出す。
+    Path.GetTempPath() は Windows では %TEMP%、macOS では $TMPDIR を返す
+    (末尾区切り付き) ので、Windows 側の場所は従来と同じ。
+  -->
+  <PropertyGroup>
+    <BaseIntermediateOutputPath>$([MSBuild]::EnsureTrailingSlash($([System.IO.Path]::Combine($([System.IO.Path]::GetTempPath()), 'AttacheCase55_build', '$(MSBuildProjectName)', 'obj'))))</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\</IntermediateOutputPath>
+  </PropertyGroup>
+
+  <!--
+    保険: 何かの拍子にプロジェクト配下へ obj/ や bin/ (別 OS のビルド残骸、
+    IDE の生成物など) が同期されてきても、既定のアイテム グロブ
+    (Compile / EmbeddedResource / AvaloniaResource 等) に拾わせない。
+    SDK 既定の除外は $(BaseIntermediateOutputPath) を見るため、上で
+    Temp へ逃がした状態ではプロジェクト配下の obj/ が除外されない。
+  -->
+  <PropertyGroup>
+    <DefaultItemExcludes>$(DefaultItemExcludes);obj/**;bin/**</DefaultItemExcludes>
+  </PropertyGroup>
+
+  <!--
+    MSBuild 17.14+ は非文字列リソースに System.Resources.Extensions を要求するが、
+    .NET Framework 4.8 ランタイムにはこの DLL が無く実行時例外になる。
+    net48 プロジェクト (Exeout / AtcSetup) に限り従来の BinaryFormatter
+    シリアライズを維持する。net10 側には適用しない。
+  -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net48'">
+    <GenerateResourceUsePreserializedResources>false</GenerateResourceUsePreserializedResources>
+  </PropertyGroup>
+</Project>

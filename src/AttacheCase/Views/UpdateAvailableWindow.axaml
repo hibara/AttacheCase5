@@ -1,0 +1,84 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="AttacheCase.Views.UpdateAvailableWindow"
+        Width="620"
+        Height="576"
+        CanResize="True"
+        MinWidth="520"
+        MinHeight="420"
+        ShowInTaskbar="False"
+        WindowStartupLocation="CenterOwner">
+
+    <Window.Styles>
+        <Style Selector="Button.dialog">
+            <Setter Property="MinWidth" Value="120" />
+            <Setter Property="Height" Value="40" />
+            <!-- ShadUI の既定は左右の余白が狭く、「このバージョンはスキップ」の
+                 文字が枠に触れる。文字の左右に 16 ずつ空ける -->
+            <Setter Property="Padding" Value="16,0" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="CornerRadius" Value="6" />
+        </Style>
+        <!-- 角丸はボタン本体ではなく、実際に色を塗る内側にも要る。
+             ここを外すと、角の四隅だけ塗りがはみ出して直角に見える -->
+        <Style Selector="Button.dialog /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="CornerRadius" Value="6" />
+        </Style>
+        <!-- 既定のボタン（インストール）は ShadUI の Primary バリアントで塗る
+             （ライト=黒 / ダーク=白系。独自の青塗りはテーマと不釣り合いなので廃止） -->
+    </Window.Styles>
+
+    <Grid RowDefinitions="Auto,*,Auto,Auto" Margin="20,18,20,16">
+
+        <!-- 見出し -->
+        <!-- 横 StackPanel は子に無限幅を渡すため、中の TextBlock が折り返さない。
+             文が窓からはみ出して読めなくなるので、幅の決まる Grid で受ける -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Margin="0,0,0,14">
+            <Image Grid.Column="0" Width="52" Height="52" VerticalAlignment="Top"
+                   Margin="0,0,14,0"
+                   Source="avares://AttacheCase/Assets/main-icon-rounded.png" />
+            <StackPanel Grid.Column="1" Spacing="5" VerticalAlignment="Center">
+                <TextBlock x:Name="HeadlineText"
+                           FontSize="15"
+                           FontWeight="Bold"
+                           TextWrapping="Wrap" />
+                <TextBlock x:Name="SubText"
+                           FontSize="12"
+                           Opacity="0.8"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+        </Grid>
+
+        <!-- 変更点 -->
+        <Border Grid.Row="1"
+                BorderBrush="#40808080"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="0">
+            <!-- 余白は ScrollViewer の Padding ではなく中身の Margin で取る。
+                 Padding だと中身が余白ぶん右へずれたまま幅いっぱいに測られ、
+                 右端の文字が枠で切れる（実機で確認） -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel x:Name="NotesPanel" Spacing="14" Margin="16,14" />
+            </ScrollViewer>
+        </Border>
+
+        <!-- 起動時の確認をここからも切れるようにする -->
+        <CheckBox Grid.Row="2"
+                  x:Name="CheckOnStartupBox"
+                  Margin="2,14,0,12" />
+
+        <!-- 操作 -->
+        <Grid Grid.Row="3" ColumnDefinitions="Auto,*,Auto,Auto">
+            <Button Grid.Column="0" x:Name="SkipButton" Classes="dialog" Click="OnSkipClick" />
+            <Button Grid.Column="2" x:Name="LaterButton" Classes="dialog" Click="OnLaterClick"
+                    Margin="0,0,10,0" />
+            <Button Grid.Column="3" x:Name="InstallButton" Classes="dialog Primary"
+                    Click="OnInstallClick" IsDefault="True" />
+        </Grid>
+
+    </Grid>
+
+</Window>

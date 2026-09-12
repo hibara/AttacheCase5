@@ -1,0 +1,139 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:l="using:AttacheCase.Markup"
+        mc:Ignorable="d"
+        x:Class="AttacheCase.Views.AboutWindow"
+        Title="{l:Localize About_Title}"
+        Width="420"
+        Height="400"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        SystemDecorations="Full"
+        ExtendClientAreaToDecorationsHint="False"
+        ShowInTaskbar="False">
+
+    <Grid RowDefinitions="*, Auto" Margin="30">
+        
+        <!-- メインコンテンツ -->
+        <StackPanel Grid.Row="0"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Center"
+                    Spacing="4">
+            
+            <!-- アイコン。既定は macOS 用。Windows ではコードビハインドで
+                 旧 Windows 版のアイコン（main-icon-win_64x64.png）に差し替える -->
+            <Image x:Name="AppIconImage"
+                   Source="/Assets/main-icon_64x64.png"
+                   Width="64"
+                   Height="64"
+                   HorizontalAlignment="Center" />
+            
+            <!-- アプリ名 -->
+            <TextBlock Text="{l:Localize AppName}"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center" />
+            
+            <!-- バージョン -->
+            <!-- 一応、コードビハインドから取得している -->
+            <TextBlock x:Name="VersionText"
+                       Text="Version 4.0.0"
+                       FontSize="14"
+                       Foreground="#666666"
+                       HorizontalAlignment="Center" />
+            
+            <!-- 著作権表記 -->
+            <TextBlock x:Name="CopyrightText"
+                       Text="©2016-2026 HiBARA Software, LLC"
+                       FontSize="12"
+                       Foreground="#888888"
+                       HorizontalAlignment="Center"
+                       TextWrapping="Wrap"
+                       TextAlignment="Center" />
+
+            <!-- 未登録: フリー版として利用中（赤字）+ 商用利用登録ボタン（旧版準拠）。
+                 一度登録したら二度と出さない（RefreshRegistrationStatus が切り替え） -->
+            <StackPanel x:Name="FreeVersionPanel"
+                        Spacing="8"
+                        Margin="0,12,0,0"
+                        IsVisible="False">
+                <TextBlock Text="{l:Localize About_FreeVersionNotice}"
+                           FontSize="12"
+                           Foreground="#E5484D"
+                           HorizontalAlignment="Center"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center" />
+                <Button x:Name="CommercialRegisterButton"
+                        Content="{l:Localize About_CommercialRegister}"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                        MinHeight="36"
+                        FontSize="13" />
+            </StackPanel>
+
+            <!-- 登録済み: 商用利用パネル（旧版準拠。アイコン + ユーザー名 / E-mail を緑字） -->
+            <Border x:Name="RegisteredPanel"
+                    IsVisible="False"
+                    BorderBrush="#808080"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="14,10"
+                    Margin="0,12,0,0">
+                <Grid ColumnDefinitions="Auto,14,*">
+                    <!-- 隠し機能: アイコンで指カーソル、右クリックで
+                         「商用ライセンスを削除」メニュー（コードビハインドで配線） -->
+                    <Image x:Name="LicenseIconImage"
+                           Grid.Column="0"
+                           Source="/Assets/license_icon.png"
+                           Width="32"
+                           Height="32"
+                           VerticalAlignment="Top" />
+                    <StackPanel Grid.Column="2" Spacing="2">
+                        <TextBlock Text="{l:Localize About_CommercialUse}"
+                                   FontWeight="Bold"
+                                   FontSize="13" />
+                        <!-- 値側は折り返し可（長い業務用メールアドレスが切れないように） -->
+                        <Grid ColumnDefinitions="Auto,6,*" RowDefinitions="Auto,Auto">
+                            <TextBlock Grid.Row="0" Grid.Column="0"
+                                       Text="{l:Localize About_LicUserName}"
+                                       FontSize="12" Foreground="#4CAF50" />
+                            <TextBlock x:Name="LicUserNameText" Grid.Row="0" Grid.Column="2"
+                                       FontSize="12" Foreground="#4CAF50"
+                                       TextWrapping="Wrap" />
+                            <TextBlock Grid.Row="1" Grid.Column="0"
+                                       Text="{l:Localize About_LicEmail}"
+                                       FontSize="12" Foreground="#4CAF50" />
+                            <TextBlock x:Name="LicEmailText" Grid.Row="1" Grid.Column="2"
+                                       FontSize="12" Foreground="#4CAF50"
+                                       TextWrapping="Wrap" />
+                        </Grid>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ライセンスと閉じる -->
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Spacing="10"
+                        Margin="0,24,0,0">
+                <Button x:Name="LicenseButton"
+                        Content="License"
+                        MinWidth="100"
+                        MinHeight="40"
+                        FontSize="14"
+                        Padding="16,8" />
+                <Button x:Name="CloseButton"
+                        Content="Close"
+                        MinWidth="80"
+                        MinHeight="40"
+                        FontSize="14"
+                        Padding="20,8" />
+            </StackPanel>
+
+        </StackPanel>
+        
+    </Grid>
+
+</Window>

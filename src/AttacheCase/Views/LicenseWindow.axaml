@@ -1,0 +1,60 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:l="using:AttacheCase.Markup"
+        x:Class="AttacheCase.Views.LicenseWindow"
+        Title="{l:Localize License_Title}"
+        Width="780"
+        Height="632"
+        MinWidth="520"
+        MinHeight="360"
+        WindowStartupLocation="CenterOwner">
+
+  <Grid RowDefinitions="Auto,*,Auto" Margin="16">
+
+    <!-- どの文書を見るか。本体の条件と第三者の表示を同じ窓にまとめる -->
+    <TabControl x:Name="DocumentTabs" Grid.Row="0" Grid.RowSpan="2">
+
+      <TabItem x:Name="SourceAvailableTab">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto">
+          <SelectableTextBlock x:Name="SourceAvailableText"
+                               FontFamily="Menlo,Monaco,Courier New,monospace"
+                               FontSize="12"
+                               TextWrapping="NoWrap"
+                               Margin="8" />
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem x:Name="CommercialTab">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto">
+          <SelectableTextBlock x:Name="CommercialText"
+                               FontFamily="Menlo,Monaco,Courier New,monospace"
+                               FontSize="12"
+                               TextWrapping="NoWrap"
+                               Margin="8" />
+        </ScrollViewer>
+      </TabItem>
+
+      <TabItem x:Name="ThirdPartyTab">
+        <ScrollViewer HorizontalScrollBarVisibility="Auto">
+          <SelectableTextBlock x:Name="ThirdPartyText"
+                               FontFamily="Menlo,Monaco,Courier New,monospace"
+                               FontSize="12"
+                               TextWrapping="NoWrap"
+                               Margin="8" />
+        </ScrollViewer>
+      </TabItem>
+
+    </TabControl>
+
+    <StackPanel Grid.Row="2"
+                Orientation="Horizontal"
+                HorizontalAlignment="Right"
+                Spacing="10"
+                Margin="0,12,0,0">
+      <Button x:Name="CopyButton" Click="OnCopyClick" MinWidth="120" MinHeight="40" FontSize="14" />
+      <Button x:Name="CloseButton" Click="OnCloseClick" MinWidth="100" MinHeight="40" FontSize="14" IsDefault="True" />
+    </StackPanel>
+
+  </Grid>
+
+</Window>
