@@ -126,22 +126,42 @@ public static class PostProcessHelper
     }
 
     /// <summary>
-    /// macOS の open コマンドで開く。関連付けの解決は OS に任せる。
+    /// 関連付けられたアプリで開く。関連付けの解決は OS に任せる。
     /// </summary>
     private static void Open(string path)
     {
         try
         {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = "/usr/bin/open",
-                ArgumentList = { path },
-                UseShellExecute = false,
-            });
+            Process.Start(CreateOpenStartInfo(path));
         }
         catch (Exception ex)
         {
             Console.Error.WriteLine("Could not open: " + path + " (" + ex.Message + ")");
         }
+    }
+
+    /// <summary>
+    /// OS ごとの「関連付けで開く」起動情報を作る。
+    ///   Windows: ShellExecute（旧 Windows 版と同じ。/usr/bin/open は無いので必ず分ける）
+    ///   macOS: /usr/bin/open
+    ///   その他: xdg-open
+    /// </summary>
+    public static ProcessStartInfo CreateOpenStartInfo(string path)
+    {
+        if (OperatingSystem.IsWindows())
+        {
+            return new ProcessStartInfo
+            {
+                FileName = path,
+                UseShellExecute = true,
+            };
+        }
+
+        return new ProcessStartInfo
+        {
+            FileName = OperatingSystem.IsMacOS() ? "/usr/bin/open" : "xdg-open",
+            ArgumentList = { path },
+            UseShellExecute = false,
+        };
     }
 }

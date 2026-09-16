@@ -52,8 +52,12 @@ public static class CliHelpText
         AttacheCase.Cli は端末内で完結します（GUI 本体に引数を渡した場合は、
         処理はアプリのウィンドウ上で進行します）。
 
-        引数は、設定画面（左下の歯車）で保存した設定を上書きします。
-        上書きはその実行のあいだだけで、設定ファイルには書き戻されません。
+        引数は、設定画面（左下の歯車）で保存した設定を上書きします（承認済みの持ち運び設定
+        _AtcCase.json があればそちらが元になります）。AttacheCase.Cli も同じ設定を読むので、
+        省略した項目は設定画面の内容がそのまま既定になります（保存先・自動命名・削除など）。
+        上書きはその起動のあいだだけで、設定ファイルには書き戻されません。
+        端末では確認ダイアログを出せないため、「上書きを確認する」なら上書きせずに終了
+        コード 5、「削除の前に確認する」なら確認なしで削除します。
 
         処理の種類
           /en, --encrypt          暗号化する
@@ -138,6 +142,8 @@ public static class CliHelpText
 
         Windows 版 GUI 専用の設定オプション（/theme /askende /imeon /psm など）は、
         既存のバッチをそのまま流用できるよう受理しますが、効果はありません。
+        画面にしか意味の無い項目（/exit /opf /nohide /tsktr /front /nomulti /pf /comfdel）は、
+        AttacheCase.Cli では受理するだけで効果がありません。
 
         終了コード (EXIT CODES):
           0   正常終了
@@ -173,8 +179,14 @@ public static class CliHelpText
         AttacheCase.Cli runs entirely in the terminal (when arguments are passed
         to the GUI app instead, the work is carried out in the app window).
 
-        Options override the settings saved in the Settings screen (gear, bottom left).
+        Options override the settings saved in the Settings screen (gear, bottom left;
+        an approved portable settings file _AtcCase.json takes its place when present).
+        AttacheCase.Cli reads the same settings, so anything you leave out defaults to
+        what the Settings screen says (save-to folder, auto naming, deletion, ...).
         The override lasts for that run only and is never written back to the settings file.
+        The terminal cannot show confirmation dialogs: "confirm overwriting" therefore
+        means "do not overwrite" (exit code 5), and "confirm before deleting" deletes
+        without asking.
 
         Action
           /en, --encrypt          Encrypt
@@ -258,7 +270,9 @@ public static class CliHelpText
           /slvgfolder, /slvgsame  Salvage mode is not implemented
 
         GUI-only preference options (/theme /askende /imeon /psm) are accepted so
-        that existing batch files keep working, but have no effect.
+        that existing batch files keep working, but have no effect. Items that only
+        matter in the app window (/exit /opf /nohide /tsktr /front /nomulti /pf /comfdel)
+        are accepted by AttacheCase.Cli but have no effect there either.
 
         EXIT CODES:
           0   Success

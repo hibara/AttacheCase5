@@ -5,10 +5,10 @@
         <Nullable>enable</Nullable>
         <RootNamespace>AttacheCase.CliApp</RootNamespace>
         <AssemblyName>AttacheCase.Cli</AssemblyName>
-        <AssemblyVersion>5.5.0</AssemblyVersion>
-        <FileVersion>5.5.0</FileVersion>
+        <AssemblyVersion>5.5.1.0</AssemblyVersion>
+        <FileVersion>5.5.1.0</FileVersion>
         <Company>HiBARA Software, LLC</Company>
-        <Version>5.5.0</Version>
+        <Version>5.5.1</Version>
         <!-- コンソール出力は UTF-8。日本語 Windows の既定コードページ (CP932) の
              端末でも化けないよう、Program.cs で OutputEncoding を設定する。 -->
         <InvariantGlobalization>false</InvariantGlobalization>

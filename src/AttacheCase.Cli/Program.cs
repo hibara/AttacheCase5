@@ -16,15 +16,21 @@
 // 終了コードは AtcExitCode の凍結契約に従う。
 // 暗号化・復号の実装は Core の HeadlessRunner にあり、このアプリは
 // 引数解析と入出力の面倒を見るだけに留める。
+//
+// 設定の扱い（AttacheCase4 以来の規則。GUI 本体に引数を渡したときと同じ）:
+//   保存されている設定（承認済みの持ち運び設定 _AtcCase.json があればそちら、
+//   無ければ settings.json）を読み、その【複製】に引数で指定された項目だけを
+//   上書きして使う。上書きはこの起動のあいだだけで、設定ファイルには書き戻さない。
+//   引数を省略した項目は設定画面の内容がそのまま既定になる。
 //----------------------------------------------------------------------
 
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Compression;
 using System.Text;
 using AttacheCase.Cli;
 using AttacheCase.Headless;
+using AttacheCase.Models;
 using AttacheCase.Services;
 
 namespace AttacheCase.CliApp;
@@ -35,14 +41,23 @@ internal static class Program
     private static HeadlessRunner? _runner;
     private static bool _canceled;
 
+    /// <summary>この起動で使う設定（保存されている設定の複製に引数を上書きしたもの）</summary>
+    private static AppSettings _settings = new();
+
     private static int Main(string[] args)
     {
         // DLL プリロード攻撃対策（Windows のみ）。他の何よりも先に呼ぶ。
-        // 旧 Windows 版 5.0 が Main の冒頭でやっていたもの。詳細は DllSearchPathGuard
-        AttacheCase.Platform.DllSearchPathGuard.Apply();
+        // 旧 Windows 版 5.0 が Main の冒頭でやっていたものに、.NET (Core) 向けの
+        // P/Invoke リゾルバーと起動時チェックを足したもの。詳細は DllSearchPathGuard。
+        // 単一ファイル発行で exe の隣に DLL があれば、標準エラーに理由を出して起動しない
+        // （設定・リソースなど、他の何かを読む前に判定する）。
+        // 検索順序を限定できなかったときも起動しない（黙って続けると対策前と同じ状態になる）
+        var guardInstalled = AttacheCase.Platform.DllSearchPathGuard.Install();
 
         // 日本語 Windows の端末は既定が CP932。ヘルプなどの UTF-8 出力が
-        // 化けないよう、コンソール出力を UTF-8 に切り替える。
+        // 化けないよう、コンソール出力を UTF-8 に切り替える（起動時チェックの
+        // メッセージもこの文字コードで出したいので、チェックより前に行う。
+        // kernel32 の SetConsoleOutputCP だけで、文字列ハッシュは使わない）
         try
         {
             Console.OutputEncoding = Encoding.UTF8;
@@ -50,6 +65,19 @@ internal static class Program
         catch (Exception)
         {
             // リダイレクト先やコンソール無し環境では設定できないことがある。出力自体は可能
+        }
+
+        if (!guardInstalled)
+        {
+            Console.Error.WriteLine(AttacheCase.Platform.DllSearchPathGuard.BuildInstallFailureMessage());
+            return AtcExitCode.GeneralError;
+        }
+
+        var foreignDlls = AttacheCase.Platform.DllSearchPathGuard.FindForeignDlls();
+        if (foreignDlls.Count > 0)
+        {
+            Console.Error.WriteLine(AttacheCase.Platform.DllSearchPathGuard.BuildRefusalMessage(foreignDlls));
+            return AtcExitCode.GeneralError;
         }
 
         try
@@ -93,6 +121,25 @@ internal static class Program
         foreach (var ignored in options.IgnoredOptions)
         {
             WriteVerbose("Note: \"" + ignored + "\" is a GUI option and has no effect here.");
+        }
+
+        foreach (var name in options.GuiOnlyOptionsGiven())
+        {
+            WriteVerbose("Note: \"" + name + "\" only affects the app window and has no effect here.");
+        }
+
+        //-----------------------------------
+        // 保存されている設定の複製に、引数で指定された項目だけを上書きする。
+        // 複製なので settings.json / _AtcCase.json には書き戻らない
+        //-----------------------------------
+        var store = SettingsService.Instance;
+        _settings = options.ApplyTo(store.Current.Clone());
+
+        if (store.PendingPortableFilePath != null)
+        {
+            // 未承認の持ち運び設定は使わない（承認はアプリの画面でしか行えない）
+            WriteVerbose("Note: a portable settings file was found but has not been approved in the app, so it is ignored: "
+                         + store.PendingPortableFilePath);
         }
 
         //-----------------------------------
@@ -207,18 +254,43 @@ internal static class Program
     private static int RunEncrypt(CliOptions options)
     {
         //-----------------------------------
+        // 出力形式（設定「暗号化ファイルの種類」／引数 /entype, /exeout）
+        //   自己実行形式は Windows 専用。設定に EXE が残っていても他の OS では
+        //   .atc にする（GUI の EncryptionViewModel と同じ丸め方）
+        //-----------------------------------
+        var isZip = _settings.EncryptionFileType == EncryptionFileTypes.Zip;
+        var selfExecutable = _settings.EncryptionFileType == EncryptionFileTypes.Exe
+                             && OperatingSystem.IsWindows();
+
+        // ZIP の暗号方式 3（暗号化なし）は設定画面だけの選択肢で、CLI の契約は 0〜2
+        if (isZip && _settings.ZipAlgorithm is < 0 or > 2)
+        {
+            WriteError("The ZIP cipher saved in the settings (" + _settings.ZipAlgorithm +
+                       ") cannot be used from the command line. Specify /zipalgo=0|1|2.");
+            return AtcExitCode.UsageError;
+        }
+
+        //-----------------------------------
         // パスワード
+        //   /pfile が無ければ設定「暗号化時にパスワードファイルを自動チェックする」に従う
         //-----------------------------------
         byte[]? passwordBinary = null;
-        if (!string.IsNullOrEmpty(options.EncryptPasswordFilePath))
+        var passwordFile = options.EncryptPasswordFilePath;
+        if (string.IsNullOrEmpty(passwordFile))
         {
-            if (!File.Exists(options.EncryptPasswordFilePath))
+            passwordFile = ResolveConfiguredPasswordFile(
+                _settings.CheckPasswordFileOnEncrypt, _settings.EncryptPasswordFilePath);
+        }
+
+        if (!string.IsNullOrEmpty(passwordFile))
+        {
+            if (!File.Exists(passwordFile))
             {
-                WriteError("Password file not found: " + options.EncryptPasswordFilePath);
+                WriteError("Password file not found: " + passwordFile);
                 return AtcExitCode.FileNotFound;
             }
 
-            passwordBinary = PasswordFileHash.ComputeSha256(options.EncryptPasswordFilePath);
+            passwordBinary = PasswordFileHash.ComputeSha256(passwordFile);
         }
 
         var usePublicKey = !string.IsNullOrEmpty(options.RsaPublicKeyFilePath)
@@ -238,7 +310,7 @@ internal static class Program
         List<EncryptJob> jobs;
         try
         {
-            jobs = BuildEncryptJobs(options);
+            jobs = BuildEncryptJobs(options, isZip, selfExecutable);
         }
         catch (Exception ex)
         {
@@ -268,26 +340,24 @@ internal static class Program
                 return AtcExitCode.FileNotFound;
             }
 
+            // 値はすべて「設定に引数を上書きした結果」から取る（引数省略時は設定の内容）
             var request = new HeadlessEncryptRequest
             {
                 InputPaths = job.InputPaths,
                 OutputFilePath = job.OutputFilePath,
                 Password = options.Password,
                 PasswordBinary = passwordBinary,
-                SelfExecutable = options.SelfExecutable,
-                ZipEncryption = options.EncryptionType == CliEncryptionType.Zip,
-                // HeadlessEncryptRequest.ZipAlgorithm は公開契約の 0/1/2。
-                // enum 値（0/128/256）をそのままキャストしてはいけない
-                ZipAlgorithm = (options.ZipAlgorithm ?? ZipPasswordEncryptionMethod.ZipCrypto) switch
-                {
-                    ZipPasswordEncryptionMethod.Aes128 => 1,
-                    ZipPasswordEncryptionMethod.Aes256 => 2,
-                    _ => 0,
-                },
-                KeepTimeStamp = options.KeepTimeStamp ?? false,
-                Compression = options.Compression ?? CompressionLevel.Optimal,
-                MissTypeLimits = options.MissTypeLimits ?? 3,
-                Overwrite = options.OverwriteWithoutConfirm ?? false,
+                SelfExecutable = selfExecutable,
+                ZipEncryption = isZip,
+                // AppSettings.ZipAlgorithm と HeadlessEncryptRequest.ZipAlgorithm は
+                // どちらも公開契約の 0/1/2（enum 値 0/128/256 ではない）
+                ZipAlgorithm = _settings.ZipAlgorithm,
+                KeepTimeStamp = _settings.KeepTimeStamp,
+                Compression = _settings.CompressionLevelValue,
+                MissTypeLimits = _settings.MissTypeLimits,
+                BreakFileWhenLimitExceeded = _settings.BreakFileWhenLimitExceeded,
+                // 端末では上書きの確認を出せないので、「確認する」＝上書きしない（終了コード 5）
+                Overwrite = !_settings.ConfirmOverwrite,
                 RsaPublicKeyFilePath = options.RsaPublicKeyFilePath,
                 PostPpapRecipientEmail = options.PostPpapRecipientEmail,
             };
@@ -310,9 +380,9 @@ internal static class Program
             // 元ファイルの削除
             //   その処理単位が成功した直後に削除する（まとめて最後に消さない）
             //-----------------------------------
-            if ((options.DeleteMode ?? 0) > 0)
+            if (_settings.DeleteMode > 0)
             {
-                var deleteExitCode = DeletePaths(job.InputPaths, options.DeleteMode!.Value, options);
+                var deleteExitCode = DeletePaths(job.InputPaths, _settings.DeleteMode);
                 if (deleteExitCode != AtcExitCode.Success)
                 {
                     return deleteExitCode;
@@ -321,6 +391,29 @@ internal static class Program
         }
 
         return AtcExitCode.Success;
+    }
+
+    /// <summary>
+    /// 設定「パスワードファイルを自動チェックする」に従い、使うパスワードファイルを決める。
+    /// 無ければ「無くてもエラーを出さない」の設定に従って知らせ、null（パスワードファイル無し）を返す。
+    /// GUI の PasswordFileLoader.TryLoadConfiguredAsync と同じ振る舞い。
+    /// </summary>
+    private static string? ResolveConfiguredPasswordFile(bool enabled, string configuredPath)
+    {
+        if (!enabled) return null;
+
+        if (!string.IsNullOrWhiteSpace(configuredPath) && File.Exists(configuredPath))
+        {
+            return configuredPath;
+        }
+
+        if (!_settings.NoErrorWhenPasswordFileMissing)
+        {
+            // 設定の不備を知らせる警告なので /q でも抑止しない
+            WriteError("Warning: the password file set in the settings was not found: " + configuredPath);
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -335,19 +428,19 @@ internal static class Program
     /// <summary>
     /// 入力から暗号化の処理単位を組み立てる。
     /// </summary>
-    private static List<EncryptJob> BuildEncryptJobs(CliOptions options)
+    private static List<EncryptJob> BuildEncryptJobs(CliOptions options, bool isZip, bool selfExecutable)
     {
         var jobs = new List<EncryptJob>();
 
         //-----------------------------------
         // 既定: すべてを 1 つの暗号化ファイルにまとめる
         //-----------------------------------
-        if (!(options.OneByOne ?? false))
+        if (!_settings.EncryptOneByOne)
         {
             jobs.Add(new EncryptJob
             {
                 InputPaths = options.InputPaths,
-                OutputFilePath = BuildEncryptOutputPath(options, options.InputPaths[0]),
+                OutputFilePath = BuildEncryptOutputPath(options, options.InputPaths.ToArray(), isZip, selfExecutable),
             });
             return jobs;
         }
@@ -356,6 +449,7 @@ internal static class Program
         // /oneby: フォルダーを再帰展開して 1 ファイルずつ処理する
         //-----------------------------------
         // /out= にファイル名まで指定されていると、出力先が 1 つに定まってしまい矛盾する
+        // （CliOutputPath も同じ検査をするが、こちらは英語の定型文で早く止める）
         if (!string.IsNullOrEmpty(options.OutputPath) &&
             !Directory.Exists(Path.GetFullPath(options.OutputPath)))
         {
@@ -404,7 +498,7 @@ internal static class Program
             {
                 InputPaths = new List<string> { filePath },
                 OutputFilePath = MakeUniqueOutputPath(
-                    BuildEncryptOutputPath(options, filePath), usedOutputPaths),
+                    BuildEncryptOutputPath(options, [filePath], isZip, selfExecutable), usedOutputPaths),
             });
         }
 
@@ -459,95 +553,23 @@ internal static class Program
 
     /// <summary>
     /// 暗号化ファイルの出力パスを決める。
+    /// 規則（/out → 保存先の設定 /saveto・/zipsaveto → 入力と同じフォルダー、
+    /// 拡張子の偽装、元拡張子の保持、自動命名）は GUI と共通の
+    /// <see cref="CliOutputPath"/> にあり、この起動の設定に従う。
     /// </summary>
-    /// <remarks>
-    /// 優先順位:
-    /// <list type="number">
-    ///   <item>/out で明示されたパス</item>
-    ///   <item>/saveto（ZIP は /zipsaveto）のディレクトリ ＋ 最初の入力名</item>
-    ///   <item>最初の入力と同じディレクトリ ＋ 最初の入力名</item>
-    /// </list>
-    /// </remarks>
-    private static string BuildEncryptOutputPath(CliOptions options, string representativeInputPath)
+    private static string BuildEncryptOutputPath(
+        CliOptions options, string[] inputPaths, bool isZip, bool selfExecutable)
     {
-        var isZip = options.EncryptionType == CliEncryptionType.Zip;
-
-        // 拡張子。偽装が指定されていればそちらを優先する（本体 GUI と同じ扱い）
-        var extension = !string.IsNullOrEmpty(options.CamouflageExtension)
-            ? options.CamouflageExtension
-            : (isZip ? ".zip" : options.SelfExecutable ? ".exe" : ".atc");
-
-        //-----------------------------------
-        // 出力ディレクトリ
-        //-----------------------------------
-        string? baseDir;
-        if (!string.IsNullOrEmpty(options.OutputPath))
+        var context = new RunContext
         {
-            var outPath = Path.GetFullPath(options.OutputPath);
+            Settings = _settings,
+            IsCommandLineRun = true,
+            OutputPath = options.OutputPath,
+        };
 
-            // ファイル名まで指定された場合はそれをそのまま使う（自動命名も行わない）
-            if (!Directory.Exists(outPath))
-            {
-                return outPath;
-            }
-
-            baseDir = outPath;
-        }
-        else
-        {
-            var saveDir = isZip ? options.ZipOutputDirectory : options.EncryptOutputDirectory;
-            baseDir = !string.IsNullOrEmpty(saveDir)
-                ? Path.GetFullPath(saveDir)
-                : Path.GetDirectoryName(representativeInputPath);
-        }
-
-        if (string.IsNullOrEmpty(baseDir))
-        {
-            throw new InvalidOperationException("Could not determine the output directory. Use /out= or /saveto=.");
-        }
-
-        //-----------------------------------
-        // ファイル名
-        //-----------------------------------
-        var candidate = Path.Combine(baseDir, DefaultBaseName(options, representativeInputPath) + extension);
-
-        if (string.IsNullOrEmpty(options.AutoNameFormat))
-        {
-            return candidate;
-        }
-
-        // 書式の中で <filename> は拡張子を除いた名前、<ext> は暗号化ファイルの拡張子を指す。
-        // 本体 GUI と同じ扱い。
-        var generated = AutoFileName.Format(
-            options.AutoNameFormat, candidate, AutoNameCharset.Default, out var containsInvalidChar);
-
-        if (containsInvalidChar)
-        {
-            throw new InvalidOperationException(
-                "The generated file name contains a character that cannot be used: " + generated);
-        }
-
-        if (string.IsNullOrEmpty(generated))
-        {
-            return candidate;
-        }
-
-        return Path.Combine(baseDir, generated);
-    }
-
-    private static string DefaultBaseName(CliOptions options, string inputPath)
-    {
-        var first = inputPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-
-        if (Directory.Exists(first))
-        {
-            return Path.GetFileName(first);
-        }
-
-        // /withext=1 なら元の拡張子を残す（report.xlsx → report.xlsx.atc）
-        return (options.IncludeOriginalExtension ?? false)
-            ? Path.GetFileName(first)
-            : Path.GetFileNameWithoutExtension(first);
+        return isZip
+            ? CliOutputPath.ForZip(inputPaths, context)
+            : CliOutputPath.ForEncryption(inputPaths, context, selfExecutable ? ".exe" : ".atc");
     }
 
     //======================================================================
@@ -571,12 +593,20 @@ internal static class Program
             //   パスワードファイルの鍵素材はデータバージョンによって算出方法が変わるため、
             //   実際のバージョンを見てから求める。
             //-----------------------------------
+            // /dpfile が無ければ設定「復号時にパスワードファイルを自動チェックする」に従う
             byte[]? passwordBinary = null;
-            if (!string.IsNullOrEmpty(options.DecryptPasswordFilePath))
+            var passwordFile = options.DecryptPasswordFilePath;
+            if (string.IsNullOrEmpty(passwordFile))
             {
-                if (!File.Exists(options.DecryptPasswordFilePath))
+                passwordFile = ResolveConfiguredPasswordFile(
+                    _settings.CheckPasswordFileOnDecrypt, _settings.DecryptPasswordFilePath);
+            }
+
+            if (!string.IsNullOrEmpty(passwordFile))
+            {
+                if (!File.Exists(passwordFile))
                 {
-                    WriteError("Password file not found: " + options.DecryptPasswordFilePath);
+                    WriteError("Password file not found: " + passwordFile);
                     return AtcExitCode.FileNotFound;
                 }
 
@@ -607,8 +637,7 @@ internal static class Program
                     }
                 }
 
-                passwordBinary = PasswordFileHash.ComputeForDataFileVersion(
-                    options.DecryptPasswordFilePath, dataFileVersion);
+                passwordBinary = PasswordFileHash.ComputeForDataFileVersion(passwordFile, dataFileVersion);
             }
 
             var hasPrivateKeySource = !string.IsNullOrEmpty(options.RsaPrivateKeyFilePath)
@@ -621,12 +650,14 @@ internal static class Program
             }
 
             //-----------------------------------
-            // 展開先
+            // 展開先（/out → 保存先の設定 /dsaveto → 暗号化ファイルと同じフォルダー。GUI と共通）
             //-----------------------------------
-            var outDir = options.OutputPath ?? options.DecryptOutputDirectory;
-            outDir = string.IsNullOrEmpty(outDir)
-                ? Path.GetDirectoryName(inputPath)
-                : Path.GetFullPath(outDir);
+            var outDir = CliOutputPath.ForDecryption(inputPath, new RunContext
+            {
+                Settings = _settings,
+                IsCommandLineRun = true,
+                OutputPath = options.OutputPath,
+            });
 
             if (string.IsNullOrEmpty(outDir))
             {
@@ -656,10 +687,11 @@ internal static class Program
                 OutputDirectory = outDir,
                 Password = options.Password,
                 PasswordBinary = passwordBinary,
-                Overwrite = options.OverwriteWithoutConfirm ?? false,
-                NoParentFolder = options.NoParentFolder ?? false,
-                SetTimeStampToNow = options.SetTimeStampToNow ?? false,
-                ContinueOnHashMismatch = options.ContinueOnHashMismatch ?? false,
+                // 端末では上書きの確認を出せないので、「確認する」＝既存ファイルは残す（スキップ）
+                Overwrite = !_settings.ConfirmOverwrite,
+                NoParentFolder = _settings.NoParentFolder,
+                SetTimeStampToNow = _settings.SetTimeStampToNow,
+                ContinueOnHashMismatch = _settings.ContinueOnHashMismatch,
                 RsaPrivateKeyFilePath = options.RsaPrivateKeyFilePath,
                 UsePostPpapAccounts = options.UsePostPpapAccounts,
             };
@@ -678,10 +710,10 @@ internal static class Program
             //-----------------------------------
             // 暗号化ファイル自体の削除
             //-----------------------------------
-            if ((options.DeleteEncryptedFileMode ?? 0) > 0)
+            if (_settings.DeleteEncryptedFileMode > 0)
             {
                 var deleteExitCode = DeletePaths(
-                    new List<string> { inputPath }, options.DeleteEncryptedFileMode!.Value, options);
+                    new List<string> { inputPath }, _settings.DeleteEncryptedFileMode);
                 if (deleteExitCode != AtcExitCode.Success)
                 {
                     return deleteExitCode;
@@ -700,10 +732,22 @@ internal static class Program
     /// 処理が成功したあとに、対象ファイル／フォルダーを削除する。
     /// </summary>
     /// <param name="mode">1: 通常削除 / 2: ごみ箱へ移動 / 3: 完全削除（ランダム値とゼロで上書き）</param>
-    private static int DeletePaths(IList<string> paths, int mode, CliOptions options)
+    /// <remarks>
+    /// 設定「削除の前に確認する」は端末では確認を出せないので、無人実行の GUI と同じく
+    /// 指示どおり削除する。書き込み回数は設定（/delrand, /delnull）に従う。
+    /// </remarks>
+    private static int DeletePaths(IList<string> paths, int mode)
     {
         try
         {
+            // 設定ファイルの破損などで未定義の番号が入ると、「ごみ箱」のつもりが
+            // 復元できない削除になりかねない。手前で弾く（GUI の PostProcessHelper と同じ）
+            if (mode is not (1 or 2 or 3))
+            {
+                WriteError("Unknown delete mode in the settings: " + mode + ". Skipped deletion.");
+                return AtcExitCode.UsageError;
+            }
+
             if (mode == 2 && OperatingSystem.IsWindows())
             {
                 // ごみ箱が使えない場所では Windows が黙って完全削除にフォールバックするため、
@@ -724,8 +768,8 @@ internal static class Program
                 var ok = FileEraser.Erase(
                     path,
                     (FileEraser.Mode)mode,
-                    options.DeleteRandomTimes ?? 1,
-                    options.DeleteZeroTimes ?? 1);
+                    _settings.DeleteRandomTimes,
+                    _settings.DeleteZeroTimes);
 
                 if (!ok)
                 {

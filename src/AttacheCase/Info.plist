@@ -11,9 +11,9 @@
     <!-- ビルド時に build_and_release.sh が csproj の Version で上書きする。
          ここは読んだ人が取り違えないよう、同じ値にしておく -->
     <key>CFBundleVersion</key>
-    <string>5.5.0</string>
+    <string>5.5.1</string>
     <key>CFBundleShortVersionString</key>
-    <string>5.5.0</string>
+    <string>5.5.1</string>
     <key>CFBundleIconFile</key>
     <string>main-icon</string>
     <key>CFBundlePackageType</key>

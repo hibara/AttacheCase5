@@ -52,8 +52,22 @@ class Program
     public static int Main(string[] args)
     {
         // DLL プリロード攻撃対策（Windows のみ）。他の何よりも先に呼ぶ。
-        // 旧 Windows 版 5.0 が Main の冒頭でやっていたもの。詳細は DllSearchPathGuard
-        AttacheCase.Platform.DllSearchPathGuard.Apply();
+        // 旧 Windows 版 5.0 が Main の冒頭でやっていたものに、.NET (Core) 向けの
+        // P/Invoke リゾルバーと起動時チェックを足したもの。詳細は DllSearchPathGuard。
+        // 単一ファイル発行で exe の隣に DLL があれば、警告して起動しない
+        // （設定・リソース・Mutex など、他の何かを読む前に判定する）。
+        // 検索順序を限定できなかったときも起動しない（黙って続けると対策前と同じ状態になる）
+        if (!AttacheCase.Platform.DllSearchPathGuard.Install())
+        {
+            AttacheCase.Platform.DllSearchPathGuard.ShowInstallFailureDialog();
+            return AtcExitCode.GeneralError;
+        }
+        var foreignDlls = AttacheCase.Platform.DllSearchPathGuard.FindForeignDlls();
+        if (foreignDlls.Count > 0)
+        {
+            AttacheCase.Platform.DllSearchPathGuard.ShowRefusalDialog(foreignDlls);
+            return AtcExitCode.GeneralError;
+        }
 
         // インストーラの起動中検出用（掴んだまま。プロセス終了で自然に解放される）
         if (OperatingSystem.IsWindows())

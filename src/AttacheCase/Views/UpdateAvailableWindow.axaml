@@ -36,7 +36,9 @@
         <!-- 横 StackPanel は子に無限幅を渡すため、中の TextBlock が折り返さない。
              文が窓からはみ出して読めなくなるので、幅の決まる Grid で受ける -->
         <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Margin="0,0,0,14">
-            <Image Grid.Column="0" Width="52" Height="52" VerticalAlignment="Top"
+            <!-- アイコン。既定は macOS 用。Windows ではコードビハインドで
+                 旧 Windows 版のアイコン（main-icon-win_64x64.png）に差し替える（AboutWindow と同じ） -->
+            <Image x:Name="AppIconImage" Grid.Column="0" Width="52" Height="52" VerticalAlignment="Top"
                    Margin="0,0,14,0"
                    Source="avares://AttacheCase/Assets/main-icon-rounded.png" />
             <StackPanel Grid.Column="1" Spacing="5" VerticalAlignment="Center">

@@ -6,10 +6,10 @@
              リソース名（AttacheCase.Resources.Strings）を変えないため、
              ルート名前空間はアプリ本体と同じにする。 -->
         <RootNamespace>AttacheCase</RootNamespace>
-        <AssemblyVersion>5.5.0</AssemblyVersion>
-        <FileVersion>5.5.0</FileVersion>
+        <AssemblyVersion>5.5.1.0</AssemblyVersion>
+        <FileVersion>5.5.1.0</FileVersion>
         <Company>HiBARA Software, LLC</Company>
-        <Version>5.5.0</Version>
+        <Version>5.5.1</Version>
     </PropertyGroup>
 
     <ItemGroup>

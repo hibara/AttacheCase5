@@ -177,6 +177,7 @@ public sealed class HeadlessRunner
             KeepTimeStamp = request.KeepTimeStamp,
             CompressionLevel = request.Compression,
             MissTypeLimits = NormalizeMissTypeLimits(request.MissTypeLimits),
+            BreakFileWhenLimitExceeded = request.BreakFileWhenLimitExceeded,
             ArchiveName = Path.GetFileNameWithoutExtension(request.OutputFilePath),
             PasswordBinary = (request.PasswordBinary is { Length: > 0 }) ? request.PasswordBinary : null,
         };
@@ -350,6 +351,9 @@ public sealed class HeadlessRunner
             HashMismatchOption = request.ContinueOnHashMismatch
                 ? HashMismatchOption.Continue
                 : HashMismatchOption.Ask,
+            // DecryptionService が実際に見るのはこちら（GUI の DecryptionViewModel と同じ）。
+            // HashMismatchOption だけ立てても CRC 不一致で止まってしまう
+            SalvageIgnoreHashCheck = request.ContinueOnHashMismatch,
         };
 
         if (!string.IsNullOrEmpty(request.RsaPrivateKeyFilePath))

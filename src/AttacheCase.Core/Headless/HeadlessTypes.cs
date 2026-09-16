@@ -109,6 +109,12 @@ public sealed class HeadlessEncryptRequest
     /// <summary>パスワード入力回数の制限（1〜10。範囲外は 3 として扱う）</summary>
     public int MissTypeLimits { get; set; } = 3;
 
+    /// <summary>
+    /// 入力回数の制限を超えたら暗号化ファイルを破壊してよいか（/breakfile）。
+    /// 平文ヘッダの 4 バイト目に記録され、復号する側がこれを見て判断する。
+    /// </summary>
+    public bool BreakFileWhenLimitExceeded { get; set; }
+
     /// <summary>出力先に同名ファイルがある場合に上書きするか</summary>
     public bool Overwrite { get; set; }
 }

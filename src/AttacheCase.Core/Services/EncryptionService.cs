@@ -113,6 +113,15 @@ public class EncryptionService : IEncryptionService
                 progress,
                 cancellationToken), cancellationToken);
 
+            // 設定「暗号化ファイルのタイムスタンプを元ファイルに合わせる」（/orgdt）。
+            // 旧 Windows 版（FileEncrypt5）と同じく、最初の入力の日時を出力ファイルへ写す。
+            // 中身（ZIP のエントリ日時に相当するもの）ではなく、書庫ファイル自体の日時
+            if (result.Success && options.KeepTimeStamp)
+            {
+                ApplyOriginalTimeStamp(inputPaths[0],
+                    string.IsNullOrEmpty(result.OutputFilePath) ? absoluteOutputPath : result.OutputFilePath);
+            }
+
             sw.Stop();
             result.ProcessingTime =
                 $"{sw.Elapsed.Hours}h{sw.Elapsed.Minutes}m{sw.Elapsed.Seconds}s{sw.Elapsed.Milliseconds}ms";
@@ -432,6 +441,29 @@ public class EncryptionService : IEncryptionService
             {
                 try { File.Delete(outputPath); } catch { /* 削除失敗は無視 */ }
             }
+        }
+    }
+
+    /// <summary>
+    /// 出力ファイルの作成・更新・アクセス日時を元ファイル（またはフォルダー）に合わせる。
+    /// 日時を写せなくても暗号化は成功しているので、失敗は握りつぶす。
+    /// </summary>
+    private static void ApplyOriginalTimeStamp(string sourcePath, string outputPath)
+    {
+        try
+        {
+            FileSystemInfo source = Directory.Exists(sourcePath)
+                ? new DirectoryInfo(sourcePath)
+                : new FileInfo(sourcePath);
+            if (!source.Exists || !File.Exists(outputPath)) return;
+
+            File.SetCreationTimeUtc(outputPath, source.CreationTimeUtc);
+            File.SetLastWriteTimeUtc(outputPath, source.LastWriteTimeUtc);
+            File.SetLastAccessTimeUtc(outputPath, source.LastAccessTimeUtc);
+        }
+        catch (Exception)
+        {
+            // 読み取り専用のボリュームなどで日時を変えられないことがある
         }
     }
 

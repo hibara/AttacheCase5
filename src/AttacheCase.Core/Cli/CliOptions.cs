@@ -75,8 +75,14 @@ public sealed class CliOptions
     /// <summary>この PC に登録済みの Post-PPAP アカウントで復号する（/p-ppap を値なしで指定）</summary>
     public bool UsePostPpapAccounts { get; set; }
 
-    /// <summary>自己実行形式（.exe）で出力する（/exeout, /entype=2。Windows のみ）</summary>
-    public bool SelfExecutable { get; set; }
+    /// <summary>
+    /// 自己実行形式（.exe）の指定（/exeout=0|1, /entype=2。Windows のみ）。
+    /// null は「指定なし」で、保存されている設定（暗号化ファイルの種類）に従う。
+    /// </summary>
+    public bool? SelfExecutableOption { get; set; }
+
+    /// <summary>自己実行形式（.exe）で出力すると明示されたか</summary>
+    public bool SelfExecutable => SelfExecutableOption == true;
 
     /// <summary>
     /// 商用ライセンス操作（/lc）。null = 指定なし、空文字 = ライセンス削除、
@@ -207,7 +213,8 @@ public sealed class CliOptions
         ShowMenuBarIcon.HasValue || WindowForeground.HasValue || NoMultipleInstance.HasValue ||
         AllowPasswordFileDragDrop.HasValue || NoErrorWhenPasswordFileMissing.HasValue ||
         BreakFileWhenLimitExceeded.HasValue ||
-        EncryptionType.HasValue || OverwriteWithoutConfirm.HasValue || OneByOne.HasValue ||
+        EncryptionType.HasValue || SelfExecutableOption.HasValue ||
+        OverwriteWithoutConfirm.HasValue || OneByOne.HasValue ||
         KeepTimeStamp.HasValue || IncludeOriginalExtension.HasValue || Compression.HasValue ||
         MissTypeLimits.HasValue || ZipAlgorithm.HasValue || NoParentFolder.HasValue ||
         SetTimeStampToNow.HasValue || ContinueOnHashMismatch.HasValue ||
@@ -240,6 +247,18 @@ public sealed class CliOptions
             settings.BreakFileWhenLimitExceeded = BreakFileWhenLimitExceeded.Value;
 
         if (EncryptionType.HasValue) settings.EncryptionFileType = (int)EncryptionType.Value;
+
+        // 自己実行形式は「種類」の一つ（EncryptionFileTypes.Exe）として設定に載せる。
+        // /entype=2 は種類 ATC + この指定の組で来るので、こちらを後に評価する。
+        // /exeout=0 は、設定で EXE が選ばれていても通常の .atc に戻す
+        if (SelfExecutableOption == true)
+        {
+            settings.EncryptionFileType = EncryptionFileTypes.Exe;
+        }
+        else if (SelfExecutableOption == false && settings.EncryptionFileType == EncryptionFileTypes.Exe)
+        {
+            settings.EncryptionFileType = EncryptionFileTypes.Atc;
+        }
 
         if (!string.IsNullOrEmpty(EncryptOutputDirectory))
         {
@@ -306,6 +325,22 @@ public sealed class CliOptions
         if (ConfirmDelete.HasValue) settings.ConfirmDelete = ConfirmDelete.Value;
 
         return settings;
+    }
+
+    /// <summary>
+    /// 明示されたオプションのうち、アプリのウィンドウにしか意味が無いもの
+    /// （端末専用の AttacheCase.Cli では効果が無い）。注意書きの表示用。
+    /// </summary>
+    public IEnumerable<string> GuiOnlyOptionsGiven()
+    {
+        if (ExitAfterProcess.HasValue) yield return "/exit";
+        if (OpenDecryptedFile.HasValue) yield return "/opf";
+        if (NotMaskPassword.HasValue) yield return "/nohide";
+        if (ShowMenuBarIcon.HasValue) yield return "/tsktr";
+        if (WindowForeground.HasValue) yield return "/front";
+        if (NoMultipleInstance.HasValue) yield return "/nomulti";
+        if (AllowPasswordFileDragDrop.HasValue) yield return "/pf";
+        if (ConfirmDelete.HasValue) yield return "/comfdel";
     }
 
     /// <summary>
@@ -628,7 +663,7 @@ public static class CliParser
                                 return options;
                             }
                             options.EncryptionType = CliEncryptionType.Atc;
-                            options.SelfExecutable = true;
+                            options.SelfExecutableOption = true;
                             break;
                         case "3":
                             options.EncryptionType = CliEncryptionType.Zip;
@@ -686,11 +721,11 @@ public static class CliParser
                             options.ParseError = "/exeout " + SelfExecutableNotAvailable;
                             return options;
                         }
-                        options.SelfExecutable = true;
+                        options.SelfExecutableOption = true;
                     }
                     else
                     {
-                        options.SelfExecutable = false;
+                        options.SelfExecutableOption = false;
                     }
                     break;
 

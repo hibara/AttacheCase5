@@ -22,8 +22,8 @@
         <!-- SDK 既定の暗黙 using は使わない（旧コードは明示 using 済み） -->
         <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>disable</Nullable>
-        <AssemblyVersion>5.5.0</AssemblyVersion>
-        <FileVersion>5.5.0</FileVersion>
+        <AssemblyVersion>5.5.1.0</AssemblyVersion>
+        <FileVersion>5.5.1.0</FileVersion>
         <Company>HiBARA Software, LLC</Company>
         <!-- どの OS でもコンパイルできるよう参照アセンブリを使う -->
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

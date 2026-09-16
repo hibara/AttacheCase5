@@ -375,3 +375,20 @@ ZIP 画面のドラッグ＆ドロップは CLI から触れないので、回�
 - [ ] `%APPDATA%\AttacheCase\update_check.json` に確認日時が記録され、
       24 時間は再確認しないこと
 - [ ] 設定の「起動時に更新の有無を確認する」を OFF にすると、起動時に確認しないこと
+
+---
+
+## DLL ハイジャック対策の実測 — `DllHijackCheck\Invoke-DllHijackCheck.ps1`
+
+publish した単一ファイル EXE を作業フォルダーにコピーし、隣に「読み込めるが何もしない」x64 の
+おとり DLL を 24 個並べて起動し、EXE のフォルダーから読み込まれた DLL が無いことを確かめます。
+
+```powershell
+# GUI: 起動時チェックの警告ダイアログで止まり、何も読み込まれなければ OK
+powershell -NoProfile -ExecutionPolicy Bypass -File .\DllHijackCheck\Invoke-DllHijackCheck.ps1 -ExePath <publish>\AttacheCase.exe
+# CLI: 標準エラーに理由を出して終了コード 1 で終われば OK
+powershell -NoProfile -ExecutionPolicy Bypass -File .\DllHijackCheck\Invoke-DllHijackCheck.ps1 -ExePath <publish>\AttacheCase.Cli.exe -ExpectRefusalExitCode 1
+```
+
+対策前の EXE（5.5.0.0 以前）に掛けると、GUI はおとりの bcrypt.dll を読み込んで起動途中で落ちます（NG）。
+kernel32 / advapi32 はランタイムが起動時チェックより前に読むため、おとりの一覧には含めていません（防げない 2 つ）。

@@ -62,6 +62,19 @@ public partial class UpdateAvailableWindow : Window
     public UpdateAvailableWindow()
     {
         AvaloniaXamlLoader.Load(this);
+
+        // アイコン: Windows では旧 Windows 版のアイコンに差し替える
+        // （axaml の既定は macOS 用の main-icon-rounded.png。AboutWindow と同じ方法）
+        if (OperatingSystem.IsWindows())
+        {
+            var iconImage = this.FindControl<Image>("AppIconImage");
+            if (iconImage != null)
+            {
+                using var stream = Avalonia.Platform.AssetLoader.Open(
+                    new Uri("avares://AttacheCase/Assets/main-icon-win_64x64.png"));
+                iconImage.Source = new Avalonia.Media.Imaging.Bitmap(stream);
+            }
+        }
     }
 
     /// <summary>

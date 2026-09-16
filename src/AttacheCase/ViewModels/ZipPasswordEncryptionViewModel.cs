@@ -400,6 +400,9 @@ public class ZipPasswordEncryptionViewModel : ViewModelBase
 
     private async Task ExecuteEncryptionAsync()
     {
+        // 上書きを断られたときに戻る画面（確認画面、またはコマンドライン起動なら入力画面）
+        var previousStep = CurrentStep;
+
         CurrentStep = 3;
 
         IsProcessing = true;
@@ -429,6 +432,32 @@ public class ZipPasswordEncryptionViewModel : ViewModelBase
                 _mainViewModel.ReportCommandLineResult(AtcExitCode.UsageError);
                 _mainViewModel.BackToMain();
                 return;
+            }
+
+            // 上書き確認（設定「同名ファイルがあるとき上書きの確認をする」、/ow=0, /y, /force で省略）。
+            // ZipPasswordEncryptionService は出来上がった一時ファイルを無条件に差し替えるので、
+            // ここで聞かないと既存の ZIP が黙って上書きされる。ATC の暗号化と同じ扱いにする。
+            // 無人実行では確認できないため、上書きせずに終わる（終了コード 5）
+            if (File.Exists(outputPath) && Settings.ConfirmOverwrite)
+            {
+                var confirmed = await DialogHelper.ConfirmAsync(
+                    _ctx.IsUnattended,
+                    _localize["Dialog_OverwriteTitle"],
+                    _localize.GetString("Dialog_OverwriteFileMessage", Path.GetFileName(outputPath)));
+
+                if (!confirmed)
+                {
+                    _mainViewModel.ReportCommandLineResult(AtcExitCode.OutputExists);
+                    if (_ctx.IsCommandLineRun)
+                    {
+                        _mainViewModel.BackToMain();
+                    }
+                    else
+                    {
+                        CurrentStep = previousStep;
+                    }
+                    return;
+                }
             }
 
             var options = new EncryptionOptions

@@ -5,10 +5,10 @@
         <Nullable>enable</Nullable>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-        <AssemblyVersion>5.5.0</AssemblyVersion>
-        <FileVersion>5.5.0</FileVersion>
+        <AssemblyVersion>5.5.1.0</AssemblyVersion>
+        <FileVersion>5.5.1.0</FileVersion>
         <Company>HiBARA Software, LLC</Company>
-        <Version>5.5.0</Version>
+        <Version>5.5.1</Version>
         <!-- Windows の実行ファイルアイコン（旧版の main_icon.ico）。
              macOS は .app バンドルの icns（CFBundleIconFile）を使うので影響しない -->
         <ApplicationIcon>Assets\main-icon.ico</ApplicationIcon>

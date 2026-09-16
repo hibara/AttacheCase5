@@ -516,19 +516,29 @@ public class PostPpapViewModel : ViewModelBase
             EncryptFilePath = _droppedFilePath;
             IsEncryptionVisible = true;
 
+            // 設定「処理中は最小化する」と Dock / タスクバーの進捗表示（他の暗号化画面と同じ）
+            WindowBehaviorService.Instance.BeginProcessing(_ctx);
+
             var progressReporter = new Progress<EncryptionProgress>(p =>
             {
                 EncryptProgress = p.ProgressPercentage / 100;
+                WindowBehaviorService.Instance.ReportProgress((int)EncryptProgress);
                 if (!string.IsNullOrEmpty(p.CurrentFilePath))
                     EncryptFilePath = p.CurrentFilePath;
             });
 
+            // 圧縮・タイムスタンプ・入力回数の制限・破壊フラグは、パスワード方式と同じく
+            // 設定（とコマンドラインの上書き）に従う。宛先だけ入れると全部が既定値になっていた
             var result = await new EncryptionService().EncryptAsync(
                 new[] { _droppedFilePath },
                 outputPath,
                 password: null!,
                 new EncryptionOptions
                 {
+                    CompressionLevel = _ctx.Settings.CompressionLevelValue,
+                    KeepTimeStamp = _ctx.Settings.KeepTimeStamp,
+                    MissTypeLimits = _ctx.Settings.MissTypeLimits,
+                    BreakFileWhenLimitExceeded = _ctx.Settings.BreakFileWhenLimitExceeded,
                     Recipients = new List<PostPpapKeyInfo> { recipient },
                 },
                 progressReporter,
@@ -569,6 +579,8 @@ public class PostPpapViewModel : ViewModelBase
         }
         finally
         {
+            // 最小化していれば戻し、進捗表示を消す（BeginProcessing を呼んでいなくても無害）
+            WindowBehaviorService.Instance.EndProcessing();
             IsBusy = false;
         }
     }

@@ -76,6 +76,20 @@ Windows のインストーラ（Inno Setup 6）、コード署名、公証、自
 | `dogfooding/` | CLI 終了コード駆動の回帰スイート |
 | `_installer/` | Windows インストーラ（Inno Setup、非公開・git 追跡外） |
 
+## Windows での DLL ハイジャック対策
+
+`AttacheCase.exe` と `AttacheCase.Cli.exe` は起動時に次の対策を行います（`Platform/DllSearchPathGuard.cs`）。
+
+- P/Invoke で読み込む DLL のうち、パス区切りを含まない名前のものは System32 だけから解決し、同梱のネイティブライブラリは展開先のフルパスで読みます（フォルダー付き・ルート付きで指定された名前はランタイム既定の解決に委ねます）
+- ネイティブコードの DLL 検索順序から、実行ファイルのフォルダー・カレントフォルダー・PATH を外します
+- 単一ファイル版（ZIP 版）では、**実行ファイルと同じフォルダーに DLL ファイルがあると警告を出して起動しません**。
+  アタッシェケースは実行ファイルの隣に DLL を必要としません。ZIP 版は DLL のない専用フォルダーに展開して実行してください。
+  インストーラ版は Program Files に入るため影響を受けません
+
+ランタイムが起動時チェックより前に読み込む kernel32.dll / advapi32.dll だけはプログラム側で防げません
+（実行ファイルの隣に書き込める攻撃者は実行ファイル自体を差し替えられるため、そこは配置場所で守ります）。
+対策が効いているかは `dogfooding/DllHijackCheck/Invoke-DllHijackCheck.ps1` で、publish した単一ファイル EXE に対して実測できます。
+
 ## 互換性の約束
 
 - ATC ファイル形式は旧 Windows 版・旧 macOS 版と相互に読み書きできます
