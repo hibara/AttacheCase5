@@ -89,6 +89,9 @@ public class PostPpapEncryptDecryptTests
                 // false になると「パスワードを要求される」不具合に戻る
                 Assert.True(DecryptionService.IsPublicKeyEncrypted(atc),
                     "公開鍵方式のファイルとして判定されない");
+                // RSA 鍵ファイル方式と取り違えると、メイン画面が秘密鍵（.atcpvt）待ちの画面へ送ってしまう
+                Assert.Equal(PublicKeyEncryptionKind.PostPpap,
+                    DecryptionService.GetPublicKeyEncryptionKind(atc));
 
                 // ── ③ 自分の秘密鍵で復号 ──
                 var decResult = await new DecryptionService().DecryptAsync(

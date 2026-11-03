@@ -14,6 +14,7 @@ using System;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Threading;
 
 namespace AttacheCase.Views;
 
@@ -46,5 +47,24 @@ public partial class SettingsView : UserControl
         box.Text = text.Insert(caret, token);
         box.CaretIndex = caret + token.Length;
         box.Focus();
+    }
+
+    /// <summary>
+    /// 記憶パスワード欄の ✓/✎ ボタン。Click は Command より先に届くので、Command が
+    /// 状態を切り替えたあと（Post）に、欄が入力可能になっていれば全選択で編集に入る。
+    /// 確定（✓）のときは欄が無効になるので何もしない。
+    /// </summary>
+    private void OnToggleRememberedPasswordEdit(object? sender, RoutedEventArgs e)
+    {
+        if (sender is not Button { Tag: string boxName }) return;
+        var box = this.FindControl<TextBox>(boxName);
+        if (box == null) return;
+
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (!box.IsEnabled || box.IsReadOnly) return;
+            box.Focus();
+            box.SelectAll();
+        }, DispatcherPriority.Background);
     }
 }

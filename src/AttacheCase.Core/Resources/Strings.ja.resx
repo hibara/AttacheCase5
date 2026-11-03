@@ -133,12 +133,6 @@
   <data name="Encryption_FileCount" xml:space="preserve">
     <value>{0} 個のファイルを選択中</value>
   </data>
-  <data name="Encryption_HeaderFormat" xml:space="preserve">
-    <value>ATC暗号化: </value>
-  </data>
-  <data name="Encryption_HeaderFormatExe" xml:space="preserve">
-    <value>自己実行形式で暗号化: </value>
-  </data>
 
   <!-- 復号画面 -->
   <data name="Decryption_Title" xml:space="preserve">
@@ -427,9 +421,6 @@
   <data name="Decryption_PasswordPrompt" xml:space="preserve">
     <value>パスワードを入力してください</value>
   </data>
-  <data name="Decryption_HeaderFormat" xml:space="preserve">
-    <value>ATC復号: </value>
-  </data>
   <data name="Decryption_RsaProcessing" xml:space="preserve">
     <value>RSA復号中...</value>
   </data>
@@ -468,7 +459,7 @@
 上書きしますか？</value>
   </data>
   <data name="PublicKey_InitialDropMessage" xml:space="preserve">
-    <value>以前のバージョンで RSA 鍵ファイルを使って&#xA;暗号化したファイルを、ここで復号できます。&#xA;&#xA;暗号化されたファイル、または秘密鍵（.atcpvt）を&#xA;ドラッグ&amp;ドロップしてください。&#xA;&#xA;ファイルを暗号化するには、Post-PPAP をご利用ください。</value>
+    <value>以前のバージョンで RSA 鍵ファイルを使って&#xA;暗号化したファイルを、ここで復号できます。&#xA;&#xA;暗号化されたファイル、または秘密鍵（.atcpvt）を&#xA;ドラッグ&amp;ドロップしてください。</value>
   </data>
   <data name="PublicKey_PublicKeyLoadedMessage" xml:space="preserve">
     <value>公開鍵が読み込まれました。暗号化したいファイルまたはフォルダーを&#xA;ここへドラッグ&amp;ドロップしてください。</value>
@@ -544,9 +535,6 @@
   <data name="Button_CancelWithKey" xml:space="preserve">
     <value>キャンセル(_C)</value>
   </data>
-  <data name="ZipEncryption_HeaderFormat" xml:space="preserve">
-    <value>パスワードZIP作成: </value>
-  </data>
   <data name="ZipEncryption_PasswordPrompt" xml:space="preserve">
     <value>ZIPファイルのパスワードを設定してください</value>
   </data>
@@ -556,14 +544,14 @@
   <data name="Button_CreateZip" xml:space="preserve">
     <value>ZIP作成</value>
   </data>
-  <data name="ZipDecryption_HeaderFormat" xml:space="preserve">
-    <value>ZIP解凍: </value>
-  </data>
   <data name="ZipDecryption_PasswordPrompt" xml:space="preserve">
     <value>パスワードを入力してください</value>
   </data>
   <data name="ZipDecryption_Processing" xml:space="preserve">
     <value>解凍中...</value>
+  </data>
+  <data name="ZipDecryption_Complete" xml:space="preserve">
+    <value>解凍完了</value>
   </data>
   <data name="ZipDecryption_ExtractionFailed" xml:space="preserve">
     <value>解凍に失敗しました</value>
@@ -602,7 +590,7 @@
     <value>コマンドライン引数で指定した値は、その実行にだけ適用され、ここには保存されません。</value>
   </data>
   <data name="Settings_General" xml:space="preserve">
-    <value>一般</value>
+    <value>全般</value>
   </data>
   <data name="Settings_ExitAfterProcess" xml:space="preserve">
     <value>処理後にアタッシェケースを終了する</value>
@@ -737,8 +725,14 @@ https://hibara.jp/software/attachecase/</value>
   <data name="Settings_FileTypeAtc" xml:space="preserve">
     <value>暗号化ファイル（.atc）</value>
   </data>
+  <data name="Settings_FileTypeExe" xml:space="preserve">
+    <value>自己実行形式（.exe）</value>
+  </data>
   <data name="Settings_FileTypeZip" xml:space="preserve">
     <value>パスワード付き ZIP</value>
+  </data>
+  <data name="Settings_UseLastEncryptionFileType" xml:space="preserve">
+    <value>前に使ったファイルタイプで暗号化する</value>
   </data>
   <data name="Settings_SaveToSameFolder" xml:space="preserve">
     <value>暗号化ファイルは常に同じ場所に保存する</value>
@@ -746,11 +740,29 @@ https://hibara.jp/software/attachecase/</value>
   <data name="Settings_ConfirmOverwrite" xml:space="preserve">
     <value>同名ファイルがあるときは上書きの確認をする</value>
   </data>
+  <data name="Settings_MultipleFiles" xml:space="preserve">
+    <value>複数ファイルの場合</value>
+  </data>
+  <data name="Settings_MultipleFilesNormal" xml:space="preserve">
+    <value>通常</value>
+  </data>
+  <data name="Settings_MultipleFilesNormalHint" xml:space="preserve">
+    <value>暗号化するフォルダーの内容、階層を保持したまま暗号化されます。</value>
+  </data>
+  <data name="Settings_MultipleFilesAllPack" xml:space="preserve">
+    <value>複数のファイルを一つにまとめる</value>
+  </data>
+  <data name="Settings_MultipleFilesAllPackHint" xml:space="preserve">
+    <value>複数のファイルまたはフォルダーが投げ込まれた場合、一つにまとめられ、暗号化されます。</value>
+  </data>
   <data name="Settings_EncryptOneByOne" xml:space="preserve">
-    <value>フォルダー内のファイルは個別に暗号化する</value>
+    <value>フォルダー内のファイルを一つずつ暗号化する</value>
+  </data>
+  <data name="Settings_EncryptOneByOneHint" xml:space="preserve">
+    <value>投げ込まれた複数のファイルまたはフォルダーは、個別に暗号化されます。</value>
   </data>
   <data name="Settings_KeepTimeStamp" xml:space="preserve">
-    <value>暗号化ファイルのタイムスタンプを元ファイルに合わせる</value>
+    <value>ファイルとフォルダーのタイムスタンプを保持する</value>
   </data>
   <data name="Settings_IncludeOriginalExtension" xml:space="preserve">
     <value>暗号化ファイル名に元の拡張子を含める</value>
@@ -815,14 +827,20 @@ https://hibara.jp/software/attachecase/</value>
   <data name="Settings_Delete" xml:space="preserve">
     <value>削除</value>
   </data>
-  <data name="Settings_DeleteMode" xml:space="preserve">
-    <value>暗号化に成功したら元ファイルを削除する</value>
+  <data name="Settings_DeleteOriginalAfterEncryption" xml:space="preserve">
+    <value>暗号化後に元のファイルを削除する</value>
   </data>
-  <data name="Settings_DeleteEncMode" xml:space="preserve">
-    <value>復号に成功したら暗号化ファイルを削除する</value>
+  <data name="Settings_DeleteEncryptedAfterDecryption" xml:space="preserve">
+    <value>復号後に暗号化ファイルを削除する</value>
   </data>
-  <data name="Settings_DeleteNone" xml:space="preserve">
-    <value>削除しない</value>
+  <data name="Settings_ShowDeleteCheckBox" xml:space="preserve">
+    <value>メインウィンドウに削除のチェックボックスを表示する</value>
+  </data>
+  <data name="Settings_DeleteMethod" xml:space="preserve">
+    <value>削除方法</value>
+  </data>
+  <data name="Settings_DeleteWipeOptions" xml:space="preserve">
+    <value>完全削除の場合</value>
   </data>
   <data name="Settings_DeleteNormal" xml:space="preserve">
     <value>通常削除</value>
@@ -834,10 +852,10 @@ https://hibara.jp/software/attachecase/</value>
     <value>完全削除（上書きしてから削除）</value>
   </data>
   <data name="Settings_DeleteRandomTimes" xml:space="preserve">
-    <value>完全削除でランダム値を書き込む回数</value>
+    <value>ランダム値を書き込む回数</value>
   </data>
   <data name="Settings_DeleteZeroTimes" xml:space="preserve">
-    <value>完全削除でゼロを書き込む回数</value>
+    <value>ゼロを書き込む回数</value>
   </data>
   <data name="Settings_ConfirmDelete" xml:space="preserve">
     <value>削除の前に確認する</value>
@@ -872,6 +890,9 @@ https://hibara.jp/software/attachecase/</value>
   <data name="Settings_ShowMenuBarIcon" xml:space="preserve">
     <value>メニューバーにアイコンを表示する</value>
   </data>
+  <data name="Settings_ShowTaskbarIcon" xml:space="preserve">
+    <value>タスクトレイにアイコンを表示する</value>
+  </data>
   <data name="Settings_MenuBarIconHint" xml:space="preserve">
     <value>アイコンをクリックするとウィンドウが最前面に出ます。</value>
   </data>
@@ -883,6 +904,9 @@ https://hibara.jp/software/attachecase/</value>
   </data>
   <data name="Settings_NoMultipleInstanceHint" xml:space="preserve">
     <value>次回の起動から有効になります。</value>
+  </data>
+  <data name="Settings_NoMaximizeInTabletMode" xml:space="preserve">
+    <value>PC がタブレットモードで動作しているとき、最大化モードで起動しない</value>
   </data>
   <data name="Settings_AutoNameInsert" xml:space="preserve">
     <value>挿入</value>
@@ -925,6 +949,9 @@ https://hibara.jp/software/attachecase/</value>
   </data>
   <data name="Error_OneByOneWithOutFile" xml:space="preserve">
     <value>/oneby と /out=&lt;ファイル名&gt; は同時に指定できません。/out にはフォルダーを指定してください。</value>
+  </data>
+  <data name="Error_OutputEqualsInput" xml:space="preserve">
+    <value>出力先が入力ファイルと同じです: {0}</value>
   </data>
   <data name="Error_AutoNameInvalidChar" xml:space="preserve">
     <value>自動ファイル名に使えない文字が含まれています: {0}</value>
@@ -1064,6 +1091,15 @@ https://hibara.jp/software/attachecase/</value>
   <data name="Settings_AssociationIconHint" xml:space="preserve">
     <value>関連付け済みのファイルに新しいアイコンを反映するには、もう一度「関連付けする」を押してください。</value>
   </data>
+  <data name="Settings_SendToShortcut" xml:space="preserve">
+    <value>「送る」メニューにアタッシェケースを追加する</value>
+  </data>
+  <data name="Settings_SendToHint" xml:space="preserve">
+    <value>エクスプローラーでファイルを右クリックし、「送る」→「アタッシェケース」で暗号化・復号できます。このチェックは「送る」フォルダーにショートカットがあるかどうかをそのまま表し、切り替えるとすぐに反映されます。</value>
+  </data>
+  <data name="Error_SendToShortcut" xml:space="preserve">
+    <value>「送る」フォルダーのショートカットを更新できませんでした。</value>
+  </data>
   <data name="Dialog_InfoTitle" xml:space="preserve">
     <value>情報</value>
   </data>
@@ -1148,19 +1184,28 @@ https://hibara.jp/software/attachecase/</value>
     <value>ダーク</value>
   </data>
   <data name="Settings_RememberSection" xml:space="preserve">
-    <value>パスワードの記憶</value>
-  </data>
-  <data name="Settings_RememberHint" xml:space="preserve">
-    <value>パスワードは設定ファイルではなく、この PC の鍵ストアで保護された保管庫（_AtcVault.json）に暗号化して保存されます。保管庫ファイルだけを持ち出されても、移行コードなしでは開けません。</value>
+    <value>パスワード</value>
   </data>
   <data name="Settings_RememberEncrypt" xml:space="preserve">
-    <value>暗号化パスワードを記憶して、入力欄に事前入力する</value>
+    <value>暗号化パスワードを記憶する</value>
   </data>
   <data name="Settings_RememberDecrypt" xml:space="preserve">
-    <value>復号パスワードを記憶して、入力欄に事前入力する</value>
+    <value>復号パスワードを記憶する</value>
   </data>
   <data name="Settings_RememberClear" xml:space="preserve">
     <value>記憶した内容をすべて消去</value>
+  </data>
+  <data name="Settings_ExecuteWithRememberedPassword" xml:space="preserve">
+    <value>暗号化/復号時に確認なしに記憶パスワードで実行する</value>
+  </data>
+  <data name="Settings_ShowPasswordStrengthMeter" xml:space="preserve">
+    <value>パスワード強度メーターを表示する</value>
+  </data>
+  <data name="Settings_ConfirmPasswordTip" xml:space="preserve">
+    <value>このパスワードで確定する</value>
+  </data>
+  <data name="Settings_EditPasswordTip" xml:space="preserve">
+    <value>パスワードを変更する</value>
   </data>
   <data name="Settings_RememberClearConfirm" xml:space="preserve">
     <value>記憶したパスワードを、他の信頼済み PC の登録も含めてすべて消去します。元に戻せません。続行しますか？</value>
@@ -1183,6 +1228,9 @@ https://hibara.jp/software/attachecase/</value>
   <data name="Settings_IssueCode" xml:space="preserve">
     <value>移行コードを発行</value>
   </data>
+  <data name="Settings_PortableVaultHint" xml:space="preserve">
+    <value>記憶パスワードは設定ファイルには書かず、暗号化した保管庫（_AtcVault.json）に保存されます。ポータブル設定を作ると保管庫も _AtcCase.json と同じフォルダーに置かれ、一緒に持ち運べます。別の PC で使うときは、下の移行コードを 1 回だけ入力します。</value>
+  </data>
   <data name="Settings_IssueCodeHint" xml:space="preserve">
     <value>別の PC で記憶パスワードを一度だけ開くための移行コードです。有効期限は 7 日間、一度使うと無効になります。発行し直すと前のコードは無効になります。</value>
   </data>
@@ -1192,11 +1240,18 @@ https://hibara.jp/software/attachecase/</value>
   <data name="Settings_IssuedCodeNotice" xml:space="preserve">
     <value>このコードを書き写してください。この画面を離れると再表示できません。</value>
   </data>
+  <!-- 設定画面の左の一覧に出す短い名前（一覧は Windows でだけ並ぶので「（Windows）」は要らない） -->
+  <data name="Settings_AssociationNav" xml:space="preserve">
+    <value>ファイルの関連付け</value>
+  </data>
+  <data name="Settings_PortableNav" xml:space="preserve">
+    <value>設定の持ち運び</value>
+  </data>
   <data name="Settings_PortableSection" xml:space="preserve">
     <value>設定の持ち運び（Windows）</value>
   </data>
   <data name="Settings_PortableHint" xml:space="preserve">
-    <value>USB メモリなどで持ち歩けるよう、AttacheCase.exe と同じフォルダーの _AtcCase.json に設定を書き出します。このファイルがあると、この PC の設定の代わりに使われます（反映は次回起動から）。旧版の _AtcCase.ini の後継です。</value>
+    <value>USB メモリなどで持ち歩けるよう、現在の設定を _AtcCase.json に書き出します。保存先のフォルダーは選べます（最初は本体のあるフォルダーが開きます）。AttacheCase.exe と同じフォルダーにこのファイルがあると、その exe はこの PC の設定の代わりにそれを使います（反映は次回起動から）。旧版の _AtcCase.ini の後継です。</value>
   </data>
   <data name="Settings_PortableStatusNormal" xml:space="preserve">
     <value>状態: この PC の設定を使用中</value>
@@ -1218,6 +1273,13 @@ https://hibara.jp/software/attachecase/</value>
   </data>
   <data name="Settings_PortableCreateFailed" xml:space="preserve">
     <value>ポータブル設定ファイルを作成できませんでした。</value>
+  </data>
+  <data name="Settings_PortableSelectFolder" xml:space="preserve">
+    <value>ポータブル設定（_AtcCase.json）の保存先フォルダーを選択</value>
+  </data>
+  <data name="Settings_PortableOverwriteConfirm" xml:space="preserve">
+    <value>選んだフォルダーにはすでにポータブル設定があります。現在の設定で上書きしますか？
+{0}</value>
   </data>
   <data name="Settings_PortableRemove" xml:space="preserve">
     <value>ポータブル設定を解除</value>
@@ -1362,6 +1424,10 @@ https://hibara.jp/software/attachecase/</value>
   </data>
   <data name="Error_Crc32Mismatch" xml:space="preserve">
     <value>CRC32不一致</value>
+  </data>
+  <data name="Error_LeftoverFiles" xml:space="preserve">
+    <value>作りかけのファイルを削除できませんでした。手動で削除してください:
+{0}</value>
   </data>
   <data name="Error_Md5Mismatch" xml:space="preserve">
     <value>MD5不一致</value>
@@ -1717,5 +1783,8 @@ https://hibara.jp/software/attachecase/</value>
   </data>
   <data name="Error_RsaKeyFileHybridFile" xml:space="preserve">
     <value>このファイルは Post-PPAP（RSA + ML-KEM）で暗号化されています。秘密鍵ファイルでは開けないので、この PC に登録した Post-PPAP アカウントで復号してください。</value>
+  </data>
+  <data name="Error_OutputFileExists" xml:space="preserve">
+    <value>出力先に同名のファイルがあります（何も書き出していません）: {0}</value>
   </data>
 </root>

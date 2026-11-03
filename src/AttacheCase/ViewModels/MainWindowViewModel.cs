@@ -223,6 +223,14 @@ public class MainWindowViewModel : ViewModelBase
     public bool CanAcceptCommandLine => CurrentView is MainWindowViewModel or SettingsViewModel;
 
     /// <summary>
+    ///   コマンドライン引数で設定項目を上書きした起動か。設定画面が
+    ///   「引数で指定した値はここには保存されない」注記を出すかどうかに使う
+    ///   （引数なしの通常起動で出すと、何のことか分からないため。利用者指摘 2026-10-25）。
+    ///   起動時の引数も、起動中のインスタンスへ転送されてきた引数も、ApplyCommandLineAsync が通る
+    /// </summary>
+    public bool HasCommandLineSettingOverride { get; private set; }
+
+    /// <summary>
     ///   設定画面を表示中か。左下の歯車の背景色に使う。
     ///   表示中はメニュー項目の選択表示を一時的に外し、選択箇所が 2 つに見えないようにする。
     /// </summary>
@@ -316,13 +324,17 @@ public class MainWindowViewModel : ViewModelBase
         var path = pathList[0];
         DroppedPath = path;
 
+        // 種類の判定は先頭の項目で行う。暗号化へ進むときは落とされた全項目を渡す
+        // （設定「複数ファイルの場合」で、1 つにまとめるか 1 つずつかが決まる）
         DetectedFileType = _fileTypeDetector.CheckFileType(path);
 
-        ProcessDroppedItem(path, DetectedFileType);
+        ProcessDroppedItem(path, DetectedFileType, pathList);
     }
 
-    // ProcessDroppedItem メソッドの修正（RSA鍵ドロップ時の処理を追加）
-    private void ProcessDroppedItem(string path, int fileType)
+    /// <param name="path">先頭の項目（種類の判定に使う）</param>
+    /// <param name="fileType">先頭の項目の種類</param>
+    /// <param name="allPaths">落とされた全項目。暗号化（通常ファイル・フォルダー）のときだけ使う</param>
+    private void ProcessDroppedItem(string path, int fileType, IReadOnlyList<string>? allPaths = null)
     {
         // 設定「パスワードファイルのドラッグ＆ドロップを許可する」
         // パスワード入力中の画面へのドロップは、暗号化対象ではなくパスワードファイルとして扱う
@@ -363,7 +375,13 @@ public class MainWindowViewModel : ViewModelBase
         {
             case 1: // ATCファイル
             case 2: // EXE(ATC)ファイル
-                ShowDecryptionView(path);
+                // 5.5 の RSA 鍵ファイル方式（v150 公開鍵方式・宛先は RSA 単体）は先頭 20 バイトが通常の
+                // ATC と同じなので種別 1/2 になる。パスワード画面へ送っても入れるパスワードが無いため、
+                // 秘密鍵（.atcpvt）待ちの公開鍵暗号画面へ回す（種別 4 = RSA 暗号化データとして扱う）
+                if (DecryptionService.GetPublicKeyEncryptionKind(path) == PublicKeyEncryptionKind.RsaKeyFile)
+                    ShowPublicKeyViewWithFile(path, 4);
+                else
+                    ShowDecryptionView(path);
                 break;
 
             case 3: // ZIPファイル → ZIP復号（パスワード解凍）
@@ -388,7 +406,7 @@ public class MainWindowViewModel : ViewModelBase
             case 0: // その他のファイルまたはフォルダー
             default:
                 if (SelectedMenuItem?.Type == MenuItemType.PasswordZip)
-                    ShowZipPasswordEncryptionView(path);
+                    ShowZipPasswordEncryptionView(allPaths?.ToArray() ?? [path]);
                 else if (SelectedMenuItem?.Type == MenuItemType.PostPpap)
                     // Post-PPAP モードでファイルがドロップされた
                     ShowPostPpapViewWithFile(path, fileType);
@@ -396,7 +414,7 @@ public class MainWindowViewModel : ViewModelBase
                     // RSA 公開鍵暗号モードでファイルがドロップされた
                     OnPublicKeyFileDropped(path, fileType);
                 else
-                    ShowEncryptionView(path);
+                    ShowEncryptionView(allPaths?.ToArray() ?? [path]);
 
                 break;
         }
@@ -418,7 +436,7 @@ public class MainWindowViewModel : ViewModelBase
         viewModel.OnFileDropped(filePath, fileType);
     }
 
-    private void ShowZipPasswordEncryptionView(string targetPath)
+    private void ShowZipPasswordEncryptionView(string[] targetPaths)
     {
         // settings.json の ZipAlgorithm が範囲外だと ViewModel の生成が
         // 例外で落ちる。画面を作る前に確かめ、不正なら案内してメイン画面へ戻す
@@ -433,7 +451,7 @@ public class MainWindowViewModel : ViewModelBase
             return;
         }
 
-        CurrentView = new ZipPasswordEncryptionViewModel(this, targetPath);
+        CurrentView = new ZipPasswordEncryptionViewModel(this, targetPaths);
     }
 
     private void ShowZipDecryptionView(string targetPath)
@@ -442,9 +460,9 @@ public class MainWindowViewModel : ViewModelBase
         ShowDecryptionView(targetPath, true); // ZIP解凍モード
     }
 
-    private void ShowEncryptionView(string targetPath)
+    private void ShowEncryptionView(string[] targetPaths, int? initialFileType = null)
     {
-        CurrentView = new EncryptionViewModel(this, targetPath, _encryptionService);
+        CurrentView = new EncryptionViewModel(this, targetPaths, _encryptionService, initialFileType);
     }
 
     private void ShowDecryptionView(string targetPath, bool isZipMode = false)
@@ -542,6 +560,35 @@ public class MainWindowViewModel : ViewModelBase
     private void ShowPublicKeyView()
     {
         CurrentView = new PublicKeyViewModel(this);
+    }
+
+    /// <summary>
+    ///   Esc キーの振り分け。処理中（進捗バーが動いているとき）なら「中止」を実行して true を返す。
+    ///   false のときは呼び出し側（MainWindow）がアプリを終了する（旧版 5.0 以前と同じ:
+    ///   Esc = 終了、処理中だけは Esc = 中止。利用者指示 2026-10-25）。
+    ///   Post-PPAP の通信中は中止できないので何もせず true（終了もしない）
+    /// </summary>
+    public bool HandleEscapeKey()
+    {
+        switch (CurrentView)
+        {
+            case EncryptionViewModel { IsProcessing: true } e:
+                e.CancelCommand.Execute(null);
+                return true;
+            case DecryptionViewModel { IsProcessingStep: true } d:
+                d.CancelCommand.Execute(null);
+                return true;
+            case ZipPasswordEncryptionViewModel { IsProcessing: true } z:
+                z.CancelCommand.Execute(null);
+                return true;
+            case ZipPasswordDecryptionViewModel { IsProcessing: true } zd:
+                zd.CancelCommand.Execute(null);
+                return true;
+            case PostPpapViewModel { IsBusy: true }:
+                return true;
+            default:
+                return false;
+        }
     }
 
     /// <summary>
@@ -650,15 +697,19 @@ public class MainWindowViewModel : ViewModelBase
     /// <summary>
     /// メニューから暗号化を開始（ファイル/フォルダー選択後）
     /// </summary>
-    public void StartEncryption(string[] paths)
+    /// <param name="initialFileType">
+    /// 暗号化画面のコンボボックスの初期選択（ATC / EXE）。パスワード ZIP 画面から切り替えて来たときに渡す。
+    /// null なら保存されている種類
+    /// </param>
+    public void StartEncryption(string[] paths, int? initialFileType = null)
     {
         if (paths.Length == 0) return;
 
         // 左メニューの暗号化を選択状態にする
         SelectedMenuItem = MenuItems.FirstOrDefault(m => m.Type == MenuItemType.Encrypt);
 
-        // 複数ファイル/フォルダーの場合、最初のパスを使用
-        ShowEncryptionView(paths[0]);
+        // 複数ファイル/フォルダーはそのまま渡す（設定「複数ファイルの場合」でまとめ方が決まる）
+        ShowEncryptionView(paths, initialFileType);
     }
 
     /// <summary>
@@ -684,7 +735,7 @@ public class MainWindowViewModel : ViewModelBase
         // 左メニューのパスワードZIPを選択状態にする
         SelectedMenuItem = MenuItems.FirstOrDefault(m => m.Type == MenuItemType.PasswordZip);
 
-        ShowZipPasswordEncryptionView(paths[0]);
+        ShowZipPasswordEncryptionView(paths);
     }
 
     /// <summary>
@@ -763,6 +814,7 @@ public class MainWindowViewModel : ViewModelBase
         // 保存されている設定の複製に、引数で指定された項目だけを上書きする。
         // 複製なので、この実行でどう変わっても settings.json には書き戻らない。
         var settings = cli.ApplyTo(SettingsService.Instance.Current.Clone());
+        if (cli.HasSettingOverride) HasCommandLineSettingOverride = true;
 
         // /genrsa: 鍵ペアを生成して終わり
         if (!string.IsNullOrEmpty(cli.GenerateRsaKeyOutputDir))
@@ -927,7 +979,7 @@ public class MainWindowViewModel : ViewModelBase
                 return;
             }
             SelectMenu(MenuItemType.PasswordZip);
-            CurrentView = new ZipPasswordEncryptionViewModel(this, paths[0], context);
+            CurrentView = new ZipPasswordEncryptionViewModel(this, paths, context);
             return;
         }
 

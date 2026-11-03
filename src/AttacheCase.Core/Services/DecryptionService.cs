@@ -185,21 +185,21 @@ public class DecryptionService : IDecryptionService
 
         return result;
     }
-    catch (OperationCanceledException)
+    catch (OperationCanceledException ex)
     {
-        return EncryptionResult.CreateCancelled();
+        return WithLeftovers(EncryptionResult.CreateCancelled(), ex);
     }
-    catch (CryptographicException)
+    catch (CryptographicException ex)
     {
-        return EncryptionResult.CreateError(
+        return WithLeftovers(EncryptionResult.CreateError(
             ErrorCodes.CRYPTOGRAPHIC_EXCEPTION,
-            Localize["Error_DecryptFailedPassword"]);
+            Localize["Error_DecryptFailedPassword"]), ex);
     }
     catch (Exception ex)
     {
-        return EncryptionResult.CreateError(
+        return WithLeftovers(EncryptionResult.CreateError(
             ErrorCodes.ERROR_UNEXPECTED,
-            ex.Message);
+            ex.Message), ex);
     }
   }
 
@@ -296,6 +296,10 @@ public class DecryptionService : IDecryptionService
 
     if (!succeeded)
     {
+      // 保存先の同名ファイル（上書きしない指定）はエンジンがメッセージを持たないのでここで付ける
+      if (engineReturnCode == ErrorCodes.OUTPUT_FILE_EXISTS)
+        return OutputFileExistsError(errorFilePath);
+
       return EncryptionResult.CreateError(
         engineReturnCode,
         string.IsNullOrEmpty(errorMessage)
@@ -510,12 +514,19 @@ public class DecryptionService : IDecryptionService
       // 「親フォルダーを作らない」(/nopfldr)。Windows 版 FileDecrypt5 と同じ扱い
       if (options.NoParentFolder) ApplyNoParentFolder(fileDataList);
 
+      // 上書きしない指定なら、書き出しを始める前に保存先の同名ファイルで止める
+      var existingOutput = FindExistingOutputFile(outputDirFull, fileDataList, options);
+      if (existingOutput != null) return OutputFileExistsError(existingOutput);
+
       var totalBytes = fileDataList.Where(f => !IsDirectory(f.Attributes) && f.FileSize > 0).Sum(f => f.FileSize);
       var state = new ProgressState(totalBytes, fileDataList.Count);
-      var createdFiles = new List<string>(256);
       var createdDirs = new HashSet<string>(GetPathComparer());
-      // 既存ファイルへの出力は一時ファイルへ書き、タグ検証後に置き換える
-      var pendingReplacements = new List<(string TempPath, string FinalPath)>();
+      // すべてのファイルは最終パスではなく、同じフォルダーの一時ファイル（.attmp）へ書き、
+      // 本体全体の GCM タグ検証を通ってから最終パスへ移す。検証前に最終名で出すと、
+      // 破損・改ざんされた書庫の平文が最終名で見え、既存ファイルなら元の内容も失う。
+      // 一時ファイルは開く前に登録し、書き込み中の例外（切り詰め・I/O 失敗・キャンセル・
+      // 最終ブロックで表面化するタグ失敗）でも取りこぼさずに片付ける
+      var pendingOutputs = new List<PendingOutput>(fileDataList.Count);
 
       // ⑤ 本体 Nonce 読み取り、ストリーム復号
       var bodyNonce = new byte[CryptoHelper5.AES_GCM_NONCE_SIZE];
@@ -528,7 +539,7 @@ public class DecryptionService : IDecryptionService
         await using (var ds = new DeflateStream(gcmStream, CompressionMode.Decompress))
         {
           await ExtractV5FilesAsync(ds, outputDirFull, fileDataList, options,
-            progress, swProgress, state, createdFiles, createdDirs, pendingReplacements, ct);
+            progress, swProgress, state, createdDirs, pendingOutputs, ct);
         }
 
         // ファイル書き出し完了。残バイトを drain して GCM 認証タグを検証するフェーズに入る。
@@ -540,45 +551,61 @@ public class DecryptionService : IDecryptionService
           StatusMessage = Localize["Progress_Verifying"]
         });
         gcmStream.DrainAndVerify();
-
-        if (state.HashMismatchCount > 0 && !options.SalvageIgnoreHashCheck)
-        {
-          // タグ検証は通っている＝書庫は真正なので、CRC32 不一致は書き出し後の
-          // ディスク側の問題。既存ファイルを壊れた内容で置き換えず、結果も
-          // エラーで返す（書けた新規ファイルは検分用に残す。どのファイルが
-          // 不一致だったかは進捗経由で報告済み）
-          CleanupTempFiles(pendingReplacements);
-          return EncryptionResult.CreateError(
-            ErrorCodes.ATC_BROKEN_DATA,
-            Localize["Error_Crc32Mismatch"]);
-        }
-
-        // 既存ファイルの置き換えは、本体全体のタグ検証を通ってから行う
-        // （検証前に上書きすると、破損書庫で元ファイルの内容まで失う）
-        foreach (var (tmp, dest) in pendingReplacements)
-        {
-          File.Move(tmp, dest, overwrite: true);
-        }
       }
       catch (InvalidCipherTextException)
       {
-        CleanupTempFiles(pendingReplacements);
-        CleanupCreatedPaths(createdFiles, createdDirs);
-        return EncryptionResult.CreateError(
+        var leftovers = CleanupPartialOutputs(pendingOutputs, createdDirs);
+        return WithLeftovers(EncryptionResult.CreateError(
           ErrorCodes.ATC_BROKEN_DATA,
-          Localize["Error_BodyTagVerify"]);
+          Localize["Error_BodyTagVerify"]), leftovers);
       }
-      catch (Exception)
+      catch (Exception ex)
       {
         // 切り詰め（EndOfStreamException）・I/O 失敗・キャンセルでも、
-        // 作りかけの平文を残さない（v4 経路と同じ契約）
-        CleanupTempFiles(pendingReplacements);
-        CleanupCreatedPaths(createdFiles, createdDirs);
+        // 作りかけの平文を残さない（v4 経路と同じ契約）。結果への写像は
+        // 呼び出し元の catch に任せ、消せなかった残骸だけ例外に添える
+        AttachLeftovers(ex, CleanupPartialOutputs(pendingOutputs, createdDirs));
         throw;
       }
       finally
       {
         gcmStream.Dispose();
+      }
+
+      if (state.HashMismatchCount > 0 && !options.SalvageIgnoreHashCheck)
+      {
+        // タグ検証は通っている＝書庫は真正なので、CRC32 不一致は書き出し後の
+        // ディスク側の問題。既存ファイルを壊れた内容で置き換えず、結果も
+        // エラーで返す（新規ファイルは検分用に最終名で残す。どのファイルが
+        // 不一致だったかは進捗経由で報告済み）
+        foreach (var output in pendingOutputs.Where(o => !o.ReplacesExisting))
+        {
+          try { File.Move(output.TempPath, output.FinalPath, overwrite: true); }
+          catch (Exception) { /* 移せなければ一時ファイルのまま下で片付ける */ }
+        }
+        var leftovers = CleanupTempFiles(pendingOutputs);
+        return WithLeftovers(EncryptionResult.CreateError(
+          ErrorCodes.ATC_BROKEN_DATA,
+          Localize["Error_Crc32Mismatch"]), leftovers);
+      }
+
+      // ⑥ 検証を通ったので一時ファイルを最終パスへ移す。
+      // 既存ファイルの置き換えもここで初めて起きる（検証前に上書きすると、
+      // 破損書庫で元ファイルの内容まで失う）
+      foreach (var output in pendingOutputs)
+      {
+        try
+        {
+          File.Move(output.TempPath, output.FinalPath, overwrite: true);
+        }
+        catch (Exception ex)
+        {
+          // 移し終えた分は検証済みの正しい平文なので残し、
+          // まだ移していない一時ファイルだけ片付ける
+          var leftovers = CleanupTempFiles(pendingOutputs);
+          return WithLeftovers(EncryptionResult.CreateError(
+            ErrorCodes.ERROR_UNEXPECTED, ex.Message, output.FinalPath), leftovers);
+        }
       }
 
       progress?.Report(new EncryptionProgress
@@ -713,6 +740,30 @@ public class DecryptionService : IDecryptionService
     }
   }
 
+  /// <summary>
+  /// v150 の公開鍵方式の種類を平文ヘッダーから判定する。
+  /// RSA 鍵ファイル方式（.atcpub で暗号化、宛先は RSA 単体）と Post-PPAP（RSA + ML-KEM ハイブリッド）は
+  /// 先頭 20 バイトが通常の ATC と同じで FileTypeDetector では区別できない。GUI はこの判定で
+  /// 「秘密鍵（.atcpvt）待ちの画面」と「Post-PPAP アカウントで自動復号」を振り分ける。
+  /// 自己実行形式（.exe）もトークン走査で同じように判定する。読めないファイルは None。
+  /// </summary>
+  public static PublicKeyEncryptionKind GetPublicKeyEncryptionKind(string filePath)
+  {
+    try
+    {
+      using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+      if (!TryReadV5PlainHeader(fs, out var header) || header.EncryptionMode != 0x01)
+        return PublicKeyEncryptionKind.None;
+      return header.PublicKeyAlgorithm is PkaAlgorithmId.Rsa2048 or PkaAlgorithmId.Rsa4096
+        ? PublicKeyEncryptionKind.RsaKeyFile
+        : PublicKeyEncryptionKind.PostPpap;
+    }
+    catch (Exception)
+    {
+      return PublicKeyEncryptionKind.None;
+    }
+  }
+
   private static bool TryReadV5PlainHeader(FileStream fs, out V5Header header)
   {
     header = default;
@@ -722,6 +773,11 @@ public class DecryptionService : IDecryptionService
     fs.Position = 0;
     if (!TryReadV5PlainHeaderAt(fs, ref startOffset, out header))
     {
+      // 先頭が旧形式（v150 未満）の ATC ヘッダーなら v5 のヘッダーは無い。走査しても無駄で、
+      // 大きな旧形式ファイルをドロップしたときに UI スレッドで最大 64MB を読んでしまう
+      // （CodeRabbit PR#19 の指摘）
+      if (HasLegacyHeaderAtStart(fs)) return false;
+
       // 自己実行形式: トークンスキャン
       fs.Position = 0;
       var needles = new[]
@@ -769,6 +825,22 @@ public class DecryptionService : IDecryptionService
       return false;
     }
     return true;
+  }
+
+  /// <summary>
+  /// 先頭に旧形式（データ版 150 未満）の ATC ヘッダーがあるか。
+  /// 旧形式も v5 もトークンは 4 バイト目から 16 バイト、データ版は 20 バイト目の int で同じ位置。
+  /// </summary>
+  private static bool HasLegacyHeaderAtStart(FileStream fs)
+  {
+    if (fs.Length < 24) return false;
+    fs.Position = 0;
+    var head = new byte[24];
+    if (fs.Read(head, 0, 24) < 24) return false;
+    var tokenStr = Encoding.ASCII.GetString(head, 4, 16).TrimEnd('\0');
+    if (tokenStr != STRING_TOKEN_NORMAL && tokenStr != STRING_TOKEN_BROKEN && tokenStr != STRING_TOKEN_RSA)
+      return false;
+    return BitConverter.ToInt32(head, 20) < DATA_FILE_VERSION_V5;
   }
 
   private static bool TryReadV5PlainHeaderAt(FileStream fs, ref long offset, out V5Header header)
@@ -1052,9 +1124,8 @@ public class DecryptionService : IDecryptionService
       IProgress<EncryptionProgress>? progress,
       Stopwatch swProgress,
       ProgressState state,
-      List<string> createdFiles,
       HashSet<string> createdDirs,
-      List<(string TempPath, string FinalPath)> pendingReplacements,
+      List<PendingOutput> pendingOutputs,
       CancellationToken ct)
   {
     var buffer = ArrayPool<byte>.Shared.Rent(BUFFER_SIZE);
@@ -1085,24 +1156,23 @@ public class DecryptionService : IDecryptionService
         var parent = Path.GetDirectoryName(outPath);
         if (!string.IsNullOrEmpty(parent)) CreateDirectoryIfNeeded(parent, createdDirs);
 
+        // 最終パスには書かない。FileMode.Create で開いた時点で既存ファイルの内容が
+        // 失われ、タグ検証失敗・切り詰め・キャンセルで巻き戻せなくなるうえ、新規
+        // ファイルでも認証前の平文が最終名で見える。同じフォルダーの一時ファイルへ
+        // 書き、本体全体の検証後に DecryptV5Async が最終パスへ移す。
+        // 登録は開く前に行う（書き込み中の例外でも片付けの対象から漏れないように）
+        var writePath = MakeTempOutputPath(outPath);
+        pendingOutputs.Add(new PendingOutput(writePath, outPath, File.Exists(outPath)));
+
         if (fd.FileSize <= 0)
         {
-          var existed = File.Exists(outPath);
-          var zeroWritePath = existed ? MakeReplacementTempPath(outPath) : outPath;
-          await using (var _ = new FileStream(zeroWritePath, FileMode.Create, FileAccess.Write, FileShare.None)) { }
-          if (existed) pendingReplacements.Add((zeroWritePath, outPath));
-          else createdFiles.Add(outPath);
-          if (options.RestoreTimeStamp) TrySetFileTimesUtc(zeroWritePath, fd.CreationUtc, fd.LastWriteUtc);
-          TrySetFileAttributes(zeroWritePath, fd.Attributes);
+          await using (var _ = new FileStream(writePath, FileMode.Create, FileAccess.Write, FileShare.None)) { }
+          if (options.RestoreTimeStamp) TrySetFileTimesUtc(writePath, fd.CreationUtc, fd.LastWriteUtc);
+          TrySetFileAttributes(writePath, fd.Attributes);
           Report(progress, state, fd.RelativePath, null);
           continue;
         }
 
-        var existedFile = File.Exists(outPath);
-        // 既存ファイルは直接開かない。FileMode.Create で開いた時点で元の内容が
-        // 失われ、タグ検証失敗・切り詰め・キャンセルで巻き戻せなくなるため、
-        // 同じフォルダーの一時ファイルへ書いて、本体全体の検証後に置き換える
-        var writePath = existedFile ? MakeReplacementTempPath(outPath) : outPath;
         await using (var outFs = new FileStream(writePath, FileMode.Create, FileAccess.Write, FileShare.None))
         {
           var remaining = fd.FileSize;
@@ -1123,8 +1193,6 @@ public class DecryptionService : IDecryptionService
           }
         }
 
-        if (existedFile) pendingReplacements.Add((writePath, outPath));
-        else createdFiles.Add(outPath);
         // タイムスタンプと属性は書き込み先（一時ファイル側）へ付ける。
         // File.Move での置き換えはどちらも引き継ぐ
         if (options.RestoreTimeStamp) TrySetFileTimesUtc(writePath, fd.CreationUtc, fd.LastWriteUtc);
@@ -1360,6 +1428,10 @@ public class DecryptionService : IDecryptionService
 
     // 「親フォルダーを作らない」(/nopfldr)。Windows 版 FileDecrypt4 と同じ扱い
     if (options.NoParentFolder) ApplyNoParentFolder(fileDataList);
+
+    // 上書きしない指定なら、書き出しを始める前に保存先の同名ファイルで止める
+    var existingOutput = FindExistingOutputFile(outputDirFull, fileDataList, options);
+    if (existingOutput != null) return OutputFileExistsError(existingOutput);
 
     var totalBytes = fileDataList.Where(f => !IsDirectory(f.Attributes) && f.FileSize > 0).Sum(f => f.FileSize);
     var state = new ProgressState(totalBytes, fileDataList.Count);
@@ -2353,6 +2425,35 @@ public class DecryptionService : IDecryptionService
     return !full.StartsWith(outputDirFull, cmp) ? null : full;
   }
 
+  /// <summary>
+  /// 上書きしない指定（Skip / SkipAll ＝ 確認ダイアログを出せない実行での「上書きを確認する」）のとき、
+  /// 書庫の一覧のうち保存先に既にあるファイルを探す。暗号化側が出力先の同名ファイルで
+  /// 何も書かずに終了コード 5 で止まるのと同じく、復号も 1 つでもあれば書き出しを始める前に止める
+  /// （黙って飛ばすと「復号成功」に見えてしまう）。該当が無ければ null。
+  /// GUI（Ask）には効かない（復号画面が自前で確認している）。
+  /// </summary>
+  private static string? FindExistingOutputFile(
+    string outputDirFull, List<FileData> fileDataList, DecryptionOptions options)
+  {
+    if (options.OverwriteOption is not (OverwriteOption.Skip or OverwriteOption.SkipAll)) return null;
+
+    foreach (var fd in fileDataList)
+    {
+      if (IsDirectory(fd.Attributes)) continue;
+      var outPath = GetSafeOutputPath(outputDirFull, NormalizeRelativePath(fd.RelativePath));
+      if (outPath == null || outPath.EndsWith(Path.DirectorySeparatorChar)) continue;
+      if (File.Exists(outPath)) return outPath;
+    }
+
+    return null;
+  }
+
+  private static EncryptionResult OutputFileExistsError(string path)
+    => EncryptionResult.CreateError(
+      ErrorCodes.OUTPUT_FILE_EXISTS,
+      Localize.GetString("Error_OutputFileExists", path),
+      path);
+
   private static void CreateDirectoryIfNeeded(string path, HashSet<string> createdDirs)
   {
     if (string.IsNullOrEmpty(path)) return;
@@ -2365,15 +2466,39 @@ public class DecryptionService : IDecryptionService
     createdDirs.Add(Path.GetFullPath(path));
   }
 
-  /// <summary>既存ファイル置き換え用の一時ファイルパス。同じフォルダーに作る
-  /// （別ボリュームだと置き換えが原子的でなくなるため）。</summary>
-  private static string MakeReplacementTempPath(string finalPath)
-    => finalPath + "." + Guid.NewGuid().ToString("N") + ".attmp";
+  /// <summary>
+  /// v5 復号で書き出し中・検証待ちの出力。<see cref="TempPath"/> に実体があり、
+  /// 本体全体のタグ検証を通ってから <see cref="FinalPath"/> へ移す。
+  /// </summary>
+  /// <param name="ReplacesExisting">最終パスに既存ファイルがあった（置き換えになる）か</param>
+  private sealed record PendingOutput(string TempPath, string FinalPath, bool ReplacesExisting);
 
-  private static void CleanupTempFiles(List<(string TempPath, string FinalPath)> pending)
+  /// <summary>検証待ちの出力を書く一時ファイルのパス。最終パスと同じフォルダーに作る
+  /// （別ボリュームだと最終パスへの移動が原子的でなくなるため）。</summary>
+  /// 名前は最終名から作らず GUID だけにする（最終名に文字を足すと、ファイル名長の上限に近い
+  /// 名前で「最終名なら作れたのに一時ファイルが作れない」失敗が起きる。CodeRabbit PR#21）。
+  private static string MakeTempOutputPath(string finalPath)
+    => Path.Combine(Path.GetDirectoryName(finalPath) ?? string.Empty, Guid.NewGuid().ToString("N") + ".attmp");
+
+  /// <summary>
+  /// 作りかけの出力（検証待ちの一時ファイルと、この復号で作ったフォルダー）を片付ける。
+  /// </summary>
+  /// <returns>消せずに残ったパス（利用者に知らせて手で消してもらう）</returns>
+  private static List<string> CleanupPartialOutputs(List<PendingOutput> pending, HashSet<string> createdDirs)
   {
-    foreach (var (tmp, _) in pending)
+    var leftovers = CleanupTempFiles(pending);
+    leftovers.AddRange(CleanupCreatedPaths([], createdDirs));
+    return leftovers;
+  }
+
+  /// <summary>検証待ちの一時ファイルを消す（最終パスへ移し終えたものは対象外）。</summary>
+  /// <returns>消せずに残った一時ファイルのパス</returns>
+  private static List<string> CleanupTempFiles(List<PendingOutput> pending)
+  {
+    var leftovers = new List<string>();
+    foreach (var output in pending)
     {
+      var tmp = output.TempPath;
       try
       {
         if (!File.Exists(tmp)) continue;
@@ -2382,34 +2507,81 @@ public class DecryptionService : IDecryptionService
       }
       catch (Exception)
       {
-        // 一時ファイルが残るだけで、実データは壊していない
+        // 一時ファイルが残るだけで、実データは壊していない。場所だけ伝える
       }
+      if (File.Exists(tmp)) leftovers.Add(tmp);
     }
+    return leftovers;
   }
 
-  private static void CleanupCreatedPaths(List<string> createdFiles, HashSet<string> createdDirs)
+  /// <summary>
+  /// この復号で新しく作ったファイルとフォルダーを消す（旧形式の経路と、v5 のフォルダー）。
+  /// </summary>
+  /// <returns>消せずに残ったパス</returns>
+  private static List<string> CleanupCreatedPaths(List<string> createdFiles, HashSet<string> createdDirs)
   {
+    var leftovers = new List<string>();
     for (var i = createdFiles.Count - 1; i >= 0; i--)
+    {
+      var path = createdFiles[i];
       try
       {
-        if (File.Exists(createdFiles[i])) File.Delete(createdFiles[i]);
+        if (!File.Exists(path)) continue;
+        File.SetAttributes(path, FileAttributes.Normal); // 書庫の ReadOnly 属性を写していても消せるように
+        File.Delete(path);
       }
-      catch
+      catch (Exception)
       {
+        // 消せないものは残し、場所だけ伝える
       }
+      if (File.Exists(path)) leftovers.Add(path);
+    }
 
     var dirs = createdDirs.OrderByDescending(d => d.Length).ToList();
     foreach (var d in dirs)
+    {
       try
       {
         if (Directory.Exists(d)) Directory.Delete(d, true);
       }
-      catch
+      catch (Exception)
       {
       }
+      if (Directory.Exists(d)) leftovers.Add(d);
+    }
 
     createdFiles.Clear();
     createdDirs.Clear();
+    return leftovers;
+  }
+
+  /// <summary>例外に添えた「消せなかった残骸」を取り出すためのキー（<see cref="Exception.Data"/>）</summary>
+  private const string LeftoverPathsDataKey = "AttacheCase.DecryptionService.LeftoverPaths";
+
+  /// <summary>
+  /// 片付けきれなかった作りかけの出力を例外に添える。呼び出し元が例外を結果へ写すときに
+  /// <see cref="WithLeftovers(EncryptionResult, Exception)"/> で結果に載せる
+  /// （例外の種類を変えないので、キャンセル・暗号例外の写像はそのまま）。
+  /// </summary>
+  private static void AttachLeftovers(Exception ex, List<string> leftovers)
+  {
+    if (leftovers.Count > 0) ex.Data[LeftoverPathsDataKey] = leftovers;
+  }
+
+  private static EncryptionResult WithLeftovers(EncryptionResult result, Exception ex)
+    => ex.Data[LeftoverPathsDataKey] is List<string> leftovers ? WithLeftovers(result, leftovers) : result;
+
+  /// <summary>
+  /// 消せなかった作りかけの出力（認証前の平文）を結果に載せる。黙って残すと利用者が
+  /// 気づけないので、メッセージにも場所を書く。
+  /// </summary>
+  private static EncryptionResult WithLeftovers(EncryptionResult result, List<string> leftovers)
+  {
+    if (leftovers.Count == 0) return result;
+    result.LeftoverPaths = leftovers;
+    result.ErrorMessage += Environment.NewLine +
+      Localize.GetString("Error_LeftoverFiles", string.Join(Environment.NewLine, leftovers));
+    return result;
   }
 
   private static void TrySetFileAttributes(string path, FileAttributes attrs)
@@ -2616,4 +2788,15 @@ public class DecryptionService : IDecryptionService
     /// <summary>書き出し後の CRC32 検証で不一致だったファイル数。</summary>
     public int HashMismatchCount { get; set; }
   }
+}
+
+/// <summary>v150 の公開鍵方式の種類（<see cref="DecryptionService.GetPublicKeyEncryptionKind"/>）</summary>
+public enum PublicKeyEncryptionKind
+{
+  /// <summary>公開鍵方式ではない（パスワード方式、または v150 以外・読めない）</summary>
+  None,
+  /// <summary>RSA 鍵ファイル（.atcpub / .atcpvt）方式。復号には秘密鍵ファイルが要る</summary>
+  RsaKeyFile,
+  /// <summary>Post-PPAP（鍵サーバー方式）。登録済みアカウントで復号する</summary>
+  PostPpap
 }

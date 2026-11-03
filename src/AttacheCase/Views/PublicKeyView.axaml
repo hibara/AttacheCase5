@@ -3,8 +3,7 @@
              xmlns:vm="using:AttacheCase.ViewModels"
              xmlns:l="using:AttacheCase.Markup"
              x:Class="AttacheCase.Views.PublicKeyView"
-             x:DataType="vm:PublicKeyViewModel"
-             KeyDown="OnKeyDown">
+             x:DataType="vm:PublicKeyViewModel">
 
     <Border Background="{DynamicResource AppDropAreaBackground}"
             BorderBrush="{DynamicResource AppDropAreaBorder}"
@@ -50,6 +49,11 @@
                 <StackPanel Grid.Column="1" Spacing="15" VerticalAlignment="Center">
                     <TextBlock Text="{l:Localize PublicKey_PublicKeyLoadedMessage}"
                                FontSize="14" TextWrapping="Wrap" LineHeight="22" />
+                    <TextBlock Text="{Binding Message}"
+                               Foreground="{DynamicResource AppErrorForeground}"
+                               FontSize="13"
+                               TextWrapping="Wrap"
+                               IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
                     <StackPanel Spacing="5">
                         <TextBlock Text="{l:Localize PublicKey_GuidLabel}"
                                    FontSize="12" Foreground="{DynamicResource AppMutedForeground}" />
@@ -68,6 +72,11 @@
                 <StackPanel Grid.Column="1" Spacing="15" VerticalAlignment="Center">
                     <TextBlock Text="{l:Localize PublicKey_PrivateKeyLoadedMessage}"
                                FontSize="14" TextWrapping="Wrap" LineHeight="22" />
+                    <TextBlock Text="{Binding Message}"
+                               Foreground="{DynamicResource AppErrorForeground}"
+                               FontSize="13"
+                               TextWrapping="Wrap"
+                               IsVisible="{Binding Message, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
                     <StackPanel Spacing="5">
                         <TextBlock Text="{l:Localize PublicKey_GuidLabel}"
                                    FontSize="12" Foreground="{DynamicResource AppMutedForeground}" />

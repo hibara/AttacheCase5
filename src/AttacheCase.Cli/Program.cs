@@ -433,25 +433,35 @@ internal static class Program
         var jobs = new List<EncryptJob>();
 
         //-----------------------------------
-        // 既定: すべてを 1 つの暗号化ファイルにまとめる
+        // /allpack（設定「複数のファイルを一つにまとめる」）: すべてを 1 つの暗号化ファイルにまとめる。
+        // 通常モードでも、入力が 1 つのとき、または /out=<ファイル名> で出力が 1 つに明示されているとき
+        // （旧 5.0 CLI の /list + /out と同じ＝まとめる意図）は同じ扱い
         //-----------------------------------
-        if (!_settings.EncryptOneByOne)
+        var outputIsSingleFile = !string.IsNullOrEmpty(options.OutputPath) &&
+                                 !Directory.Exists(Path.GetFullPath(options.OutputPath));
+        if (_settings.AllFilePack ||
+            (!_settings.EncryptOneByOne && (options.InputPaths.Count == 1 || outputIsSingleFile)))
         {
+            // 出力先が入力そのもの（/out=<入力ファイル>、偽装拡張子が入力と同じ拡張子）だと
+            // 入力を切り詰める。GUI と同じ EncryptionJobPlan の規則で避ける／拒否する
             jobs.Add(new EncryptJob
             {
                 InputPaths = options.InputPaths,
-                OutputFilePath = BuildEncryptOutputPath(options, options.InputPaths.ToArray(), isZip, selfExecutable),
+                OutputFilePath = EncryptionJobPlan.ResolveSingleOutput(
+                    options.InputPaths,
+                    BuildEncryptOutputPath(options, options.InputPaths.ToArray(), isZip, selfExecutable),
+                    outputIsSingleFile),
             });
             return jobs;
         }
 
         //-----------------------------------
+        // 通常（既定）: 入力 1 つにつき 1 つの暗号化ファイル（フォルダーはフォルダー単位でまとめる）
         // /oneby: フォルダーを再帰展開して 1 ファイルずつ処理する
         //-----------------------------------
-        // /out= にファイル名まで指定されていると、出力先が 1 つに定まってしまい矛盾する
+        // /oneby で /out= にファイル名まで指定されていると、出力先が 1 つに定まってしまい矛盾する
         // （CliOutputPath も同じ検査をするが、こちらは英語の定型文で早く止める）
-        if (!string.IsNullOrEmpty(options.OutputPath) &&
-            !Directory.Exists(Path.GetFullPath(options.OutputPath)))
+        if (outputIsSingleFile)
         {
             throw new InvalidOperationException(
                 "/oneby cannot be combined with a single output file. Specify a folder with /out= or /saveto=.");
@@ -461,19 +471,17 @@ internal static class Program
         // フォルダーへ集めると、別サブフォルダーの同名ファイル
         // （dir\a\report.xlsx と dir\b\report.xlsx）が同じ出力パスに写像される。
         // そのままだと /y 併用で先に作った暗号化ファイルが黙って上書きされる
-        // （不許可なら途中で終了コード 5）。連番を付けて一意化する
-        var usedOutputPaths = new HashSet<string>(
-            OperatingSystem.IsWindows() || OperatingSystem.IsMacOS()
-                ? StringComparer.OrdinalIgnoreCase
-                : StringComparer.Ordinal);
+        // （不許可なら途中で終了コード 5）。連番を付けて一意化する（GUI と同じ OutputPathReservation）
+        var reservation = new OutputPathReservation();
 
         // まず処理対象のファイルを確定させる。
         // 本体 GUI と同じく、フォルダーはサブフォルダー以下のすべてのファイルを
         // 対象にする（拡張子による除外は行わない）
+        // 通常モードではフォルダーを展開せず、フォルダー単位で 1 つの暗号化ファイルにする
         var targetFiles = new List<string>();
         foreach (var inputPath in options.InputPaths)
         {
-            if (Directory.Exists(inputPath))
+            if (_settings.EncryptOneByOne && Directory.Exists(inputPath))
             {
                 targetFiles.AddRange(EnumerateFiles(inputPath));
             }
@@ -487,40 +495,19 @@ internal static class Program
         // 予約しないと、先行ジョブの出力先に後続ジョブの入力
         // （例: 対象フォルダーに同梱されていた foo.atc）が選ばれ、
         // /y 併用で処理前の入力を暗号化データで上書きしてしまう
-        foreach (var filePath in targetFiles)
-        {
-            usedOutputPaths.Add(Path.GetFullPath(filePath));
-        }
+        reservation.Reserve(targetFiles);
 
         foreach (var filePath in targetFiles)
         {
             jobs.Add(new EncryptJob
             {
                 InputPaths = new List<string> { filePath },
-                OutputFilePath = MakeUniqueOutputPath(
-                    BuildEncryptOutputPath(options, [filePath], isZip, selfExecutable), usedOutputPaths),
+                OutputFilePath = reservation.MakeUnique(
+                    BuildEncryptOutputPath(options, [filePath], isZip, selfExecutable)),
             });
         }
 
         return jobs;
-    }
-
-    /// <summary>
-    /// 同じ実行内で出力パスが重複したら、拡張子の前に _2, _3, ... を付けて
-    /// 一意にする（ディスク上の既存ファイルとの衝突は /ow の管轄で、ここでは見ない）。
-    /// </summary>
-    private static string MakeUniqueOutputPath(string path, HashSet<string> used)
-    {
-        if (used.Add(path)) return path;
-
-        var dir = Path.GetDirectoryName(path) ?? "";
-        var name = Path.GetFileNameWithoutExtension(path);
-        var ext = Path.GetExtension(path);
-        for (var i = 2; ; i++)
-        {
-            var candidate = Path.Combine(dir, name + "_" + i + ext);
-            if (used.Add(candidate)) return candidate;
-        }
     }
 
     /// <summary>
@@ -687,8 +674,10 @@ internal static class Program
                 OutputDirectory = outDir,
                 Password = options.Password,
                 PasswordBinary = passwordBinary,
-                // 端末では上書きの確認を出せないので、「確認する」＝既存ファイルは残す（スキップ）
-                Overwrite = !_settings.ConfirmOverwrite,
+                // 端末では上書きの確認を出せないので、「確認する」＝保存先に同名ファイルがあれば
+                // 何も書き出さずに終了コード 5（暗号化側と同じ）。
+                // 復号側の設定（旧 fDecryptConfirmOverwrite）。/ow は暗号化・復号の両方に効く
+                Overwrite = !_settings.DecryptConfirmOverwrite,
                 NoParentFolder = _settings.NoParentFolder,
                 SetTimeStampToNow = _settings.SetTimeStampToNow,
                 ContinueOnHashMismatch = _settings.ContinueOnHashMismatch,

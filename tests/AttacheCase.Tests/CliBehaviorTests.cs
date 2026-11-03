@@ -174,6 +174,22 @@ var result = CliOutputPath.ForEncryption([input], ctx);
         var ctx = Ctx("/oneby=1", "/out=" + Path.Combine(Path.GetTempPath(), "fixed.atc"));
 Assert.Throws<InvalidOperationException>(() => CliOutputPath.ForEncryption([input], ctx));
     }
+
+    [Fact]
+    public void MultipleInputs_WithAFileNameInOut_ArePackedIntoThatFile()
+    {
+        // 「複数ファイルの場合」の既定は通常（入力 1 つにつき 1 つ）だが、/out=<ファイル名> で
+        // 出力が 1 つに明示されていれば「一つにまとめる」の意図とみなす（旧 5.0 CLI の /list + /out、
+        // 回帰 F-03 と同じ）。/oneby だけは矛盾として拒否する
+        var a = Path.Combine(Path.GetTempPath(), "a.txt");
+        var b = Path.Combine(Path.GetTempPath(), "b.txt");
+        var fixedName = Path.Combine(Path.GetTempPath(), "fixed.atc");
+
+        Assert.Equal(fixedName, CliOutputPath.ForEncryption([a, b], Ctx("/out=" + fixedName)));
+        Assert.Equal(fixedName, CliOutputPath.ForEncryption([a, b], Ctx("/allpack=1", "/out=" + fixedName)));
+        Assert.Throws<InvalidOperationException>(
+            () => CliOutputPath.ForEncryption([a, b], Ctx("/oneby=1", "/out=" + fixedName)));
+    }
 }
 
 public class FileEraserTests

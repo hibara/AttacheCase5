@@ -2,17 +2,258 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:AttacheCase.ViewModels"
              xmlns:l="using:AttacheCase.Markup"
+             xmlns:shadui="clr-namespace:ShadUI;assembly=ShadUI"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
              x:Class="AttacheCase.Views.SettingsView"
              x:DataType="vm:SettingsViewModel">
 
+    <!-- 構成（2026-10-25、利用者要望）: 他の画面と同じ枠（Post-PPAP / RSA 画面と同じ
+         Border）の中に収め、左に区分の一覧、右にその区分の中身だけを出す。
+         以前は全区分を縦に並べて 1 本のスクロールにしていたが、項目が多すぎて
+         目当ての設定まで遠かった。区分ごとの中身は IsVisible を SelectedSectionKey と
+         Equal 比較で切り替える（キーの綴りは SettingsViewModel の Section* 定数と対） -->
+
+    <UserControl.Resources>
+        <!-- 記憶パスワード欄の ✓/✎（利用者支給の IcoMoon 素材のパスをそのまま使う。512×512 座標）。
+             SVG 画像（SvgImage）は Opacity が効かず無効時に薄くできないので Path で描く -->
+        <StreamGeometry x:Key="ConfirmIconGeometry">M432 64l-240 240-112-112-80 80 192 192 320-320z</StreamGeometry>
+        <StreamGeometry x:Key="EditIconGeometry">M432 0c44.182 0 80 35.817 80 80 0 18.010-5.955 34.629-16 48l-32 32-112-112 32-32c13.371-10.045 29.989-16 48-16zM32 368l-32 144 144-32 296-296-112-112-296 296zM357.789 181.789l-224 224-27.578-27.578 224-224 27.578 27.578z</StreamGeometry>
+        <!-- 数値の増減ボタン（NumericUpDown の中の ButtonSpinner）。ShadUI 0.1.6 の既定は
+             ∧ ∨ を横に大きく並べるので数字の欄が潰れて読みにくい（利用者指摘 2026-10-25）。
+             .NET Framework の NumericUpDown と同じく、右端に小さな ▲▼ を縦に重ねる。
+             StackPanel の Orientation はテンプレート内のローカル値でスタイルから上書きできないため、
+             ButtonSpinner の ControlTheme ごと差し替える（この画面のリソースなので効くのはこの画面だけ。
+             元は ShadUI の Controls/NumericUpDown/ButtonSpinner.axaml。部品名 PART_IncreaseButton /
+             PART_DecreaseButton は ButtonSpinner が探す名前なので変えない） -->
+        <ControlTheme x:Key="CompactSpinnerButton" TargetType="RepeatButton">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="MinWidth" Value="0" />
+            <Setter Property="MinHeight" Value="0" />
+            <Setter Property="Width" Value="20" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Panel>
+                        <Border Name="HoverBackground"
+                                Background="{DynamicResource GhostHoverColor}"
+                                Opacity="0" />
+                        <ContentPresenter Name="ContentPresenter"
+                                          Content="{TemplateBinding Content}"
+                                          HorizontalContentAlignment="Center"
+                                          VerticalContentAlignment="Center" />
+                    </Panel>
+                </ControlTemplate>
+            </Setter>
+            <Style Selector="^:disabled">
+                <Setter Property="Opacity" Value="0.5" />
+            </Style>
+            <Style Selector="^:pointerover /template/ Border#HoverBackground">
+                <Setter Property="Opacity" Value="1" />
+            </Style>
+        </ControlTheme>
+
+        <ControlTheme x:Key="{x:Type ButtonSpinner}" TargetType="ButtonSpinner">
+            <Setter Property="Background" Value="{DynamicResource SelectionColor}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Focusable" Value="True" />
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border Name="border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{TemplateBinding CornerRadius}">
+                        <Border ClipToBounds="True" CornerRadius="{TemplateBinding CornerRadius}">
+                            <DockPanel>
+                                <!-- ▲▼ を縦に。高さは上下で等分（数字欄の高さに追従） -->
+                                <Grid Name="SpinnerPanel"
+                                      DockPanel.Dock="Right"
+                                      RowDefinitions="*,Auto,*"
+                                      IsVisible="{TemplateBinding ShowButtonSpinner}">
+                                    <RepeatButton Grid.Row="0"
+                                                  Name="PART_IncreaseButton"
+                                                  IsTabStop="{TemplateBinding IsTabStop}"
+                                                  Theme="{StaticResource CompactSpinnerButton}">
+                                        <Path Data="{x:Static shadui:Icons.ChevronUp}"
+                                              Fill="{TemplateBinding Foreground}"
+                                              Width="9" Height="6" Stretch="Uniform"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </RepeatButton>
+                                    <Rectangle Grid.Row="1" Height="1"
+                                               Fill="{DynamicResource BorderColor}" />
+                                    <RepeatButton Grid.Row="2"
+                                                  Name="PART_DecreaseButton"
+                                                  IsTabStop="{TemplateBinding IsTabStop}"
+                                                  Theme="{StaticResource CompactSpinnerButton}">
+                                        <Path Data="{x:Static shadui:Icons.ChevronDown}"
+                                              Fill="{TemplateBinding Foreground}"
+                                              Width="9" Height="6" Stretch="Uniform"
+                                              HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </RepeatButton>
+                                </Grid>
+                                <Rectangle DockPanel.Dock="Right" Width="1"
+                                           Fill="{DynamicResource BorderColor}"
+                                           IsVisible="{TemplateBinding ShowButtonSpinner}" />
+                                <ContentPresenter Name="ContentPresenter"
+                                                  Content="{TemplateBinding Content}"
+                                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                  Padding="{TemplateBinding Padding}"
+                                                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+                            </DockPanel>
+                        </Border>
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+            <Style Selector="^:not(:error):pointerover /template/ Border#border">
+                <Setter Property="BorderBrush" Value="{DynamicResource PrimaryColor}" />
+            </Style>
+            <Style Selector="^:not(:error):focus-within /template/ Border#border">
+                <Setter Property="BorderBrush" Value="{DynamicResource PrimaryColor}" />
+            </Style>
+            <Style Selector="^:error /template/ Border#border">
+                <Setter Property="BorderBrush" Value="{DynamicResource ErrorColor}" />
+            </Style>
+        </ControlTheme>
+
+        <!-- CheckBox。ShadUI 0.1.6 の既定テンプレートは横並びの StackPanel なので、ラベルが幅に
+             収まらなくても折り返さず右端で切れる（利用者指摘 2026-10-27、「PC がタブレットモードで…」が
+             途中で消えた）。右側の幅は区分一覧のぶん狭いので、箱 + ラベルを Grid（Auto,*）に置き換えて
+             ラベルの列に幅を与え、TextBlock は折り返す（下の UserControl.Styles の CheckBox TextBlock）。
+             それ以外（色・チェックマーク・無効時の薄さ）は ShadUI の Controls/CheckBox/CheckBox.axaml と
+             同じ。部品名 Container / CheckMark / indeterminateMark / PART_ContentPresenter は変えない -->
+        <ControlTheme x:Key="{x:Type CheckBox}" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{DynamicResource ForegroundColor}" />
+            <Setter Property="Background" Value="{DynamicResource SelectionColor}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="{DynamicResource SmCornerRadius}" />
+            <Setter Property="Padding" Value="4,0,0,0" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="TextBlock.FontSize" Value="14" />
+            <Setter Property="TextBlock.FontWeight" Value="Medium" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Grid Background="Transparent" ColumnDefinitions="Auto,*">
+                        <Border Grid.Column="0"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{TemplateBinding CornerRadius}"
+                                Height="18"
+                                Margin="0,0,4,0"
+                                Name="Container"
+                                VerticalAlignment="Center"
+                                Width="18">
+                            <Panel>
+                                <Path Data="{x:Static shadui:Icons.Check}"
+                                      Fill="{DynamicResource PrimaryForegroundColor}"
+                                      FlowDirection="LeftToRight"
+                                      HorizontalAlignment="Center"
+                                      Margin="3"
+                                      Name="CheckMark"
+                                      Stretch="Uniform"
+                                      VerticalAlignment="Center" />
+                                <Path Data="{x:Static shadui:Icons.Minus}"
+                                      Fill="{DynamicResource PrimaryForegroundColor}"
+                                      FlowDirection="LeftToRight"
+                                      HorizontalAlignment="Center"
+                                      IsVisible="False"
+                                      Margin="3"
+                                      Name="indeterminateMark"
+                                      Stretch="Uniform"
+                                      VerticalAlignment="Center" />
+                            </Panel>
+                        </Border>
+                        <ContentPresenter Grid.Column="1"
+                                          Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          IsVisible="{TemplateBinding Content, Converter={x:Static ObjectConverters.IsNotNull}}"
+                                          Margin="{TemplateBinding Padding}"
+                                          Name="PART_ContentPresenter"
+                                          RecognizesAccessKey="True"
+                                          TextElement.Foreground="{TemplateBinding Foreground}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter>
+            <Style Selector="^:pointerover /template/ Border#Container">
+                <Setter Property="Transitions">
+                    <Setter.Value>
+                        <Transitions>
+                            <BrushTransition Duration="0:0:0.20" Property="BorderBrush" />
+                        </Transitions>
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="BorderBrush" Value="{DynamicResource PrimaryColor}" />
+            </Style>
+            <Style Selector="^ /template/ Path#CheckMark">
+                <Setter Property="IsVisible" Value="False" />
+            </Style>
+            <Style Selector="^:checked">
+                <Style Selector="^ /template/ Path#CheckMark">
+                    <Setter Property="IsVisible" Value="True" />
+                </Style>
+                <Style Selector="^ /template/ Border#Container">
+                    <Setter Property="Background" Value="{DynamicResource PrimaryColor}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource PrimaryColor}" />
+                </Style>
+            </Style>
+            <Style Selector="^:indeterminate">
+                <Style Selector="^ /template/ Path#indeterminateMark">
+                    <Setter Property="IsVisible" Value="True" />
+                </Style>
+                <Style Selector="^ /template/ Border#Container">
+                    <Setter Property="Transitions">
+                        <Setter.Value>
+                            <Transitions>
+                                <BrushTransition Duration="0:0:0.20" Property="Background" />
+                                <BrushTransition Duration="0:0:0.20" Property="BorderBrush" />
+                            </Transitions>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Background" Value="{DynamicResource PrimaryColor75}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource PrimaryColor75}" />
+                </Style>
+            </Style>
+            <Style Selector="^:disabled">
+                <Style Selector="^ /template/ Border#Container">
+                    <Setter Property="Opacity" Value="0.5" />
+                </Style>
+                <Style Selector="^ /template/ ContentPresenter#PART_ContentPresenter">
+                    <Setter Property="Opacity" Value="0.5" />
+                </Style>
+            </Style>
+        </ControlTheme>
+    </UserControl.Resources>
+
     <UserControl.Styles>
         <Style Selector="TextBlock.section">
-            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontSize" Value="15" />
             <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="Margin" Value="0,4,0,2" />
+            <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
+        <!-- 記憶パスワード欄の ✓/✎ アイコン。色はテーマの前景、チェックが外れている（ボタン無効）ときは薄く -->
+        <Style Selector="Path.pwicon">
+            <Setter Property="Fill" Value="{DynamicResource ForegroundColor}" />
+            <Setter Property="Width" Value="16" />
+            <Setter Property="Height" Value="16" />
+            <Setter Property="Stretch" Value="Uniform" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Path.pwicon.dim">
+            <Setter Property="Opacity" Value="0.35" />
         </Style>
         <Style Selector="TextBlock.hint">
             <Setter Property="FontSize" Value="11" />
@@ -21,6 +262,12 @@
         </Style>
         <Style Selector="CheckBox">
             <Setter Property="FontSize" Value="12" />
+        </Style>
+        <!-- CheckBox のラベルは幅に収まらなければ折り返す（上の ControlTheme と対）。罠: 文字列 Content から
+             ContentPresenter（RecognizesAccessKey=True）が作るのは TextBlock ではなく派生の AccessText で、
+             型セレクター「TextBlock」は派生型に当たらない（ヘッドレスで実測 2026-10-27）→ :is() で派生も含める -->
+        <Style Selector="CheckBox :is(TextBlock)">
+            <Setter Property="TextWrapping" Value="Wrap" />
         </Style>
         <Style Selector="RadioButton">
             <Setter Property="FontSize" Value="12" />
@@ -32,23 +279,124 @@
             <Setter Property="CornerRadius" Value="6" />
             <Setter Property="Padding" Value="12" />
         </Style>
+
+        <!-- 選択肢の横並び。右側の幅は一覧のぶん狭くなったので、入り切らないときは折り返す -->
+        <Style Selector="WrapPanel.options">
+            <Setter Property="Margin" Value="12,0,0,-4" />
+        </Style>
+        <Style Selector="WrapPanel.options > RadioButton">
+            <Setter Property="Margin" Value="0,0,16,4" />
+        </Style>
+        <Style Selector="WrapPanel.options > CheckBox">
+            <Setter Property="Margin" Value="0,0,14,4" />
+        </Style>
+        <!-- 選択肢の縦並び（文言が長い区分用。左端は WrapPanel.options と揃える） -->
+        <Style Selector="StackPanel.options">
+            <Setter Property="Margin" Value="12,0,0,0" />
+            <Setter Property="Spacing" Value="4" />
+        </Style>
+        <Style Selector="WrapPanel.buttons > Button">
+            <Setter Property="Margin" Value="0,0,10,6" />
+        </Style>
+
+        <!-- 左の区分一覧。枠は要らない（外側の枠の中にあるので） -->
+        <Style Selector="ListBox.sections">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+        <!-- 項目の見た目はサイドメニューと同じ流儀（選択中は塗り、ホバーは薄く塗る）。
+             ShadUI の ListBoxItem は選択をチェックマークで示し背景を塗らないので、
+             テンプレートの描画は消して、ItemTemplate 側の Border.sectionitem が塗る -->
+        <Style Selector="ListBox.sections ListBoxItem">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="MinHeight" Value="0" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0,1" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Cursor" Value="Hand" />
+            <!-- 塗りは列の幅いっぱいに（既定だと中身の幅だけになる） -->
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        </Style>
+        <Style Selector="ListBox.sections ListBoxItem /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="ListBox.sections ListBoxItem /template/ PathIcon">
+            <Setter Property="IsVisible" Value="False" />
+        </Style>
+        <Style Selector="ListBox.sections ListBoxItem /template/ Path">
+            <Setter Property="IsVisible" Value="False" />
+        </Style>
+        <Style Selector="Border.sectionitem">
+            <Setter Property="CornerRadius" Value="6" />
+            <!-- 最小の高さ 500 で Windows の 11 区分がスクロールなしで収まる高さ（上下 4） -->
+            <Setter Property="Padding" Value="10,4" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="ListBox.sections ListBoxItem:pointerover Border.sectionitem">
+            <Setter Property="Background" Value="{DynamicResource AppSidebarHover}" />
+        </Style>
+        <Style Selector="Border.sectionitem.selected">
+            <Setter Property="Background" Value="{DynamicResource AppSidebarSelected}" />
+        </Style>
     </UserControl.Styles>
 
-    <Grid RowDefinitions="Auto,*,Auto">
+    <Border Background="{DynamicResource AppDropAreaBackground}"
+            BorderBrush="{DynamicResource AppDropAreaBorder}"
+            BorderThickness="2"
+            CornerRadius="8">
 
-        <!-- 見出し -->
-        <StackPanel Grid.Row="0" Spacing="2" Margin="0,0,0,10">
-            <TextBlock Text="{l:Localize Settings_Title}" FontSize="18" FontWeight="Bold" />
-            <TextBlock Text="{l:Localize Settings_CommandLineNote}" Classes="hint" />
-        </StackPanel>
+    <Grid RowDefinitions="Auto,*,Auto" Margin="16,12,16,14">
 
-        <!-- 設定項目 -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <StackPanel Spacing="12" Margin="0,0,12,0">
+        <!-- 見出し。注記は同じ行の右側に置いて高さを節約する（既定の高さ 500 で
+             左の一覧がスクロールなしで収まるように）。注記はコマンドライン引数で
+             設定を上書きした起動のときだけ出す（通常起動で出ると何のことか分からない） -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Margin="0,0,0,8">
+            <TextBlock Grid.Column="0"
+                       Text="{l:Localize Settings_Title}"
+                       FontSize="18" FontWeight="Bold"
+                       VerticalAlignment="Center" />
+            <TextBlock Grid.Column="1"
+                       Text="{l:Localize Settings_CommandLineNote}"
+                       Classes="hint"
+                       IsVisible="{Binding ShowCommandLineNote}"
+                       VerticalAlignment="Center"
+                       Margin="16,0,0,0" />
+        </Grid>
+
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,*">
+
+            <!-- 区分の一覧 -->
+            <ListBox Grid.Column="0"
+                     Classes="sections"
+                     ItemsSource="{Binding Sections}"
+                     SelectedItem="{Binding SelectedSection}"
+                     MinWidth="120"
+                     Margin="0,0,14,0"
+                     VerticalAlignment="Stretch">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:SettingsViewModel+SettingsSection">
+                        <Border Classes="sectionitem"
+                                Classes.selected="{Binding $parent[ListBoxItem].IsSelected}">
+                            <TextBlock Text="{Binding Title}" />
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <!-- 選ばれた区分の中身 -->
+            <Grid Grid.Column="1" RowDefinitions="Auto,*">
+                <TextBlock Grid.Row="0"
+                           Text="{Binding SelectedSectionTitle}"
+                           Classes="section" />
+
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <Panel Margin="0,0,8,0">
 
                 <!-- 一般 -->
-                <TextBlock Text="{l:Localize Settings_General}" Classes="section" />
-                <Border Classes="card">
+                <Border Classes="card"
+                        VerticalAlignment="Top"
+                        IsVisible="{Binding SelectedSectionKey, Converter={x:Static ObjectConverters.Equal}, ConverterParameter=general}">
                     <StackPanel Spacing="8">
                         <CheckBox Content="{l:Localize Settings_ExitAfterProcess}"
                                   IsChecked="{Binding ExitAfterProcess}" />
@@ -71,8 +419,7 @@
                             </ComboBox>
                         </StackPanel>
 
-                        <!-- 表示言語（保存で反映。以前は下段のボタン列に居たが、
-                             設定項目なので一般カードのテーマの隣へ） -->
+                        <!-- 表示言語（保存で反映） -->
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <TextBlock Text="{l:Localize Settings_Language}"
                                        FontSize="12" VerticalAlignment="Center" />
@@ -87,15 +434,16 @@
                 </Border>
 
                 <!-- ウィンドウ -->
-                <TextBlock Text="{l:Localize Settings_Window}" Classes="section" />
-                <Border Classes="card">
+                <Border Classes="card"
+                        VerticalAlignment="Top"
+                        IsVisible="{Binding SelectedSectionKey, Converter={x:Static ObjectConverters.Equal}, ConverterParameter=window}">
                     <StackPanel Spacing="8">
                         <CheckBox Content="{l:Localize Settings_MinimizeWhileProcessing}"
                                   IsChecked="{Binding MinimizeWhileProcessing}" />
                         <TextBlock Text="{l:Localize Settings_MinimizeHint}"
                                    Classes="hint" Margin="24,-4,0,0" />
 
-                        <CheckBox Content="{l:Localize Settings_ShowMenuBarIcon}"
+                        <CheckBox Content="{Binding ShowMenuBarIconLabel}"
                                   IsChecked="{Binding ShowMenuBarIcon}" />
                         <TextBlock Text="{l:Localize Settings_MenuBarIconHint}"
                                    Classes="hint" Margin="24,-4,0,0" />
@@ -107,22 +455,55 @@
                                   IsChecked="{Binding NoMultipleInstance}" />
                         <TextBlock Text="{l:Localize Settings_NoMultipleInstanceHint}"
                                    Classes="hint" Margin="24,-4,0,0" />
+
+                        <!-- Windows のみ: タブレットモードでは OS がウィンドウを全画面にするので、それを抑える -->
+                        <CheckBox Content="{l:Localize Settings_NoMaximizeInTabletMode}"
+                                  IsChecked="{Binding NoMaximizeInTabletMode}"
+                                  IsVisible="{Binding IsWindows}" />
                     </StackPanel>
                 </Border>
 
                 <!-- 暗号化 -->
-                <TextBlock Text="{l:Localize Settings_Encrypt}" Classes="section" />
-                <Border Classes="card">
+                <Border Classes="card"
+                        VerticalAlignment="Top"
+                        IsVisible="{Binding SelectedSectionKey, Converter={x:Static ObjectConverters.Equal}, ConverterParameter=encrypt}">
                     <StackPanel Spacing="8">
 
                         <TextBlock Text="{l:Localize Settings_EncryptionFileType}" FontSize="12" />
-                        <StackPanel Orientation="Horizontal" Spacing="16" Margin="12,0,0,0">
+                        <!-- 「前に使ったファイルタイプで暗号化する」が ON のあいだ、種類の選択は効かないので無効化 -->
+                        <StackPanel Classes="options" IsEnabled="{Binding !UseLastEncryptionFileType}">
                             <RadioButton GroupName="FileType"
                                          Content="{l:Localize Settings_FileTypeAtc}"
                                          IsChecked="{Binding IsFileTypeAtc}" />
                             <RadioButton GroupName="FileType"
+                                         Content="{l:Localize Settings_FileTypeExe}"
+                                         IsChecked="{Binding IsFileTypeExe}"
+                                         IsVisible="{Binding IsWindows}" />
+                            <RadioButton GroupName="FileType"
                                          Content="{l:Localize Settings_FileTypeZip}"
                                          IsChecked="{Binding IsFileTypeZip}" />
+                        </StackPanel>
+                        <CheckBox Content="{l:Localize Settings_UseLastEncryptionFileType}"
+                                  IsChecked="{Binding UseLastEncryptionFileType}" />
+
+                        <!-- 複数ファイルの場合（旧版と同じ 3 択） -->
+                        <TextBlock Text="{l:Localize Settings_MultipleFiles}" FontSize="12" Margin="0,8,0,0" />
+                        <StackPanel Classes="options">
+                            <RadioButton GroupName="MultipleFiles"
+                                         Content="{l:Localize Settings_MultipleFilesNormal}"
+                                         IsChecked="{Binding IsMultipleFilesNormal}" />
+                            <TextBlock Text="{l:Localize Settings_MultipleFilesNormalHint}"
+                                       Classes="hint" Margin="24,-2,0,4" />
+                            <RadioButton GroupName="MultipleFiles"
+                                         Content="{l:Localize Settings_MultipleFilesAllPack}"
+                                         IsChecked="{Binding IsMultipleFilesAllPack}" />
+                            <TextBlock Text="{l:Localize Settings_MultipleFilesAllPackHint}"
+                                       Classes="hint" Margin="24,-2,0,4" />
+                            <RadioButton GroupName="MultipleFiles"
+                                         Content="{l:Localize Settings_EncryptOneByOne}"
+                                         IsChecked="{Binding IsMultipleFilesOneByOne}" />
+                            <TextBlock Text="{l:Localize Settings_EncryptOneByOneHint}"
+                                       Classes="hint" Margin="24,-2,0,4" />
                         </StackPanel>
 
                         <CheckBox Content="{l:Localize Settings_SaveToSameFolder}"
@@ -142,8 +523,6 @@
 
                         <CheckBox Content="{l:Localize Settings_ConfirmOverwrite}"
                                   IsChecked="{Binding ConfirmOverwrite}" />
-                        <CheckBox Content="{l:Localize Settings_EncryptOneByOne}"
-                                  IsChecked="{Binding EncryptOneByOne}" />
                         <CheckBox Content="{l:Localize Settings_KeepTimeStamp}"
                                   IsChecked="{Binding KeepTimeStamp}" />
                         <CheckBox Content="{l:Localize Settings_IncludeOriginalExtension}"
@@ -189,7 +568,7 @@
 
                             <TextBlock Text="{l:Localize Settings_AutoNameRandomCharset}"
                                        FontSize="12" Margin="0,4,0,0" />
-                            <StackPanel Orientation="Horizontal" Spacing="14" Margin="12,0,0,0">
+                            <WrapPanel Classes="options">
                                 <CheckBox Content="{l:Localize Settings_AutoNameUpperCase}"
                                           IsChecked="{Binding AutoNameRandomUpperCase}"
                                           IsEnabled="{Binding UseAutoName}" />
@@ -202,13 +581,13 @@
                                 <CheckBox Content="{l:Localize Settings_AutoNameSymbols}"
                                           IsChecked="{Binding AutoNameRandomSymbols}"
                                           IsEnabled="{Binding UseAutoName}" />
-                            </StackPanel>
+                            </WrapPanel>
                             <TextBlock Text="{l:Localize Settings_AutoNameSymbolsHint}"
                                        Classes="hint" Margin="12,0,0,0" />
                         </StackPanel>
 
                         <TextBlock Text="{l:Localize Settings_CompressionLevel}" FontSize="12" />
-                        <StackPanel Orientation="Horizontal" Spacing="16" Margin="12,0,0,0">
+                        <WrapPanel Classes="options">
                             <RadioButton GroupName="Compression"
                                          Content="{l:Localize Settings_CompressionNone}"
                                          IsChecked="{Binding IsCompressionNone}" />
@@ -218,17 +597,19 @@
                             <RadioButton GroupName="Compression"
                                          Content="{l:Localize Settings_CompressionOptimal}"
                                          IsChecked="{Binding IsCompressionOptimal}" />
-                        </StackPanel>
+                        </WrapPanel>
 
                     </StackPanel>
                 </Border>
 
                 <!-- パスワード ZIP -->
-                <TextBlock Text="{l:Localize Settings_Zip}" Classes="section" />
-                <Border Classes="card">
+                <Border Classes="card"
+                        VerticalAlignment="Top"
+                        IsVisible="{Binding SelectedSectionKey, Converter={x:Static ObjectConverters.Equal}, ConverterParameter=zip}">
                     <StackPanel Spacing="8">
                         <TextBlock Text="{l:Localize Settings_ZipAlgorithm}" FontSize="12" />
-                        <StackPanel Orientation="Horizontal" Spacing="16" Margin="12,0,0,0">
+                        <!-- 方式名が長いので横に詰めず 1 行ずつ縦に並べる -->
+                        <StackPanel Classes="options">
                             <RadioButton GroupName="ZipAlgo"
                                          Content="{l:Localize ZipGuide_None}"
                                          IsChecked="{Binding IsZipNone}" />
@@ -247,7 +628,7 @@
                         <TextBlock Text="{l:Localize Settings_ZipCryptoWarning}"
                                    IsVisible="{Binding IsZipCrypto}"
                                    FontSize="11"
-                                   Foreground="#B71C1C"
+                                   Foreground="{DynamicResource AppErrorForeground}"
                                    TextWrapping="Wrap"
                                    Margin="12,0,0,0" />
 
@@ -269,8 +650,9 @@
                 </Border>
 
                 <!-- 復号 -->
-                <TextBlock Text="{l:Localize Settings_Decrypt}" Classes="section" />
-                <Border Classes="card">
+                <Border Classes="card"
+                        VerticalAlignment="Top"
+                        IsVisible="{Binding SelectedSectionKey, Converter={x:Static ObjectConverters.Equal}, ConverterParameter=decrypt}">
                     <StackPanel Spacing="8">
                         <CheckBox Content="{l:Localize Settings_DecryptSaveToSameFolder}"
                                   IsChecked="{Binding DecryptSaveToSameFolder}" />
@@ -287,6 +669,9 @@
                                     Margin="6,0,0,0" />
                         </Grid>
 
+                        <!-- 暗号化側と同じ文言だが別の設定（旧版の fDecryptConfirmOverwrite） -->
+                        <CheckBox Content="{l:Localize Settings_ConfirmOverwrite}"
+                                  IsChecked="{Binding DecryptConfirmOverwrite}" />
                         <CheckBox Content="{l:Localize Settings_NoParentFolder}"
                                   IsChecked="{Binding NoParentFolder}" />
                         <CheckBox Content="{l:Localize Settings_SetTimeStampToNow}"
@@ -297,60 +682,77 @@
                 </Border>
 
                 <!-- 削除 -->
-                <TextBlock Text="{l:Localize Settings_Delete}" Classes="section" />
-                <Border Classes="card">
+                <Border Classes="card"
+                        VerticalAlignment="Top"
+                        IsVisible="{Binding SelectedSectionKey, Converter={x:Static ObjectConverters.Equal}, ConverterParameter=delete}">
                     <StackPanel Spacing="8">
 
-                        <TextBlock Text="{l:Localize Settings_DeleteMode}" FontSize="12" />
-                        <ComboBox SelectedIndex="{Binding DeleteMode}"
-                                  Width="260" HorizontalAlignment="Left"
-                                  FontSize="12" Margin="12,0,0,0">
-                            <ComboBoxItem Content="{l:Localize Settings_DeleteNone}" />
-                            <ComboBoxItem Content="{l:Localize Settings_DeleteNormal}" />
-                            <ComboBoxItem Content="{l:Localize Settings_DeleteTrash}" />
-                            <ComboBoxItem Content="{l:Localize Settings_DeleteWipe}" />
-                        </ComboBox>
-
-                        <TextBlock Text="{l:Localize Settings_DeleteEncMode}" FontSize="12" />
-                        <ComboBox SelectedIndex="{Binding DeleteEncryptedFileMode}"
-                                  Width="260" HorizontalAlignment="Left"
-                                  FontSize="12" Margin="12,0,0,0">
-                            <ComboBoxItem Content="{l:Localize Settings_DeleteNone}" />
-                            <ComboBoxItem Content="{l:Localize Settings_DeleteNormal}" />
-                            <ComboBoxItem Content="{l:Localize Settings_DeleteTrash}" />
-                            <ComboBoxItem Content="{l:Localize Settings_DeleteWipe}" />
-                        </ComboBox>
-
-                        <CheckBox Content="{l:Localize Settings_ConfirmDelete}"
-                                  IsChecked="{Binding ConfirmDelete}" />
-
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Text="{l:Localize Settings_DeleteRandomTimes}"
-                                       FontSize="12" VerticalAlignment="Center" />
-                            <NumericUpDown Value="{Binding DeleteRandomTimesValue}"
-                                           Minimum="0" Maximum="99" Increment="1"
-                                           FormatString="0"
-                                           Width="110" FontSize="12" />
+                        <!-- 旧版と同じ並び: 暗号化 / 復号 それぞれに「削除する」「メインウィンドウにチェックボックス」「確認」、
+                             削除方法は共有、「完全削除の場合」に回数指定（利用者指示 2026-10-29）。
+                             旧版は「削除する / チェックボックス表示」が OFF だと確認と削除方法を無効にしていたが、
+                             迷わせるだけなので各項目は独立（利用者判断 2026-10-29）。回数指定だけ完全削除のときに有効 -->
+                        <TextBlock Text="{l:Localize Settings_Encrypt}" FontSize="12" />
+                        <StackPanel Classes="options">
+                            <CheckBox Content="{l:Localize Settings_DeleteOriginalAfterEncryption}"
+                                      IsChecked="{Binding DeleteOriginalAfterEncryption}" />
+                            <CheckBox Content="{l:Localize Settings_ShowDeleteCheckBox}"
+                                      IsChecked="{Binding EncryptShowDeleteCheckBox}" />
+                            <CheckBox Content="{l:Localize Settings_ConfirmDelete}"
+                                      IsChecked="{Binding ConfirmDelete}" />
                         </StackPanel>
 
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <TextBlock Text="{l:Localize Settings_DeleteZeroTimes}"
-                                       FontSize="12" VerticalAlignment="Center" />
-                            <NumericUpDown Value="{Binding DeleteZeroTimesValue}"
-                                           Minimum="0" Maximum="99" Increment="1"
-                                           FormatString="0"
-                                           Width="110" FontSize="12" />
+                        <TextBlock Text="{l:Localize Settings_Decrypt}" FontSize="12" Margin="0,8,0,0" />
+                        <StackPanel Classes="options">
+                            <CheckBox Content="{l:Localize Settings_DeleteEncryptedAfterDecryption}"
+                                      IsChecked="{Binding DeleteEncryptedFileAfterDecryption}" />
+                            <CheckBox Content="{l:Localize Settings_ShowDeleteCheckBox}"
+                                      IsChecked="{Binding DecryptShowDeleteCheckBox}" />
+                            <CheckBox Content="{l:Localize Settings_ConfirmDelete}"
+                                      IsChecked="{Binding ConfirmDeleteAfterDecryption}" />
+                        </StackPanel>
+
+                        <TextBlock Text="{l:Localize Settings_DeleteMethod}" FontSize="12" Margin="0,8,0,0" />
+                        <StackPanel Classes="options">
+                            <RadioButton GroupName="DeleteMethod"
+                                         Content="{l:Localize Settings_DeleteNormal}"
+                                         IsChecked="{Binding IsDeleteMethodNormal}" />
+                            <RadioButton GroupName="DeleteMethod"
+                                         Content="{l:Localize Settings_DeleteTrash}"
+                                         IsChecked="{Binding IsDeleteMethodTrash}" />
+                            <RadioButton GroupName="DeleteMethod"
+                                         Content="{l:Localize Settings_DeleteWipe}"
+                                         IsChecked="{Binding IsDeleteMethodWipe}" />
+                        </StackPanel>
+
+                        <!-- 完全削除の場合（回数指定は完全削除を選んだときだけ意味がある） -->
+                        <StackPanel Margin="24,4,0,0" Spacing="8" IsEnabled="{Binding IsWipeOptionsEnabled}">
+                            <TextBlock Text="{l:Localize Settings_DeleteWipeOptions}" FontSize="12" />
+                            <StackPanel Orientation="Horizontal" Spacing="10" Margin="12,0,0,0">
+                                <TextBlock Text="{l:Localize Settings_DeleteRandomTimes}"
+                                           FontSize="12" VerticalAlignment="Center" />
+                                <NumericUpDown Value="{Binding DeleteRandomTimesValue}"
+                                               Minimum="0" Maximum="99" Increment="1"
+                                               FormatString="0"
+                                               Width="90" FontSize="12" />
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="10" Margin="12,0,0,0">
+                                <TextBlock Text="{l:Localize Settings_DeleteZeroTimes}"
+                                           FontSize="12" VerticalAlignment="Center" />
+                                <NumericUpDown Value="{Binding DeleteZeroTimesValue}"
+                                               Minimum="0" Maximum="99" Increment="1"
+                                               FormatString="0"
+                                               Width="90" FontSize="12" />
+                            </StackPanel>
                         </StackPanel>
 
                     </StackPanel>
                 </Border>
 
-                <!-- 高度な設定（パスワードファイル） -->
-                <TextBlock Text="{l:Localize Settings_Advanced}" Classes="section" />
-                <Border Classes="card">
+                <!-- パスワードファイル（以前は「高度な設定」の一部。長いので独立した区分に） -->
+                <Border Classes="card"
+                        VerticalAlignment="Top"
+                        IsVisible="{Binding SelectedSectionKey, Converter={x:Static ObjectConverters.Equal}, ConverterParameter=passwordfile}">
                     <StackPanel Spacing="8">
-                        <TextBlock Text="{l:Localize Settings_PasswordFile}" FontSize="12" FontWeight="SemiBold" />
-
                         <CheckBox Content="{l:Localize Settings_AllowPasswordFileDragDrop}"
                                   IsChecked="{Binding AllowPasswordFileDragDrop}" />
                         <TextBlock Text="{l:Localize Settings_AllowPasswordFileDragDropHint}"
@@ -395,9 +797,14 @@
                                   IsChecked="{Binding ExecuteWithPasswordFileWithoutConfirm}" />
                         <TextBlock Text="{l:Localize Settings_ExecuteWithPasswordFileHint}"
                                    Classes="hint" Margin="24,-4,0,0" />
+                    </StackPanel>
+                </Border>
 
-                        <Separator Margin="0,6" />
-
+                <!-- 高度な設定（パスワードの入力制限・拡張子偽装） -->
+                <Border Classes="card"
+                        VerticalAlignment="Top"
+                        IsVisible="{Binding SelectedSectionKey, Converter={x:Static ObjectConverters.Equal}, ConverterParameter=advanced}">
+                    <StackPanel Spacing="8">
                         <TextBlock Text="{l:Localize Settings_PasswordLimit}"
                                    FontSize="12" FontWeight="SemiBold" />
                         <TextBlock Text="{l:Localize Settings_PasswordLimitNotice}"
@@ -444,11 +851,10 @@
                     </StackPanel>
                 </Border>
 
-                <!-- ファイルの関連付け（Windows のみ表示） -->
-                <TextBlock Text="{l:Localize Settings_AssociationSection}"
-                           Classes="section"
-                           IsVisible="{Binding IsWindows}" />
-                <Border Classes="card" IsVisible="{Binding IsWindows}">
+                <!-- ファイルの関連付け（一覧に並ぶのは Windows のみ） -->
+                <Border Classes="card"
+                        VerticalAlignment="Top"
+                        IsVisible="{Binding SelectedSectionKey, Converter={x:Static ObjectConverters.Equal}, ConverterParameter=association}">
                     <StackPanel Spacing="8">
                         <TextBlock Text="{l:Localize Settings_AssociationHint}" Classes="hint" />
 
@@ -474,108 +880,178 @@
                         </StackPanel>
                         <TextBlock Text="{l:Localize Settings_AssociationIconHint}" Classes="hint" />
 
-                        <StackPanel Orientation="Horizontal" Spacing="10">
+                        <WrapPanel Classes="buttons">
                             <Button Content="{l:Localize Settings_Associate}"
                                     Command="{Binding AssociateFilesCommand}"
                                     FontSize="12" Height="32" MinWidth="130" />
                             <Button Content="{l:Localize Settings_Unassociate}"
                                     Command="{Binding UnassociateFilesCommand}"
                                     FontSize="12" Height="32" MinWidth="130" />
-                        </StackPanel>
+                        </WrapPanel>
+
+                        <!-- 「送る」メニュー。設定値ではなく、送るフォルダーにショートカットが
+                             あるかどうかの実態を映す（切り替えは即時反映、保存は不要） -->
+                        <CheckBox Content="{l:Localize Settings_SendToShortcut}"
+                                  IsChecked="{Binding IsSendToShortcutInstalled}"
+                                  FontSize="12" />
+                        <TextBlock Text="{l:Localize Settings_SendToHint}"
+                                   Classes="hint" Margin="24,0,0,0" />
                     </StackPanel>
                 </Border>
 
                 <!-- パスワードの記憶（実体は _AtcVault.json、settings.json には入らない） -->
-                <TextBlock Text="{l:Localize Settings_RememberSection}" Classes="section" />
-                <Border Classes="card">
+                <Border Classes="card"
+                        VerticalAlignment="Top"
+                        IsVisible="{Binding SelectedSectionKey, Converter={x:Static ObjectConverters.Equal}, ConverterParameter=remember}">
                     <StackPanel Spacing="8">
-                        <TextBlock Text="{l:Localize Settings_RememberHint}" Classes="hint" />
 
                         <!-- 初めての PC: 移行コードで登録するまで編集不可 -->
                         <StackPanel Spacing="8" IsVisible="{Binding IsVaultLocked}">
                             <TextBlock Text="{l:Localize Settings_VaultLockedNotice}"
                                        Classes="hint" TextWrapping="Wrap" />
-                            <StackPanel Orientation="Horizontal" Spacing="10">
-                                <TextBlock Text="{l:Localize Settings_MigrationCodeLabel}"
-                                           FontSize="12" VerticalAlignment="Center" />
+                            <TextBlock Text="{l:Localize Settings_MigrationCodeLabel}"
+                                       FontSize="12" />
+                            <WrapPanel Classes="buttons">
                                 <TextBox Text="{Binding MigrationCodeInput}"
                                          Watermark="XXXX-XXXX-XXXX-XXXX"
-                                         Width="220" FontSize="12" FontFamily="Consolas,Menlo,monospace" />
+                                         Width="220" FontSize="12" FontFamily="Consolas,Menlo,monospace"
+                                         Margin="0,0,10,6" />
                                 <Button Content="{l:Localize Settings_RegisterDevice}"
                                         Command="{Binding RegisterDeviceWithCodeCommand}"
                                         FontSize="12" Height="32" MinWidth="120" />
-                            </StackPanel>
+                            </WrapPanel>
                         </StackPanel>
 
                         <StackPanel Spacing="8" IsVisible="{Binding CanEditRememberedPasswords}">
                             <CheckBox Content="{l:Localize Settings_RememberEncrypt}"
                                       IsChecked="{Binding RememberEncryptPassword}"
                                       FontSize="12" />
-                            <TextBox Text="{Binding RememberedEncryptPassword}"
-                                     PasswordChar="●"
-                                     IsEnabled="{Binding RememberEncryptPassword}"
-                                     Width="260" HorizontalAlignment="Left"
-                                     FontSize="12" Margin="24,0,0,0" />
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBox x:Name="RememberedEncryptPasswordBox"
+                                         Text="{Binding RememberedEncryptPasswordText}"
+                                         PasswordChar="●"
+                                         IsEnabled="{Binding CanTypeEncryptPassword}"
+                                         IsReadOnly="{Binding !IsEncryptPasswordEditing}"
+                                         FontSize="12" />
+                                <!-- ✓ = 確定（欄を伏せ字 16 文字にして編集不可に）、✎ = 変更（本物を戻して全選択） -->
+                                <Button Grid.Column="1"
+                                        Command="{Binding ToggleEncryptPasswordEditCommand}"
+                                        IsEnabled="{Binding RememberEncryptPassword}"
+                                        Click="OnToggleRememberedPasswordEdit"
+                                        Tag="RememberedEncryptPasswordBox"
+                                        ToolTip.Tip="{Binding EncryptPasswordButtonTip}"
+                                        Width="40" Height="36" Padding="0"
+                                        VerticalAlignment="Center"
+                                        Margin="6,0,0,0">
+                                    <Panel>
+                                        <Path Classes="pwicon"
+                                              Classes.dim="{Binding !RememberEncryptPassword}"
+                                              IsVisible="{Binding IsEncryptPasswordEditing}"
+                                              Data="{StaticResource ConfirmIconGeometry}" />
+                                        <Path Classes="pwicon"
+                                              Classes.dim="{Binding !RememberEncryptPassword}"
+                                              IsVisible="{Binding !IsEncryptPasswordEditing}"
+                                              Data="{StaticResource EditIconGeometry}" />
+                                    </Panel>
+                                </Button>
+                            </Grid>
 
                             <CheckBox Content="{l:Localize Settings_RememberDecrypt}"
                                       IsChecked="{Binding RememberDecryptPassword}"
                                       FontSize="12" />
-                            <TextBox Text="{Binding RememberedDecryptPassword}"
-                                     PasswordChar="●"
-                                     IsEnabled="{Binding RememberDecryptPassword}"
-                                     Width="260" HorizontalAlignment="Left"
-                                     FontSize="12" Margin="24,0,0,0" />
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBox x:Name="RememberedDecryptPasswordBox"
+                                         Text="{Binding RememberedDecryptPasswordText}"
+                                         PasswordChar="●"
+                                         IsEnabled="{Binding CanTypeDecryptPassword}"
+                                         IsReadOnly="{Binding !IsDecryptPasswordEditing}"
+                                         FontSize="12" />
+                                <!-- ✓ = 確定（欄を伏せ字 16 文字にして編集不可に）、✎ = 変更（本物を戻して全選択） -->
+                                <Button Grid.Column="1"
+                                        Command="{Binding ToggleDecryptPasswordEditCommand}"
+                                        IsEnabled="{Binding RememberDecryptPassword}"
+                                        Click="OnToggleRememberedPasswordEdit"
+                                        Tag="RememberedDecryptPasswordBox"
+                                        ToolTip.Tip="{Binding DecryptPasswordButtonTip}"
+                                        Width="40" Height="36" Padding="0"
+                                        VerticalAlignment="Center"
+                                        Margin="6,0,0,0">
+                                    <Panel>
+                                        <Path Classes="pwicon"
+                                              Classes.dim="{Binding !RememberDecryptPassword}"
+                                              IsVisible="{Binding IsDecryptPasswordEditing}"
+                                              Data="{StaticResource ConfirmIconGeometry}" />
+                                        <Path Classes="pwicon"
+                                              Classes.dim="{Binding !RememberDecryptPassword}"
+                                              IsVisible="{Binding !IsDecryptPasswordEditing}"
+                                              Data="{StaticResource EditIconGeometry}" />
+                                    </Panel>
+                                </Button>
+                            </Grid>
+
+                            <CheckBox Content="{l:Localize Settings_ExecuteWithRememberedPassword}"
+                                      IsChecked="{Binding ExecuteWithRememberedPassword}"
+                                      FontSize="12" />
 
                             <Button Content="{l:Localize Settings_RememberClear}"
                                     Command="{Binding ClearRememberedPasswordsCommand}"
                                     FontSize="12" Height="32" MinWidth="160"
                                     HorizontalAlignment="Left" />
                         </StackPanel>
+
+                        <CheckBox Content="{l:Localize Settings_ShowPasswordStrengthMeter}"
+                                  IsChecked="{Binding ShowPasswordStrengthMeter}"
+                                  FontSize="12" />
                     </StackPanel>
                 </Border>
 
-                <!-- 設定の持ち運び（ポータブル設定。旧版の INI ファイルオプション相当、Windows のみ表示） -->
-                <TextBlock Text="{l:Localize Settings_PortableSection}"
-                           Classes="section"
-                           IsVisible="{Binding IsWindows}" />
-                <Border Classes="card" IsVisible="{Binding IsWindows}">
+                <!-- 設定の持ち運び（ポータブル設定。旧版の INI ファイルオプション相当。一覧に並ぶのは Windows のみ） -->
+                <Border Classes="card"
+                        VerticalAlignment="Top"
+                        IsVisible="{Binding SelectedSectionKey, Converter={x:Static ObjectConverters.Equal}, ConverterParameter=portable}">
                     <StackPanel Spacing="8">
                         <TextBlock Text="{l:Localize Settings_PortableHint}" Classes="hint" />
                         <TextBlock Text="{Binding PortableStatusText}" FontSize="12" TextWrapping="Wrap" />
 
-                        <StackPanel Orientation="Horizontal" Spacing="10">
+                        <WrapPanel Classes="buttons">
                             <Button Content="{l:Localize Settings_PortableCreate}"
                                     Command="{Binding CreatePortableCommand}"
                                     FontSize="12" Height="32" MinWidth="160" />
                             <Button Content="{l:Localize Settings_PortableRemove}"
                                     Command="{Binding RemovePortableCommand}"
                                     FontSize="12" Height="32" MinWidth="160" />
-                        </StackPanel>
+                        </WrapPanel>
 
-                        <!-- 移行コード（別の PC で記憶パスワードを開くための使い捨てコード） -->
-                        <TextBlock Text="{l:Localize Settings_IssueCodeHint}" Classes="hint" />
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <Button Content="{l:Localize Settings_IssueCode}"
-                                    Command="{Binding IssueMigrationCodeCommand}"
-                                    FontSize="12" Height="32" MinWidth="160" />
-                            <TextBox Text="{Binding IssuedMigrationCode}"
-                                     IsReadOnly="True"
-                                     IsVisible="{Binding HasIssuedMigrationCode}"
-                                     Width="220" FontSize="13" FontFamily="Consolas,Menlo,monospace"
-                                     VerticalAlignment="Center" />
+                        <!-- 記憶パスワードの保管庫と移行コード（別の PC で記憶パスワードを開くための使い捨てコード）。
+                             記憶パスワードを使っているときだけ出す -->
+                        <StackPanel Spacing="8" IsVisible="{Binding HasRememberedPassword}">
+                            <TextBlock Text="{l:Localize Settings_PortableVaultHint}" Classes="hint" />
+                            <TextBlock Text="{l:Localize Settings_IssueCodeHint}" Classes="hint" />
+                            <WrapPanel Classes="buttons">
+                                <Button Content="{l:Localize Settings_IssueCode}"
+                                        Command="{Binding IssueMigrationCodeCommand}"
+                                        FontSize="12" Height="32" MinWidth="160" />
+                                <TextBox Text="{Binding IssuedMigrationCode}"
+                                         IsReadOnly="True"
+                                         IsVisible="{Binding HasIssuedMigrationCode}"
+                                         Width="220" FontSize="13" FontFamily="Consolas,Menlo,monospace"
+                                         VerticalAlignment="Center"
+                                         Margin="0,0,0,6" />
+                            </WrapPanel>
+                            <TextBlock Text="{l:Localize Settings_IssuedCodeNotice}"
+                                       Classes="hint"
+                                       IsVisible="{Binding HasIssuedMigrationCode}" />
                         </StackPanel>
-                        <TextBlock Text="{l:Localize Settings_IssuedCodeNotice}"
-                                   Classes="hint"
-                                   IsVisible="{Binding HasIssuedMigrationCode}" />
                     </StackPanel>
                 </Border>
 
-            </StackPanel>
-        </ScrollViewer>
+                </Panel>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
 
         <!-- ボタン。右寄せだと DPI スケールの端数で右端の枠線が
-             1px 削れることがあるため、左寄せで余白を右に逃がす。
-             表示言語は一般カードへ移した -->
+             1px 削れることがあるため、左寄せで余白を右に逃がす -->
         <StackPanel Grid.Row="2"
                     Orientation="Horizontal"
                     HorizontalAlignment="Left"
@@ -590,5 +1066,7 @@
         </StackPanel>
 
     </Grid>
+
+    </Border>
 
 </UserControl>

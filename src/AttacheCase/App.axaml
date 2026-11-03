@@ -33,6 +33,11 @@
                     <SolidColorBrush x:Key="AppAccentForeground">#2196F3</SolidColorBrush>
                     <SolidColorBrush x:Key="AppSuccessForeground">#2E7D32</SolidColorBrush>
                     <SolidColorBrush x:Key="AppErrorForeground">#B71C1C</SolidColorBrush>
+                    <!-- パスワード確認欄の背景。一致 = 薄緑（旧 Windows 版 5.0 と同じ #EEFFEB、
+                         利用者要望 2026-10-25。以前は白で「合った」ことが分かりにくかった）、
+                         未入力・不一致 = 薄いオレンジ（従来どおり） -->
+                    <SolidColorBrush x:Key="AppPasswordMatchBackground">#EEFFEB</SolidColorBrush>
+                    <SolidColorBrush x:Key="AppPasswordMismatchBackground">#FFE4C4</SolidColorBrush>
                 </ResourceDictionary>
                 <ResourceDictionary x:Key="Dark">
                     <SolidColorBrush x:Key="AppMenuBarBackground">#1F1F1F</SolidColorBrush>
@@ -49,6 +54,9 @@
                     <SolidColorBrush x:Key="AppAccentForeground">#5AA9F0</SolidColorBrush>
                     <SolidColorBrush x:Key="AppSuccessForeground">#66BB6A</SolidColorBrush>
                     <SolidColorBrush x:Key="AppErrorForeground">#F28B82</SolidColorBrush>
+                    <!-- ダークは暗い地に馴染む濃いめの緑 / 橙（文字色は明るいので淡色は使えない） -->
+                    <SolidColorBrush x:Key="AppPasswordMatchBackground">#2B3F2B</SolidColorBrush>
+                    <SolidColorBrush x:Key="AppPasswordMismatchBackground">#4A3A26</SolidColorBrush>
                 </ResourceDictionary>
             </ResourceDictionary.ThemeDictionaries>
         </ResourceDictionary>

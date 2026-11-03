@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:AttacheCase.ViewModels"
              xmlns:l="using:AttacheCase.Markup"
-             xmlns:conv="using:AttacheCase.Converters"
+             xmlns:controls="using:AttacheCase.Controls"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
@@ -22,28 +22,17 @@
 
     <Grid>
 
-      <Grid
+      <!-- 対象のパス。左端は入力欄のコンボ、右端は入力欄の右端（戻るボタンの左）に揃える。
+           2 行まで全文、入らなければ PathTextBlock が途中を省略する -->
+      <controls:PathTextBlock
         VerticalAlignment="Top"
         HorizontalAlignment="Stretch"
-        Margin="20,56,20,0"
-        ColumnDefinitions="Auto,*">
-
-        <TextBlock
-          Grid.Column="0"
-          Text="{Binding HeaderText}"
-          FontSize="18"
-          FontWeight="Bold"
-          VerticalAlignment="Center"/>
-
-        <TextBlock
-          Grid.Column="1"
-          Text="{Binding TargetPath, Converter={x:Static conv:PathDisplayConverter.Instance}}"
-          FontSize="18"
-          FontWeight="Bold"
-          VerticalAlignment="Center"
-          TextWrapping="NoWrap"
-          TextTrimming="CharacterEllipsis"/>
-      </Grid>
+        Margin="20,60,54,0"
+        Text="{Binding TargetPath}"
+        FontSize="13"
+        Opacity="0.8"
+        TextWrapping="Wrap"
+        MaxLines="2"/>
 
       <!-- パスワード入力画面 (Step 1)
 
@@ -61,18 +50,22 @@
 
             <!-- パスワード欄は中央のまま（下の強度バーと揃える）。
                  出力の種類コンボボックスはその左に置く -->
-            <Grid Grid.Row="1" ColumnDefinitions="*,Auto,*">
+            <!-- 入力欄は中央、出力種別のコンボボックスはその左。左の列はコンボボックスが収まる固定幅、
+                 右の列は右上の戻るボタン（44 + 右余白 10）ぶんを空け、入力欄の列だけが伸び縮みする。
+                 左余白 20 は見出しと同じ。＝ 入力欄の右端が戻るボタンの左端に揃う（利用者要望 2026-10-25）。
+                 以前は入力欄が固定 400 で両脇が * だったので、狭いウィンドウでコンボボックスが左へはみ出していた -->
+            <Grid Grid.Row="1" ColumnDefinitions="112,*,54" Margin="20,0,0,0" HorizontalAlignment="Stretch">
               <!-- 出力ファイルの種類（ATC / EXE / ZIP）。ZIP を選ぶとパスワード ZIP 画面へ -->
               <ComboBox Grid.Column="0"
                         HorizontalAlignment="Right"
-                        Margin="0,0,4,0"
+                        Margin="0,0,8,0"
                         MinWidth="104"
                         VerticalAlignment="Center"
                         ItemsSource="{Binding FileTypeOptions}"
                         SelectedItem="{Binding SelectedFileType}"
                         ToolTip.Tip="{l:Localize Encryption_FileTypeTooltip}"
                         ItemTemplate="{StaticResource FileTypeItemTemplate}" />
-              <Grid Grid.Column="1" Width="400">
+              <Grid Grid.Column="1">
                 <TextBox x:Name="PasswordBox"
                         Text="{Binding Password1}"
                         IsEnabled="{Binding !IsPasswordFileMode}"
@@ -82,7 +75,6 @@
                         Classes="password">
                     <TextBox.KeyBindings>
                         <KeyBinding Gesture="Enter" Command="{Binding NextCommand}" />
-                        <KeyBinding Gesture="Escape" Command="{Binding CancelCommand}" />
                     </TextBox.KeyBindings>
                 </TextBox>
                 <Button Classes="eye"
@@ -110,15 +102,15 @@
 
             <StackPanel Grid.Row="2"
                         VerticalAlignment="Top"
-                        HorizontalAlignment="Center"
+                        HorizontalAlignment="Stretch"
                         Spacing="20"
                         Margin="0,12,0,0">
 
                 <!-- パスワード強度メーター（zxcvbn）。強度は目安。
                      バーは入力欄と同じ幅、ラベルはバーの右にはみ出してよい -->
-                <Grid Width="400" Height="16" HorizontalAlignment="Center"
-                      IsVisible="{Binding !IsPasswordFileMode}">
-                    <ProgressBar Minimum="0" Maximum="100"
+                <Grid ColumnDefinitions="112,*,54" Margin="20,0,0,0" Height="16" HorizontalAlignment="Stretch"
+                      IsVisible="{Binding IsPasswordStrengthMeterVisible}">
+                    <ProgressBar Grid.Column="1" Minimum="0" Maximum="100"
                                  Value="{Binding PasswordStrengthValue}"
                                  Foreground="{Binding PasswordStrengthBrush}"
                                  Height="6"
@@ -126,17 +118,28 @@
                                  VerticalAlignment="Center" />
                     <!-- ラベルは Canvas で置く。Margin ではみ出させると、親の幅を
                          超えたぶんが 0 幅に潰されて表示されない（Canvas は子を潰さない） -->
-                    <Canvas>
-                        <TextBlock Canvas.Left="408" Canvas.Top="-5"
+                    <Canvas Grid.Column="2">
+                        <TextBlock Canvas.Left="8" Canvas.Top="-5"
                                    Text="{Binding PasswordStrengthLabel}"
                                    FontSize="11"
                                    Foreground="{Binding PasswordStrengthBrush}" />
                     </Canvas>
                 </Grid>
 
+                <!-- 暗号化後に元のファイルを削除する（設定「メインウィンドウに削除のチェックボックスを表示する」が ON のときだけ。
+                     入力欄と同じ列に置く） -->
+                <Grid ColumnDefinitions="112,*,54" Margin="20,0,0,0" HorizontalAlignment="Stretch"
+                      IsVisible="{Binding IsDeleteCheckBoxVisible}">
+                    <CheckBox Grid.Column="1"
+                              Content="{l:Localize Settings_DeleteOriginalAfterEncryption}"
+                              IsChecked="{Binding DeleteOriginalAfterEncryption}"
+                              FontSize="12" />
+                </Grid>
+
                 <StackPanel Orientation="Horizontal"
                             Spacing="8"
-                            HorizontalAlignment="Center"
+                            HorizontalAlignment="Right"
+                            Margin="0,0,54,0"
                             IsVisible="{Binding IsPasswordFileMode}">
                     <TextBlock Text="{Binding PasswordFileLabel}"
                                FontSize="12"
@@ -147,8 +150,11 @@
                             Padding="8,2" />
                 </StackPanel>
 
+                <!-- ボタン列は中央寄せではなく右寄せ。右端を入力欄の右端（= 右上の戻るボタンの左端、右から 54）に
+                     揃える（利用者指示 2026-10-25: 中央寄せはやめる） -->
                 <StackPanel Orientation="Horizontal"
-                           HorizontalAlignment="Center"
+                           HorizontalAlignment="Right"
+                           Margin="0,0,54,0"
                            Spacing="10">
                     <Button Classes="action Primary" Content="{l:Localize Button_Next}"
                            Command="{Binding NextCommand}"/>
@@ -171,17 +177,21 @@
                       MaxWidth="400"
                       Margin="0,0,0,30"/>
 
-            <Grid Grid.Row="1" ColumnDefinitions="*,Auto,*">
+            <!-- 入力欄は中央、出力種別のコンボボックスはその左。左の列はコンボボックスが収まる固定幅、
+                 右の列は右上の戻るボタン（44 + 右余白 10）ぶんを空け、入力欄の列だけが伸び縮みする。
+                 左余白 20 は見出しと同じ。＝ 入力欄の右端が戻るボタンの左端に揃う（利用者要望 2026-10-25）。
+                 以前は入力欄が固定 400 で両脇が * だったので、狭いウィンドウでコンボボックスが左へはみ出していた -->
+            <Grid Grid.Row="1" ColumnDefinitions="112,*,54" Margin="20,0,0,0" HorizontalAlignment="Stretch">
               <ComboBox Grid.Column="0"
                         HorizontalAlignment="Right"
                         Margin="0,0,8,0"
-                        MinWidth="96"
+                        MinWidth="104"
                         VerticalAlignment="Center"
                         ItemsSource="{Binding FileTypeOptions}"
                         SelectedItem="{Binding SelectedFileType}"
                         ToolTip.Tip="{l:Localize Encryption_FileTypeTooltip}"
                         ItemTemplate="{StaticResource FileTypeItemTemplate}" />
-              <Grid Grid.Column="1" Width="400">
+              <Grid Grid.Column="1">
                 <TextBox x:Name="ConfirmPasswordBox"
                         Text="{Binding Password2}"
                         IsEnabled="{Binding !IsPasswordFileMode}"
@@ -192,7 +202,6 @@
                         Classes="password">
                     <TextBox.KeyBindings>
                         <KeyBinding Gesture="Enter" Command="{Binding EncryptCommand}" />
-                        <KeyBinding Gesture="Escape" Command="{Binding BackCommand}" />
                     </TextBox.KeyBindings>
                 </TextBox>
                 <Button Classes="eye"
@@ -220,17 +229,43 @@
 
             <StackPanel Grid.Row="2"
                         VerticalAlignment="Top"
-                        HorizontalAlignment="Center"
+                        HorizontalAlignment="Stretch"
                         Spacing="20"
                         Margin="0,12,0,0">
 
-                <!-- 入力画面の強度バーと同じ高さの空き。
-                     ステップ間でボタンの位置が動かないようにする -->
-                <Border Height="16" IsVisible="{Binding !IsPasswordFileMode}" />
+                <!-- 入力画面の強度バーと同じ高さ・同じ列の行。表示条件も強度バーと同じにして、
+                     ステップ間でボタンの位置が動かないようにする（メーター OFF のときは行ごと消す）。
+                     「暗号化」を押してパスワードが一致しなかったときは、メーターの設定に関係なく
+                     この行を出して赤字でエラーを出す -->
+                <Grid ColumnDefinitions="112,*,54" Margin="20,0,0,0" Height="16" HorizontalAlignment="Stretch">
+                    <Grid.IsVisible>
+                        <MultiBinding Converter="{x:Static BoolConverters.Or}">
+                            <Binding Path="IsPasswordStrengthMeterVisible" />
+                            <Binding Path="HasPasswordMismatch" />
+                        </MultiBinding>
+                    </Grid.IsVisible>
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding PasswordMismatchMessage}"
+                               IsVisible="{Binding HasPasswordMismatch}"
+                               Foreground="{DynamicResource AppErrorForeground}"
+                               FontSize="12"
+                               VerticalAlignment="Center" />
+                </Grid>
+
+                <!-- 暗号化後に元のファイルを削除する（設定「メインウィンドウに削除のチェックボックスを表示する」が ON のときだけ。
+                     入力欄と同じ列に置く） -->
+                <Grid ColumnDefinitions="112,*,54" Margin="20,0,0,0" HorizontalAlignment="Stretch"
+                      IsVisible="{Binding IsDeleteCheckBoxVisible}">
+                    <CheckBox Grid.Column="1"
+                              Content="{l:Localize Settings_DeleteOriginalAfterEncryption}"
+                              IsChecked="{Binding DeleteOriginalAfterEncryption}"
+                              FontSize="12" />
+                </Grid>
 
                 <StackPanel Orientation="Horizontal"
                             Spacing="8"
-                            HorizontalAlignment="Center"
+                            HorizontalAlignment="Right"
+                            Margin="0,0,54,0"
                             IsVisible="{Binding IsPasswordFileMode}">
                     <TextBlock Text="{Binding PasswordFileLabel}"
                                FontSize="12"
@@ -241,8 +276,11 @@
                             Padding="8,2" />
                 </StackPanel>
 
+                <!-- ボタン列は中央寄せではなく右寄せ。右端を入力欄の右端（= 右上の戻るボタンの左端、右から 54）に
+                     揃える（利用者指示 2026-10-25: 中央寄せはやめる） -->
                 <StackPanel Orientation="Horizontal"
-                           HorizontalAlignment="Center"
+                           HorizontalAlignment="Right"
+                           Margin="0,0,54,0"
                            Spacing="10">
                     <Button Classes="action Primary" Content="{l:Localize Button_Encrypt}"
                            Command="{Binding EncryptCommand}"/>
@@ -254,10 +292,13 @@
 
         <!-- 暗号化処理中／完了画面 (Step 3, 4) -->
         <Grid IsVisible="{Binding IsProgressVisible}">
+            <!-- 幅はウィンドウに追従（左 20 = 見出し、右 54 = 右上の戻るボタンぶん。入力欄と同じ）。
+                 広げればプログレスバーもその上のパス表示も伸びて、長いパスを全部読める
+                 （利用者要望 2026-10-25。以前は固定 500 で、最小幅では左右が欠けてもいた） -->
             <StackPanel VerticalAlignment="Center"
-                       HorizontalAlignment="Center"
+                       HorizontalAlignment="Stretch"
                        Spacing="10"
-                       Width="500">
+                       Margin="20,0,54,0">
 
                 <TextBlock Text="{Binding StatusMessage}"
                           FontSize="18"
@@ -266,7 +307,8 @@
 
                 <!-- 処理中ファイルのフルパス（プログレスバー左上、長いパスは右側を…で省略） -->
                 <TextBlock Text="{Binding CurrentFilePath}"
-                          FontSize="11"
+                          FontSize="12"
+                          Margin="4,0,0,0"
                           Opacity="0.75"
                           HorizontalAlignment="Left"
                           TextWrapping="NoWrap"
@@ -284,7 +326,7 @@
 
                 <Button Classes="action" Content="{Binding ProgressButtonText}"
                         Command="{Binding CancelCommand}"
-                        HorizontalAlignment="Center"
+                        HorizontalAlignment="Right"
                         Margin="0,10,0,0"/>
             </StackPanel>
         </Grid>

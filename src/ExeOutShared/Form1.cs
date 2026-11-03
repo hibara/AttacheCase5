@@ -291,6 +291,27 @@ namespace Exeout
 
     private void backgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
     {
+      // 結果の表示（完了・中止・エラーのダイアログ）を先に出し、片付けきれなかった
+      // 作りかけの出力があればその後で案内する。結果表示の中で decryption を手放すので先に控える
+      var leftovers = decryption?.LeftoverPaths;
+      ShowDecryptionResult(e);
+      NotifyLeftoverFiles(leftovers);
+    }
+
+    /// <summary>
+    /// 失敗・中止したときに削除できなかった作りかけの出力（検証前の平文を含む一時ファイル等）を
+    /// 利用者に知らせる。黙って残すと、認証を通っていない内容がそのまま置き去りになる
+    /// </summary>
+    private void NotifyLeftoverFiles(IReadOnlyList<string> leftovers)
+    {
+      if (leftovers == null || leftovers.Count == 0) return;
+      MessageBox.Show(new Form { TopMost = true },
+        Resources.DialogMessageLeftoverFiles + Environment.NewLine + string.Join(Environment.NewLine, leftovers),
+        Resources.DialogTitleAlert, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+    }
+
+    private void ShowDecryptionResult(RunWorkerCompletedEventArgs e)
+    {
 
 #if (DEBUG)
       System.Windows.Forms.MessageBox.Show("backgroundWorker_RunWorkerCompleted");

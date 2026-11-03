@@ -58,6 +58,12 @@ public class EncryptionResult
     public bool WasCancelled { get; set; }
 
     /// <summary>
+    /// 失敗・中止したときに片付けきれなかった作りかけの出力（検証前の平文を含む一時ファイルや
+    /// フォルダー）のパス。利用者に知らせて手で消してもらうためのもの。成功時は空。
+    /// </summary>
+    public System.Collections.Generic.IReadOnlyList<string> LeftoverPaths { get; set; } = [];
+
+    /// <summary>
     /// 成功結果を作成
     /// </summary>
     public static EncryptionResult CreateSuccess(string outputPath, int fileCount, string processingTime)
@@ -135,4 +141,9 @@ public static class ErrorCodes
     public const int CRYPTOGRAPHIC_EXCEPTION = -115;
     public const int RSA_KEY_GUID_NOT_MATCH = -116;
     public const int IO_EXCEPTION = -117;
+    /// <summary>
+    /// 復号の保存先に同名のファイルが既にあり、上書きしない指定（確認なしの実行で
+    /// 「上書きを確認する」）だった。何も書き出す前に止まる（終了コード 5 に写像）
+    /// </summary>
+    public const int OUTPUT_FILE_EXISTS = -118;
 }

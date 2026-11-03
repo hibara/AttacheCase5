@@ -33,15 +33,4 @@ public partial class PostPpapView : UserControl
       _ => null
     });
   }
-
-  private void OnKeyDown(object? sender, KeyEventArgs e)
-  {
-    if (e.Key == Key.Escape)
-    {
-      if (DataContext is ViewModels.PostPpapViewModel viewModel)
-      {
-        viewModel.CancelCommand.Execute(null);
-      }
-    }
-  }
 }

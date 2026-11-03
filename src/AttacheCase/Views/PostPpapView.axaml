@@ -3,8 +3,7 @@
              xmlns:vm="using:AttacheCase.ViewModels"
              xmlns:l="using:AttacheCase.Markup"
              x:Class="AttacheCase.Views.PostPpapView"
-             x:DataType="vm:PostPpapViewModel"
-             KeyDown="OnKeyDown">
+             x:DataType="vm:PostPpapViewModel">
 
     <Border Background="{DynamicResource AppDropAreaBackground}"
             BorderBrush="{DynamicResource AppDropAreaBorder}"
@@ -58,14 +57,19 @@
                         <KeyBinding Gesture="Enter" Command="{Binding RegisterEmailCommand}" />
                     </TextBox.KeyBindings>
                 </TextBox>
-                <StackPanel Orientation="Horizontal"
-                            HorizontalAlignment="Center"
-                            Spacing="10">
-                    <Button Classes="action Primary" Content="{l:Localize PostPpapView_Register}"
-                            Command="{Binding RegisterEmailCommand}" />
-                    <Button Classes="action" Content="{l:Localize Button_Cancel}"
-                            Command="{Binding CancelRegistrationCommand}" />
-                </StackPanel>
+                <!-- ボタン列は中央寄せではなく、入力欄（幅 400）の右端にそろえる
+                     （利用者指示 2026-10-25: 中央寄せはやめる）。パネルの幅は状態文で
+                     広がることがあるので、入力欄と同じ幅の箱の中で右寄せにする -->
+                <Grid Width="400">
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Spacing="10">
+                        <Button Classes="action Primary" Content="{l:Localize PostPpapView_Register}"
+                                Command="{Binding RegisterEmailCommand}" />
+                        <Button Classes="action" Content="{l:Localize Button_Cancel}"
+                                Command="{Binding CancelRegistrationCommand}" />
+                    </StackPanel>
+                </Grid>
 
                 <!-- 通信中であることを示す細いマーキー -->
                 <ProgressBar IsIndeterminate="True"

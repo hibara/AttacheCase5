@@ -11,9 +11,9 @@
     <!-- ビルド時に build_and_release.sh が csproj の Version で上書きする。
          ここは読んだ人が取り違えないよう、同じ値にしておく -->
     <key>CFBundleVersion</key>
-    <string>5.5.1</string>
+    <string>5.5.2</string>
     <key>CFBundleShortVersionString</key>
-    <string>5.5.1</string>
+    <string>5.5.2</string>
     <key>CFBundleIconFile</key>
     <string>main-icon</string>
     <key>CFBundlePackageType</key>
@@ -35,7 +35,7 @@
     <key>NSHighResolutionCapable</key>
     <true/>
     <key>NSHumanReadableCopyright</key>
-    <string>Copyright © 2026 HiBARA Software, LLC</string>
+    <string>Copyright © 2002-2026 HiBARA Software, LLC</string>
 
     <!-- 暗号化ファイル（.atc）の関連付け
 

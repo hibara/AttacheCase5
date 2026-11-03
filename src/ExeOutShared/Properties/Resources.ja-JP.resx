@@ -204,4 +204,7 @@
   <data name="labelInputPassword" xml:space="preserve">
     <value>パスワードを入力してください：</value>
   </data>
+  <data name="DialogMessageLeftoverFiles" xml:space="preserve">
+    <value>作りかけのファイルを削除できませんでした。手動で削除してください:</value>
+  </data>
 </root>

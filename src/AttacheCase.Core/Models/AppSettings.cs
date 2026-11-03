@@ -101,7 +101,7 @@ public class AppSettings
     /// <summary>処理中は常にウィンドウを最小化する</summary>
     public bool MinimizeWhileProcessing { get; set; }
 
-    /// <summary>メニューバーにアイコンを表示する（Windows 版の「タスクバーに表示する」に相当）</summary>
+    /// <summary>メニューバー（macOS）/ タスクトレイ（Windows）にアイコンを表示する。旧 Windows 版の fTaskTrayIcon に相当</summary>
     public bool ShowMenuBarIcon { get; set; }
 
     /// <summary>ウィンドウを常に最前面に表示する</summary>
@@ -110,26 +110,55 @@ public class AppSettings
     /// <summary>アタッシェケースを複数起動しない</summary>
     public bool NoMultipleInstance { get; set; }
 
+    /// <summary>PC がタブレットモードで動作しているとき、最大化モードで起動しない（Windows のみ。旧版の fNotMaximizedInTabletMode / /notmaximized）</summary>
+    public bool NoMaximizeInTabletMode { get; set; }
+
     //-----------------------------------
     // 保存設定（暗号化）
     //-----------------------------------
 
-    /// <summary>暗号化ファイルの種類（/entype）。1: .atc、3: パスワード ZIP</summary>
+    /// <summary>暗号化ファイルの種類（/entype）。1: .atc、2: 自己実行形式（Windows）、3: パスワード ZIP</summary>
     public int EncryptionFileType { get; set; } = EncryptionFileTypes.Atc;
+
+    /// <summary>
+    /// 前に使ったファイルタイプで暗号化する（/beforetype、旧 fEncryptionSameFileTypeBefore）。
+    /// ON: パスワード入力画面のコンボボックスで選んだ種類（ATC / EXE）を実行時に
+    /// <see cref="EncryptionFileType"/> へ書き戻し、次回のドロップも同じ種類になる。
+    /// OFF: 設定画面で選んだ種類を常に使う（コンボボックスの選択はその場限り）。
+    /// 旧版と同じく、パスワード ZIP は「前回」として記憶しない（専用画面から明示的に選ぶもの）。
+    /// </summary>
+    public bool UseLastEncryptionFileType { get; set; }
 
     /// <summary>暗号化ファイルを常に同じ場所へ保存する（/saveto）</summary>
     public bool SaveToSameFolder { get; set; }
 
     public string SaveToFolderPath { get; set; } = string.Empty;
 
-    /// <summary>同名ファイルがあるとき上書きの確認をする（/ow）</summary>
+    /// <summary>
+    /// 暗号化時、同名ファイルがあるとき上書きの確認をする（/ow、旧 fEncryptConfirmOverwrite）。
+    /// 復号側は別の設定 <see cref="DecryptConfirmOverwrite"/>（旧版と同じ 2 本立て。/ow は両方に効く）
+    /// </summary>
     public bool ConfirmOverwrite { get; set; } = true;
 
-    /// <summary>フォルダー内のファイルを 1 つずつ個別に暗号化する（/oneby）</summary>
+    /// <summary>
+    /// 複数ファイルの場合: フォルダー内のファイルを 1 つずつ個別に暗号化する（/oneby、旧 fFilesOneByOne）。
+    /// <see cref="AllFilePack"/> と排他。両方 false が「通常」（入力 1 つにつき 1 つの暗号化ファイル。
+    /// フォルダーはサブフォルダーも含めてフォルダー単位でまとめる）
+    /// </summary>
     public bool EncryptOneByOne { get; set; }
 
-    /// <summary>暗号化ファイルのタイムスタンプを元ファイルに合わせる（/orgdt）</summary>
-    public bool KeepTimeStamp { get; set; }
+    /// <summary>
+    /// 複数ファイルの場合: 複数のファイルやフォルダーを 1 つの暗号化ファイルにまとめる（/allpack、旧 fAllFilePack）。
+    /// <see cref="EncryptOneByOne"/> と排他（両方 true なら旧版と同じくこちらが勝つ）。
+    /// コマンドラインから複数のファイルを渡して 1 つにまとめたいときに使う
+    /// </summary>
+    public bool AllFilePack { get; set; }
+
+    /// <summary>
+    /// ファイルとフォルダーのタイムスタンプを保持する（/orgdt、旧 fKeepTimeStamp）。
+    /// 出力した暗号化ファイルの作成・更新日時を元ファイルに合わせる。既定 ON（利用者指示 2026-10-28）
+    /// </summary>
+    public bool KeepTimeStamp { get; set; } = true;
 
     /// <summary>暗号化ファイル名に元の拡張子を含める（/withext）</summary>
     public bool IncludeOriginalExtension { get; set; }
@@ -197,6 +226,12 @@ public class AppSettings
     /// <summary>CRC32 が一致しなくても復号を続行する（/ignorecrc）</summary>
     public bool ContinueOnHashMismatch { get; set; }
 
+    /// <summary>
+    /// 復号時、同名ファイルがあるとき上書きの確認をする（/ow、旧 fDecryptConfirmOverwrite）。
+    /// 暗号化側は <see cref="ConfirmOverwrite"/>。既定 ON（旧版と同じ）
+    /// </summary>
+    public bool DecryptConfirmOverwrite { get; set; } = true;
+
     //-----------------------------------
     // 高度な設定（パスワードファイル）
     //-----------------------------------
@@ -230,11 +265,35 @@ public class AppSettings
     // 削除
     //-----------------------------------
 
-    /// <summary>暗号化後に元ファイルを削除する（/del）。0: しない、1: 通常、2: ごみ箱、3: 完全削除</summary>
+    /// <summary>
+    /// 暗号化後に元ファイルを削除する（/del、旧 fDelOrgFile）。0: しない、1: 通常、2: ごみ箱、3: 完全削除。
+    /// 「削除するか」と「どう削除するか」を 1 つの値で持つ（5.5.0 からの保存形式。0 以外なら削除する）
+    /// </summary>
     public int DeleteMode { get; set; }
 
-    /// <summary>復号後に暗号化ファイルを削除する（/delenc）</summary>
+    /// <summary>復号後に暗号化ファイルを削除する（/delenc、旧 fDelEncFile）。値の意味は <see cref="DeleteMode"/> と同じ</summary>
     public int DeleteEncryptedFileMode { get; set; }
+
+    /// <summary>
+    /// 設定画面の「削除方法」（旧 fCompleteDelFile）。1: 通常、2: ごみ箱、3: 完全削除。0 は未設定。
+    /// 削除が OFF のときにも方法を覚えておくための値で、メインウィンドウのチェックボックスや
+    /// 設定画面で削除を ON にしたときはこの方法で <see cref="DeleteMode"/> /
+    /// <see cref="DeleteEncryptedFileMode"/> を埋める。実際の削除は各 *Mode の値で行う
+    /// </summary>
+    public int DeleteMethod { get; set; }
+
+    /// <summary>
+    /// 暗号化画面（メインウィンドウ）に「暗号化後に元のファイルを削除する」チェックボックスを出す
+    /// （/chkdel、旧 fEncryptShowDelChkBox）。チェックの初期値は <see cref="DeleteMode"/>、
+    /// 切り替えはその実行だけに効き、設定には書き戻さない（旧版と同じ）
+    /// </summary>
+    public bool EncryptShowDeleteCheckBox { get; set; }
+
+    /// <summary>
+    /// 復号画面（メインウィンドウ）に「復号後に暗号化ファイルを削除する」チェックボックスを出す
+    /// （/chkdel、旧 fDecryptShowDelChkBox）
+    /// </summary>
+    public bool DecryptShowDeleteCheckBox { get; set; }
 
     /// <summary>完全削除でランダム値を書き込む回数（/delrand）</summary>
     public int DeleteRandomTimes { get; set; } = 1;
@@ -242,8 +301,11 @@ public class AppSettings
     /// <summary>完全削除でゼロを書き込む回数（/delnull）</summary>
     public int DeleteZeroTimes { get; set; } = 1;
 
-    /// <summary>削除の前に確認する（/comfdel）</summary>
+    /// <summary>暗号化後の元ファイル削除の前に確認する（/comfdel、旧 fConfirmToDeleteAfterEncryption）</summary>
     public bool ConfirmDelete { get; set; } = true;
+
+    /// <summary>復号後の暗号化ファイル削除の前に確認する（/comfdel、旧 fConfirmToDeleteAfterDecryption）</summary>
+    public bool ConfirmDeleteAfterDecryption { get; set; } = true;
 
     //-----------------------------------
     // 記憶パスワード
@@ -256,6 +318,15 @@ public class AppSettings
 
     /// <summary>復号パスワードを記憶して事前入力する（旧 fMyDecryptPasswordKeep）</summary>
     public bool RememberDecryptPassword { get; set; }
+
+    /// <summary>
+    /// 記憶パスワードがあるとき、入力・確認の画面を出さずにそのまま暗号化/復号を始める
+    /// （旧 fMemPasswordExe、/mempexe）。記憶していない側には効かない
+    /// </summary>
+    public bool ExecuteWithRememberedPassword { get; set; }
+
+    /// <summary>暗号化画面のパスワード強度メーターを表示する（旧 fPasswordStrengthMeter、/psm）</summary>
+    public bool ShowPasswordStrengthMeter { get; set; } = true;
 
     //-----------------------------------
     // 関連付け（Windows のみ意味を持つ）
@@ -271,6 +342,30 @@ public class AppSettings
     //-----------------------------------
     // 派生値
     //-----------------------------------
+
+    /// <summary>
+    /// いま有効な削除方法（1〜3）。<see cref="DeleteMethod"/> が未設定（5.5.0 の設定ファイルや既定値）なら
+    /// 削除 ON になっている側の方法を引き継ぎ、どちらも無ければ通常削除
+    /// </summary>
+    [JsonIgnore]
+    public int EffectiveDeleteMethod =>
+        IsDeleteMethodValue(DeleteMethod) ? DeleteMethod
+        : IsDeleteMethodValue(DeleteMode) ? DeleteMode
+        : IsDeleteMethodValue(DeleteEncryptedFileMode) ? DeleteEncryptedFileMode
+        : DeleteModes.Delete;
+
+    /// <summary>
+    /// 暗号化後に元ファイルを削除するときの方法。<paramref name="enabled"/> が false なら削除しない（0）。
+    /// 設定が「削除しない」のままメインウィンドウのチェックで ON にされたときは <see cref="EffectiveDeleteMethod"/>。
+    /// 1〜3 以外の不正値（壊れた設定ファイルなど）は置き換えずそのまま返し、PostProcessHelper.DeleteAsync の
+    /// 未定義値ガードに任せる（有効値へ丸めると「ごみ箱のつもりが完全削除」を防ぐガードが働かない。CodeRabbit PR#20）
+    /// </summary>
+    public int ResolveDeleteMode(bool enabled) => enabled ? (DeleteMode == DeleteModes.None ? EffectiveDeleteMethod : DeleteMode) : DeleteModes.None;
+
+    /// <summary>復号後に暗号化ファイルを削除するときの方法。<see cref="ResolveDeleteMode"/> の復号側</summary>
+    public int ResolveDeleteEncryptedFileMode(bool enabled) => enabled ? (DeleteEncryptedFileMode == DeleteModes.None ? EffectiveDeleteMethod : DeleteEncryptedFileMode) : DeleteModes.None;
+
+    private static bool IsDeleteMethodValue(int v) => v is DeleteModes.Delete or DeleteModes.Trash or DeleteModes.Wipe;
 
     [JsonIgnore]
     public CompressionLevel CompressionLevelValue => CompressionLevel switch

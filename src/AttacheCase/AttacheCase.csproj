@@ -5,10 +5,12 @@
         <Nullable>enable</Nullable>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-        <AssemblyVersion>5.5.1.0</AssemblyVersion>
-        <FileVersion>5.5.1.0</FileVersion>
+        <AssemblyVersion>5.5.2.0</AssemblyVersion>
+        <FileVersion>5.5.2.0</FileVersion>
         <Company>HiBARA Software, LLC</Company>
-        <Version>5.5.1</Version>
+        <Version>5.5.2</Version>
+        <Product>AttacheCase</Product>
+        <Copyright>Copyright © 2002-2026 HiBARA Software, LLC</Copyright>
         <!-- Windows の実行ファイルアイコン（旧版の main_icon.ico）。
              macOS は .app バンドルの icns（CFBundleIconFile）を使うので影響しない -->
         <ApplicationIcon>Assets\main-icon.ico</ApplicationIcon>
@@ -18,9 +20,9 @@
     <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
         <CFBundleName>AttacheCase</CFBundleName>
         <CFBundleDisplayName>AttacheCase</CFBundleDisplayName>
-        <CFBundleIdentifier>com.hibara.attachecase</CFBundleIdentifier>
-        <CFBundleVersion>5.5.0</CFBundleVersion>
-        <CFBundleShortVersionString>5.5.0</CFBundleShortVersionString>
+        <CFBundleIdentifier>jp.hibara.attachecase</CFBundleIdentifier>
+        <CFBundleVersion>5.5.2</CFBundleVersion>
+        <CFBundleShortVersionString>5.5.2</CFBundleShortVersionString>
         <CFBundlePackageType>APPL</CFBundlePackageType>
         <CFBundleIconFile>main-icon</CFBundleIconFile>
         <NSHighResolutionCapable>true</NSHighResolutionCapable>

@@ -31,22 +31,33 @@ public static class PostProcessHelper
     private const int MaxOpenItems = 10;
 
     /// <summary>
-    /// 暗号化に成功したあと、設定に従って元ファイルを削除する。
+    /// 暗号化に成功したあと、元ファイルを削除する。
     /// </summary>
-    public static Task DeleteOriginalsAsync(IEnumerable<string> paths, RunContext context)
+    /// <param name="enabled">削除するか。メインウィンドウのチェックボックスの状態（非表示なら設定値）</param>
+    public static Task DeleteOriginalsAsync(IEnumerable<string> paths, RunContext context, bool enabled)
     {
-        return DeleteAsync(paths, context, context.Settings.DeleteMode);
+        return DeleteAsync(paths, context, context.Settings.ResolveDeleteMode(enabled), context.Settings.ConfirmDelete);
     }
 
     /// <summary>
-    /// 復号に成功したあと、設定に従って暗号化ファイルを削除する。
+    /// 復号に成功したあと、暗号化ファイルを削除する。
     /// </summary>
-    public static Task DeleteEncryptedFileAsync(string path, RunContext context)
+    /// <param name="enabled">削除するか。メインウィンドウのチェックボックスの状態（非表示なら設定値）</param>
+    public static Task DeleteEncryptedFileAsync(string path, RunContext context, bool enabled)
     {
-        return DeleteAsync([path], context, context.Settings.DeleteEncryptedFileMode);
+        return DeleteAsync([path], context, context.Settings.ResolveDeleteEncryptedFileMode(enabled),
+            context.Settings.ConfirmDeleteAfterDecryption);
     }
 
-    private static async Task DeleteAsync(IEnumerable<string> paths, RunContext context, int mode)
+    /// <summary>設定どおりに元ファイルを削除する（削除のチェックボックスを持たない画面: パスワード ZIP・Post-PPAP）</summary>
+    public static Task DeleteOriginalsAsync(IEnumerable<string> paths, RunContext context)
+        => DeleteOriginalsAsync(paths, context, context.Settings.DeleteMode != DeleteModes.None);
+
+    /// <summary>設定どおりに暗号化ファイルを削除する（削除のチェックボックスを持たない画面: パスワード ZIP）</summary>
+    public static Task DeleteEncryptedFileAsync(string path, RunContext context)
+        => DeleteEncryptedFileAsync(path, context, context.Settings.DeleteEncryptedFileMode != DeleteModes.None);
+
+    private static async Task DeleteAsync(IEnumerable<string> paths, RunContext context, int mode, bool confirm)
     {
         if (mode <= 0) return;
 
@@ -56,7 +67,7 @@ public static class PostProcessHelper
         var localize = LocalizationService.Instance;
 
         // 削除確認（無人実行では確認できないため、指示どおり削除する）
-        if (context.Settings.ConfirmDelete && !context.IsUnattended)
+        if (confirm && !context.IsUnattended)
         {
             var names = targets.Count == 1
                 ? Path.GetFileName(targets[0].TrimEnd(Path.DirectorySeparatorChar))

@@ -157,6 +157,7 @@ public class PublicKeyViewModel : ViewModelBase
 
     public void OnFileDropped(string filePath, int fileType)
     {
+        fileType = NormalizeFileType(filePath, fileType);
         switch (State)
         {
             case RsaWorkflowState.Initial:
@@ -175,6 +176,20 @@ public class PublicKeyViewModel : ViewModelBase
                 HandleWaitingForPrivateKeyDrop(filePath, fileType);
                 break;
         }
+    }
+
+    /// <summary>
+    /// FileTypeDetector は旧 AttacheCase 4 の RSA 署名だけを 4（RSA 暗号化データ）と判定し、
+    /// 5.5 が書く RSA 鍵ファイル方式の v150 ファイルは 1（ATC）/ 2（EXE）になる。
+    /// この画面では「秘密鍵で復号するファイル」として同じに扱いたいので 4 に寄せる
+    /// （2026-10-26: ここで弾かれていたため、秘密鍵のあとに .atc を落としても無反応だった）。
+    /// </summary>
+    private static int NormalizeFileType(string filePath, int fileType)
+    {
+        if (fileType is 1 or 2 &&
+            DecryptionService.GetPublicKeyEncryptionKind(filePath) == PublicKeyEncryptionKind.RsaKeyFile)
+            return 4;
+        return fileType;
     }
 
     private void HandleInitialDrop(string filePath, int fileType)
@@ -281,8 +296,9 @@ public class PublicKeyViewModel : ViewModelBase
     {
         Message = State switch
         {
-            RsaWorkflowState.WaitingForFile => _localize["PublicKey_PublicKeyLoadedMessage"],
-            RsaWorkflowState.WaitingForEncryptedFile => _localize["PublicKey_PrivateKeyLoadedMessage"],
+            // 鍵読込済みの 2 状態は案内文をビュー側に固定で持つので、Message はエラー表示専用（空で始める）
+            RsaWorkflowState.WaitingForFile => string.Empty,
+            RsaWorkflowState.WaitingForEncryptedFile => string.Empty,
             RsaWorkflowState.WaitingForPublicKey =>
                 _localize.GetString("PublicKey_WaitingForPublicKeyMessage", DroppedFileName),
             RsaWorkflowState.WaitingForPrivateKey =>

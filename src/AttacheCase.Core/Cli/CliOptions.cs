@@ -131,9 +131,15 @@ public sealed class CliOptions
 
     /// <summary>
     /// フォルダー内のファイルを 1 つずつ個別に暗号化する（/oneby）。
-    /// false なら指定されたすべてを 1 つの暗号化ファイルにまとめる（/allpack）。
+    /// true なら <see cref="AllPack"/> を打ち消す。false なら「通常」（入力 1 つにつき 1 つ）に戻す。
     /// </summary>
     public bool? OneByOne { get; set; }
+
+    /// <summary>
+    /// 指定されたすべてを 1 つの暗号化ファイルにまとめる（/allpack）。
+    /// true なら <see cref="OneByOne"/> を打ち消す。false なら「通常」に戻す。
+    /// </summary>
+    public bool? AllPack { get; set; }
 
     /// <summary>圧縮レベル（/complv, /comprate）。null なら設定に従う</summary>
     public CompressionLevel? Compression { get; set; }
@@ -156,8 +162,11 @@ public sealed class CliOptions
     public int? DeleteRandomTimes { get; set; }
     public int? DeleteZeroTimes { get; set; }
 
-    /// <summary>削除の前に確認する（/comfdel）</summary>
+    /// <summary>削除の前に確認する（/comfdel）。旧版と同じく暗号化後・復号後の両方に効く</summary>
     public bool? ConfirmDelete { get; set; }
+
+    /// <summary>メインウィンドウに削除のチェックボックスを表示する（/chkdel、GUI 専用）。暗号化画面・復号画面の両方に効く</summary>
+    public bool? ShowDeleteCheckBox { get; set; }
 
     /// <summary>パスワードのタイプミス制限回数（/typelimit）</summary>
     public int? MissTypeLimits { get; set; }
@@ -171,7 +180,13 @@ public sealed class CliOptions
     /// <summary>パスワードを隠さずに入力する（/nohide）</summary>
     public bool? NotMaskPassword { get; set; }
 
-    /// <summary>メニューバーにアイコンを表示する（/tsktr）</summary>
+    /// <summary>記憶パスワードで確認なしに実行する（/mempexe）</summary>
+    public bool? ExecuteWithRememberedPassword { get; set; }
+
+    /// <summary>パスワード強度メーターを表示する（/psm）</summary>
+    public bool? ShowPasswordStrengthMeter { get; set; }
+
+    /// <summary>メニューバー / タスクトレイにアイコンを表示する（/tsktr）</summary>
     public bool? ShowMenuBarIcon { get; set; }
 
     /// <summary>ウィンドウを最前面に表示する（/front）</summary>
@@ -179,6 +194,12 @@ public sealed class CliOptions
 
     /// <summary>複数起動しない（/nomulti）</summary>
     public bool? NoMultipleInstance { get; set; }
+
+    /// <summary>PC がタブレットモードのとき最大化モードで起動しない（/notmaximized、Windows の GUI 専用）</summary>
+    public bool? NoMaximizeInTabletMode { get; set; }
+
+    /// <summary>前に使ったファイルタイプで暗号化する（/beforetype、GUI 専用）</summary>
+    public bool? UseLastEncryptionFileType { get; set; }
 
     /// <summary>パスワードファイルのドラッグ＆ドロップを許可する（/pf）</summary>
     public bool? AllowPasswordFileDragDrop { get; set; }
@@ -210,16 +231,19 @@ public sealed class CliOptions
     /// <summary>設定を上書きする指定が 1 つでもあったか</summary>
     public bool HasSettingOverride =>
         ExitAfterProcess.HasValue || OpenDecryptedFile.HasValue || NotMaskPassword.HasValue ||
+        ExecuteWithRememberedPassword.HasValue || ShowPasswordStrengthMeter.HasValue ||
         ShowMenuBarIcon.HasValue || WindowForeground.HasValue || NoMultipleInstance.HasValue ||
+        NoMaximizeInTabletMode.HasValue || UseLastEncryptionFileType.HasValue ||
         AllowPasswordFileDragDrop.HasValue || NoErrorWhenPasswordFileMissing.HasValue ||
         BreakFileWhenLimitExceeded.HasValue ||
         EncryptionType.HasValue || SelfExecutableOption.HasValue ||
-        OverwriteWithoutConfirm.HasValue || OneByOne.HasValue ||
+        OverwriteWithoutConfirm.HasValue || OneByOne.HasValue || AllPack.HasValue ||
         KeepTimeStamp.HasValue || IncludeOriginalExtension.HasValue || Compression.HasValue ||
         MissTypeLimits.HasValue || ZipAlgorithm.HasValue || NoParentFolder.HasValue ||
         SetTimeStampToNow.HasValue || ContinueOnHashMismatch.HasValue ||
         DeleteMode.HasValue || DeleteEncryptedFileMode.HasValue ||
         DeleteRandomTimes.HasValue || DeleteZeroTimes.HasValue || ConfirmDelete.HasValue ||
+        ShowDeleteCheckBox.HasValue ||
         AutoNameFormat != null || CamouflageExtension != null ||
         !string.IsNullOrEmpty(EncryptOutputDirectory) ||
         !string.IsNullOrEmpty(DecryptOutputDirectory) ||
@@ -234,10 +258,16 @@ public sealed class CliOptions
         if (ExitAfterProcess.HasValue) settings.ExitAfterProcess = ExitAfterProcess.Value;
         if (OpenDecryptedFile.HasValue) settings.OpenDecryptedFile = OpenDecryptedFile.Value;
         if (NotMaskPassword.HasValue) settings.NotMaskPassword = NotMaskPassword.Value;
+        if (ExecuteWithRememberedPassword.HasValue)
+            settings.ExecuteWithRememberedPassword = ExecuteWithRememberedPassword.Value;
+        if (ShowPasswordStrengthMeter.HasValue)
+            settings.ShowPasswordStrengthMeter = ShowPasswordStrengthMeter.Value;
 
         if (ShowMenuBarIcon.HasValue) settings.ShowMenuBarIcon = ShowMenuBarIcon.Value;
         if (WindowForeground.HasValue) settings.WindowForeground = WindowForeground.Value;
         if (NoMultipleInstance.HasValue) settings.NoMultipleInstance = NoMultipleInstance.Value;
+        if (NoMaximizeInTabletMode.HasValue) settings.NoMaximizeInTabletMode = NoMaximizeInTabletMode.Value;
+        if (UseLastEncryptionFileType.HasValue) settings.UseLastEncryptionFileType = UseLastEncryptionFileType.Value;
 
         if (AllowPasswordFileDragDrop.HasValue)
             settings.AllowPasswordFileDragDrop = AllowPasswordFileDragDrop.Value;
@@ -266,8 +296,24 @@ public sealed class CliOptions
             settings.SaveToFolderPath = EncryptOutputDirectory;
         }
 
-        if (OverwriteWithoutConfirm.HasValue) settings.ConfirmOverwrite = !OverwriteWithoutConfirm.Value;
-        if (OneByOne.HasValue) settings.EncryptOneByOne = OneByOne.Value;
+        // 旧版と同じく /ow は暗号化・復号の両方の「上書きを確認するか」に効く
+        if (OverwriteWithoutConfirm.HasValue)
+        {
+            settings.ConfirmOverwrite = !OverwriteWithoutConfirm.Value;
+            settings.DecryptConfirmOverwrite = !OverwriteWithoutConfirm.Value;
+        }
+        // まとめ方は 3 択（通常 / 一つにまとめる / 一つずつ）で、2 つのフラグは排他。
+        // 後に書いたほうが勝つように、/allpack → /oneby の順に適用する
+        if (AllPack.HasValue)
+        {
+            settings.AllFilePack = AllPack.Value;
+            if (AllPack.Value) settings.EncryptOneByOne = false;
+        }
+        if (OneByOne.HasValue)
+        {
+            settings.EncryptOneByOne = OneByOne.Value;
+            if (OneByOne.Value) settings.AllFilePack = false;
+        }
         if (KeepTimeStamp.HasValue) settings.KeepTimeStamp = KeepTimeStamp.Value;
         if (IncludeOriginalExtension.HasValue) settings.IncludeOriginalExtension = IncludeOriginalExtension.Value;
 
@@ -322,7 +368,17 @@ public sealed class CliOptions
         if (DeleteEncryptedFileMode.HasValue) settings.DeleteEncryptedFileMode = DeleteEncryptedFileMode.Value;
         if (DeleteRandomTimes.HasValue) settings.DeleteRandomTimes = DeleteRandomTimes.Value;
         if (DeleteZeroTimes.HasValue) settings.DeleteZeroTimes = DeleteZeroTimes.Value;
-        if (ConfirmDelete.HasValue) settings.ConfirmDelete = ConfirmDelete.Value;
+        // 旧版と同じく /comfdel と /chkdel は暗号化側・復号側の両方に効く
+        if (ConfirmDelete.HasValue)
+        {
+            settings.ConfirmDelete = ConfirmDelete.Value;
+            settings.ConfirmDeleteAfterDecryption = ConfirmDelete.Value;
+        }
+        if (ShowDeleteCheckBox.HasValue)
+        {
+            settings.EncryptShowDeleteCheckBox = ShowDeleteCheckBox.Value;
+            settings.DecryptShowDeleteCheckBox = ShowDeleteCheckBox.Value;
+        }
 
         return settings;
     }
@@ -336,11 +392,16 @@ public sealed class CliOptions
         if (ExitAfterProcess.HasValue) yield return "/exit";
         if (OpenDecryptedFile.HasValue) yield return "/opf";
         if (NotMaskPassword.HasValue) yield return "/nohide";
+        if (ExecuteWithRememberedPassword.HasValue) yield return "/mempexe";
+        if (ShowPasswordStrengthMeter.HasValue) yield return "/psm";
         if (ShowMenuBarIcon.HasValue) yield return "/tsktr";
         if (WindowForeground.HasValue) yield return "/front";
         if (NoMultipleInstance.HasValue) yield return "/nomulti";
+        if (NoMaximizeInTabletMode.HasValue) yield return "/notmaximized";
+        if (UseLastEncryptionFileType.HasValue) yield return "/beforetype";
         if (AllowPasswordFileDragDrop.HasValue) yield return "/pf";
         if (ConfirmDelete.HasValue) yield return "/comfdel";
+        if (ShowDeleteCheckBox.HasValue) yield return "/chkdel";
     }
 
     /// <summary>
@@ -374,8 +435,8 @@ public static class CliParser
     {
         // ダイアログ・ウィンドウ・外観の設定（macOS 版には設定保存の仕組みがまだ無い）
         "/exe", "/decnum", "/askende", "/chkexeout", "/theme",
-        "/mempexe", "/psm", "/imeon", "/notmaximized",
-        "/chkdel", "/sametype", "/beforetype",
+        "/imeon",
+        "/sametype",
         // Mark of the Web は Windows 固有（macOS の quarantine 属性とは仕様が異なる）
         "/motwexe", "/motwoffice", "/motwuser", "/motwall", "/motwtypes",
         // ver.5 で廃止済み
@@ -606,6 +667,16 @@ public static class CliParser
                     options.NotMaskPassword = value is null or "1";
                     break;
 
+                // 記憶パスワードで確認なしに実行する
+                case "/mempexe":
+                    options.ExecuteWithRememberedPassword = value is null or "1";
+                    break;
+
+                // パスワード強度メーターを表示する
+                case "/psm":
+                    options.ShowPasswordStrengthMeter = value is null or "1";
+                    break;
+
                 // メニューバーにアイコンを表示する（Windows のタスクトレイ設定に相当）
                 case "/tsktr":
                     options.ShowMenuBarIcon = value is null or "1";
@@ -636,9 +707,25 @@ public static class CliParser
                     options.NoMultipleInstance = value is null or "1";
                     break;
 
+                // PC がタブレットモードのとき最大化モードで起動しない（Windows の GUI 専用）
+                case "/notmaximized":
+                    options.NoMaximizeInTabletMode = value is null or "1";
+                    break;
+
+                // 前に使ったファイルタイプで暗号化する（GUI 専用）。
+                // 旧版は値に「前回の種類」1〜3 を取ったので、0 以外はすべて ON とみなす
+                case "/beforetype":
+                    options.UseLastEncryptionFileType = value is null or "1" or "2" or "3";
+                    break;
+
                 // 削除の前に確認する
                 case "/comfdel":
                     options.ConfirmDelete = value is null or "1";
+                    break;
+
+                // メインウィンドウに削除のチェックボックスを表示する（GUI 専用）
+                case "/chkdel":
+                    options.ShowDeleteCheckBox = value is null or "1";
                     break;
 
                 case "/y":
@@ -771,7 +858,7 @@ public static class CliParser
                     break;
 
                 case "/allpack":
-                    if (value is null or "1") options.OneByOne = false;
+                    options.AllPack = value is null or "1";
                     break;
 
                 //-----------------------------------

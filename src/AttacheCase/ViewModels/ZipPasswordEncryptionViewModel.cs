@@ -34,6 +34,8 @@ public class ZipPasswordEncryptionViewModel : ViewModelBase
 {
     private readonly MainWindowViewModel _mainViewModel;
     private readonly IEncryptionService _encryptionService;
+    /// <summary>ドロップ・選択されたすべての対象（設定「複数ファイルの場合」でジョブに分ける。暗号化(ATC)画面と同じ）</summary>
+    private readonly string[] _targetPaths;
     private string _targetPath;
     private int _currentStep = 1; // 1: パスワード入力, 2: 確認, 3: 処理中, 4: 完了
     private string _password = string.Empty;
@@ -41,6 +43,7 @@ public class ZipPasswordEncryptionViewModel : ViewModelBase
     private int _progress;
     private bool _isProcessing;
     private string _statusMessage = string.Empty;
+    private string _currentFilePath = string.Empty;
     private CancellationTokenSource? _cancellationTokenSource;
     private readonly LocalizationService _localize = LocalizationService.Instance;
 
@@ -49,19 +52,22 @@ public class ZipPasswordEncryptionViewModel : ViewModelBase
 
     private AppSettings Settings => _ctx.Settings;
 
-    public ZipPasswordEncryptionViewModel(MainWindowViewModel mainViewModel, string targetPath)
-        : this(mainViewModel, targetPath, RunContext.ForGui())
+    public ZipPasswordEncryptionViewModel(MainWindowViewModel mainViewModel, string[] targetPaths)
+        : this(mainViewModel, targetPaths, RunContext.ForGui())
     {
     }
 
     /// <summary>
     /// 設定（および コマンドライン引数）を適用するコンストラクタ。
     /// 暗号方式は設定の「ZIP の暗号方式」、保存先は ZIP 用の保存先設定に従う。
+    /// 複数の対象は暗号化(ATC)画面と同じく設定「複数ファイルの場合」でジョブに分ける
+    /// （5.5.0 は先頭 1 件しか処理していなかった。CodeRabbit PR#20）
     /// </summary>
-    public ZipPasswordEncryptionViewModel(MainWindowViewModel mainViewModel, string targetPath, RunContext context)
+    public ZipPasswordEncryptionViewModel(MainWindowViewModel mainViewModel, string[] targetPaths, RunContext context)
     {
         _mainViewModel = mainViewModel;
-        _targetPath = targetPath;
+        _targetPaths = targetPaths;
+        _targetPath = targetPaths.Length > 0 ? targetPaths[0] : string.Empty;
         _ctx = context;
         _encryptionService = new ZipPasswordEncryptionService(ToZipMethod(context.Settings.ZipAlgorithm));
 
@@ -143,14 +149,16 @@ public class ZipPasswordEncryptionViewModel : ViewModelBase
 
     /// <summary>
     /// コンボボックスで ATC / EXE に切り替えたら、選択を覚えてから
-    /// 暗号化(ATC)画面へ対象をそのまま渡して遷移する。ZIP はこの画面のまま。
+    /// 暗号化(ATC)画面へ対象と選んだ種類をそのまま渡して遷移する。ZIP はこの画面のまま。
+    /// 「前に使ったファイルタイプで暗号化する」が OFF だと覚える処理は何もしないので、
+    /// 遷移先の初期選択は引数で渡す。
     /// </summary>
     private void OnFileTypeSelected(int type)
     {
         if (type == EncryptionFileTypes.Zip) return;
 
         _ctx.RememberEncryptionFileType(type);
-        _mainViewModel.StartEncryption([TargetPath]);
+        _mainViewModel.StartEncryption(_targetPaths, type);
     }
 
     /// <summary>現在のステップ (1: パスワード入力, 2: 確認, 3: 処理中, 4: 完了)</summary>
@@ -218,26 +226,20 @@ public class ZipPasswordEncryptionViewModel : ViewModelBase
     /// <summary>パスワードが一致しているか</summary>
     public bool IsPasswordMatch => !string.IsNullOrEmpty(Password) && Password == PasswordConfirm;
 
-    /// <summary>確認用テキストボックスの背景色（暗号化(ATC)画面と同じ流儀）</summary>
-    public IBrush ConfirmPasswordBackground
-    {
-        get
-        {
-            if (string.IsNullOrEmpty(PasswordConfirm))
-            {
-                return new SolidColorBrush(Color.FromRgb(255, 228, 196)); // 薄いオレンジ
-            }
-            return IsPasswordMatch
-                ? new SolidColorBrush(Colors.White)
-                : new SolidColorBrush(Color.FromRgb(255, 228, 196));
-        }
-    }
+    /// <summary>確認用テキストボックスの背景色（暗号化(ATC)画面と同じ。一致 = 薄緑、未入力・不一致 = 薄いオレンジ）</summary>
+    public IBrush ConfirmPasswordBackground =>
+        IsPasswordMatch
+            ? ThemeBrushes.Get("AppPasswordMatchBackground", Color.FromRgb(0xEE, 0xFF, 0xEB))
+            : ThemeBrushes.Get("AppPasswordMismatchBackground", Color.FromRgb(255, 228, 196));
 
     // =====================================================================
     // パスワード強度メーター（zxcvbn）。暗号化(ATC)画面と同じ表示
     // =====================================================================
 
     private int _passwordStrengthScore = -1; // -1: 空
+
+    /// <summary>強度メーターを出すか（設定「パスワード強度メーターを表示する」）</summary>
+    public bool IsPasswordStrengthMeterVisible => Settings.ShowPasswordStrengthMeter;
 
     /// <summary>強度スコア（0〜4）。空のときは -1</summary>
     public int PasswordStrengthScore => _passwordStrengthScore;
@@ -304,6 +306,16 @@ public class ZipPasswordEncryptionViewModel : ViewModelBase
         set => SetProperty(ref _progress, value);
     }
 
+    /// <summary>
+    /// 現在処理中のファイルのフルパス（進捗バーの上に出す。完了後は出来上がった ZIP のパス）。
+    /// ATC の暗号化画面と同じ表示（利用者要望 2026-10-25。以前は ZIP 側だけ無かった）
+    /// </summary>
+    public string CurrentFilePath
+    {
+        get => _currentFilePath;
+        set => SetProperty(ref _currentFilePath, value);
+    }
+
     public bool IsProcessing
     {
         get => _isProcessing;
@@ -321,9 +333,6 @@ public class ZipPasswordEncryptionViewModel : ViewModelBase
         get => _targetPath;
         set => SetProperty(ref _targetPath, value);
     }
-
-    // ヘッダーはラベルのみ。対象パスはビュー側で TargetPath を別途表示する
-    public string HeaderText => _localize.GetString("ZipEncryption_HeaderFormat");
 
     #endregion
 
@@ -416,14 +425,14 @@ public class ZipPasswordEncryptionViewModel : ViewModelBase
 
         try
         {
-            // 出力先の決定は指定の矛盾（/oneby と単一ファイル出力など）で
-            // InvalidOperationException を投げうる。GUI の EncryptCommand は
-            // これを直接呼ぶので、握らないと UI の未処理例外経路へ再送出され、
-            // CurrentStep も 3 のまま固まる。EncryptionViewModel と同じ扱いにする
-            string outputPath;
+            // 処理単位（入力の組と出力先）は暗号化(ATC)画面・CLI と共通の EncryptionJobPlan で決める。
+            // 出力先の決定は指定の矛盾（/oneby と単一ファイル出力など）で InvalidOperationException を
+            // 投げうる。GUI の EncryptCommand はこれを直接呼ぶので、握らないと UI の未処理例外経路へ
+            // 再送出され、CurrentStep も 3 のまま固まる
+            List<EncryptionJob> jobs;
             try
             {
-                outputPath = DetermineOutputPath(TargetPath);
+                jobs = EncryptionJobPlan.Build(_targetPaths, _ctx, inputs => CliOutputPath.ForZip(inputs, _ctx));
             }
             catch (InvalidOperationException ex)
             {
@@ -434,30 +443,13 @@ public class ZipPasswordEncryptionViewModel : ViewModelBase
                 return;
             }
 
-            // 上書き確認（設定「同名ファイルがあるとき上書きの確認をする」、/ow=0, /y, /force で省略）。
-            // ZipPasswordEncryptionService は出来上がった一時ファイルを無条件に差し替えるので、
-            // ここで聞かないと既存の ZIP が黙って上書きされる。ATC の暗号化と同じ扱いにする。
-            // 無人実行では確認できないため、上書きせずに終わる（終了コード 5）
-            if (File.Exists(outputPath) && Settings.ConfirmOverwrite)
+            if (jobs.Count == 0)
             {
-                var confirmed = await DialogHelper.ConfirmAsync(
-                    _ctx.IsUnattended,
-                    _localize["Dialog_OverwriteTitle"],
-                    _localize.GetString("Dialog_OverwriteFileMessage", Path.GetFileName(outputPath)));
-
-                if (!confirmed)
-                {
-                    _mainViewModel.ReportCommandLineResult(AtcExitCode.OutputExists);
-                    if (_ctx.IsCommandLineRun)
-                    {
-                        _mainViewModel.BackToMain();
-                    }
-                    else
-                    {
-                        CurrentStep = previousStep;
-                    }
-                    return;
-                }
+                _mainViewModel.ReportCommandLineResult(AtcExitCode.UsageError);
+                StatusMessage = _localize.GetString("Encryption_Error", TargetPath);
+                await Task.Delay(3000);
+                _mainViewModel.BackToMain();
+                return;
             }
 
             var options = new EncryptionOptions
@@ -467,49 +459,78 @@ public class ZipPasswordEncryptionViewModel : ViewModelBase
                 ArchiveName = string.Empty
             };
 
-            var progressReporter = new Progress<EncryptionProgress>(p =>
+            string lastOutputPath = string.Empty;
+            foreach (var job in jobs)
             {
-                Progress = p.ProgressPercentage / 100;
-                WindowBehaviorService.Instance.ReportProgress(Progress);
-                StatusMessage = p.StatusMessage;
-            });
+                var outputPath = job.OutputPath;
+                TargetPath = job.InputPaths[0];
 
-            var result = await _encryptionService.EncryptAsync(
-                new[] { TargetPath },
-                outputPath,
-                Password,
-                options,
-                progressReporter,
-                _cancellationTokenSource.Token);
-
-            if (result.Success)
-            {
-                // 暗号化に成功したときだけ元ファイルを削除する（設定「削除」）
-                await PostProcessHelper.DeleteOriginalsAsync([TargetPath], _ctx);
-
-                StatusMessage = _localize["Encryption_Complete"];
-                Progress = 100;
-
-                // 設定「処理後に終了する」のときは従来どおり終わらせる。
-                // そうでなければ 100% のまま完了画面で止めて、利用者の操作を待つ
-                if (Settings.ExitAfterProcess)
+                // 上書き確認（設定「同名ファイルがあるとき上書きの確認をする」、/ow=0, /y, /force で省略）。
+                // ZipPasswordEncryptionService は出来上がった一時ファイルを無条件に差し替えるので、
+                // ここで聞かないと既存の ZIP が黙って上書きされる。ATC の暗号化と同じ扱いにする。
+                // 無人実行では確認できないため、上書きせずに終わる（終了コード 5）
+                if (File.Exists(outputPath) && Settings.ConfirmOverwrite)
                 {
-                    _mainViewModel.CompleteRun(_ctx);
+                    var confirmed = await DialogHelper.ConfirmAsync(
+                        _ctx.IsUnattended,
+                        _localize["Dialog_OverwriteTitle"],
+                        _localize.GetString("Dialog_OverwriteFileMessage", Path.GetFileName(outputPath)));
+
+                    if (!confirmed)
+                    {
+                        _mainViewModel.ReportCommandLineResult(AtcExitCode.OutputExists);
+                        if (_ctx.IsCommandLineRun)
+                        {
+                            _mainViewModel.BackToMain();
+                        }
+                        else
+                        {
+                            CurrentStep = previousStep;
+                        }
+                        return;
+                    }
                 }
-                else
+
+                // 進捗通知は UI スレッドへ後回しで届く。小さなファイルだと処理が同期的に終わって
+                // 先に「完了」を表示したあとで最後の「処理中: …」が届き、完了表示を上書きしていた
+                //（2026-10-25 実測）。終わったあとに届いた通知は捨てる
+                var finished = false;
+                var progressReporter = new Progress<EncryptionProgress>(p =>
                 {
-                    CurrentStep = 4;
+                    if (finished) return;
+                    Progress = p.ProgressPercentage / 100;
+                    WindowBehaviorService.Instance.ReportProgress(Progress);
+                    StatusMessage = p.StatusMessage;
+                    if (!string.IsNullOrEmpty(p.CurrentFilePath))
+                        CurrentFilePath = p.CurrentFilePath;
+                });
+
+                var result = await _encryptionService.EncryptAsync(
+                    job.InputPaths,
+                    outputPath,
+                    Password,
+                    options,
+                    progressReporter,
+                    _cancellationTokenSource.Token);
+                finished = true;
+
+                if (result.Success)
+                {
+                    // 暗号化に成功したときだけ元ファイルを削除する（設定「削除」）
+                    await PostProcessHelper.DeleteOriginalsAsync(job.InputPaths, _ctx);
+                    lastOutputPath = outputPath;
+                    continue;
                 }
-            }
-            else if (result.WasCancelled)
-            {
-                _mainViewModel.ReportCommandLineResult(AtcExitCode.Canceled);
-                StatusMessage = _localize["Encryption_Cancelled"];
-                await Task.Delay(1000);
-                _mainViewModel.BackToMain();
-            }
-            else
-            {
+
+                if (result.WasCancelled)
+                {
+                    _mainViewModel.ReportCommandLineResult(AtcExitCode.Canceled);
+                    StatusMessage = _localize["Encryption_Cancelled"];
+                    await Task.Delay(1000);
+                    _mainViewModel.BackToMain();
+                    return;
+                }
+
                 // 記録し忘れると、/exit=1 の無人実行が失敗しても終了コード 0 になり、
                 // 呼び出し元のスクリプトが失敗に気づけない
                 _mainViewModel.ReportCommandLineResult(
@@ -526,6 +547,22 @@ public class ZipPasswordEncryptionViewModel : ViewModelBase
                 {
                     CurrentStep = 1;
                 }
+                return;
+            }
+
+            StatusMessage = _localize["Encryption_Complete"];
+            CurrentFilePath = lastOutputPath;
+            Progress = 100;
+
+            // 設定「処理後に終了する」のときは従来どおり終わらせる。
+            // そうでなければ 100% のまま完了画面で止めて、利用者の操作を待つ
+            if (Settings.ExitAfterProcess)
+            {
+                _mainViewModel.CompleteRun(_ctx);
+            }
+            else
+            {
+                CurrentStep = 4;
             }
         }
         finally
@@ -535,11 +572,6 @@ public class ZipPasswordEncryptionViewModel : ViewModelBase
             _cancellationTokenSource?.Dispose();
             _cancellationTokenSource = null;
         }
-    }
-
-    private string DetermineOutputPath(string targetPath)
-    {
-        return CliOutputPath.ForZip([targetPath], _ctx);
     }
 
     #endregion

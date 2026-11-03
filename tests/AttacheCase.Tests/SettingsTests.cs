@@ -33,9 +33,17 @@ public class SettingsServiceTests
         var service = new SettingsService(path);
 
         Assert.True(service.Current.ConfirmOverwrite);
+        Assert.True(service.Current.DecryptConfirmOverwrite);
         Assert.Equal(EncryptionFileTypes.Atc, service.Current.EncryptionFileType);
         Assert.Equal(3, service.Current.MissTypeLimits);
         Assert.Equal(0, service.Current.DeleteMode);
+        Assert.Equal(0, service.Current.DeleteEncryptedFileMode);
+        Assert.Equal(0, service.Current.DeleteMethod);
+        Assert.Equal(DeleteModes.Delete, service.Current.EffectiveDeleteMethod);
+        Assert.False(service.Current.EncryptShowDeleteCheckBox);
+        Assert.False(service.Current.DecryptShowDeleteCheckBox);
+        Assert.True(service.Current.ConfirmDelete);
+        Assert.True(service.Current.ConfirmDeleteAfterDecryption);
 
         // セキュリティ上の修正を届けられないほうが危ないので、既定で有効
         Assert.True(service.Current.CheckForUpdatesOnStartup);
@@ -105,6 +113,7 @@ public class SettingsServiceTests
             var service = new SettingsService(path);
 
             Assert.True(service.Current.ConfirmOverwrite);
+            Assert.True(service.Current.DecryptConfirmOverwrite);
         }
         finally
         {
@@ -151,6 +160,13 @@ public class CommandLineOverrideTests
         Assert.False(CliParser.Parse(["/ow=0"]).ApplyTo(new AppSettings()).ConfirmOverwrite);
         Assert.True(CliParser.Parse(["/ow=1"]).ApplyTo(new AppSettings()).ConfirmOverwrite);
         Assert.False(CliParser.Parse(["/y"]).ApplyTo(new AppSettings()).ConfirmOverwrite);
+
+        // 旧版と同じく /ow は復号側の確認にも効く（暗号化と復号は別の設定）
+        Assert.False(CliParser.Parse(["/ow=0"]).ApplyTo(new AppSettings()).DecryptConfirmOverwrite);
+        Assert.True(CliParser.Parse(["/ow=1"]).ApplyTo(new AppSettings()).DecryptConfirmOverwrite);
+        Assert.False(CliParser.Parse(["/y"]).ApplyTo(new AppSettings()).DecryptConfirmOverwrite);
+        var encryptOnly = new AppSettings { ConfirmOverwrite = false };
+        Assert.True(encryptOnly.DecryptConfirmOverwrite);
     }
 
     [Fact]
@@ -241,7 +257,8 @@ public class SettingsViewModelTests
         {
             vm.ExitAfterProcess = true;
             vm.MissTypeLimitsIndex = 8;   // 9 回
-            vm.DeleteMode = DeleteModes.Wipe;
+            vm.IsDeleteMethodWipe = true;
+            vm.DeleteOriginalAfterEncryption = true;
 
             // 保存していないので、保存されている設定は既定のまま
             Assert.False(service.Current.ExitAfterProcess);
@@ -266,6 +283,7 @@ public class SettingsViewModelTests
             vm.IsCompressionOptimal = true;
             vm.MissTypeLimitsIndex = 8;   // 9 回
             vm.ConfirmOverwrite = false;
+            vm.DecryptConfirmOverwrite = false;
 
             vm.SaveCommand.Execute(null);
 
@@ -275,6 +293,101 @@ public class SettingsViewModelTests
             Assert.Equal(2, service.Current.CompressionLevel);
             Assert.Equal(9, service.Current.MissTypeLimits);
             Assert.False(service.Current.ConfirmOverwrite);
+            Assert.False(service.Current.DecryptConfirmOverwrite);
+        }
+        finally
+        {
+            Directory.Delete(directory, true);
+        }
+    }
+
+    [Fact]
+    public void UseLastEncryptionFileType_IsSavedAndGatesRemembering()
+    {
+        var (vm, service, directory) = Create();
+        try
+        {
+            // 既定は OFF（旧版と同じ）: コンボボックスの選択は設定に残らない
+            Assert.False(vm.UseLastEncryptionFileType);
+            var ctx = new RunContext { Settings = service.Current, Store = service };
+            ctx.RememberEncryptionFileType(EncryptionFileTypes.Zip);
+            Assert.Equal(EncryptionFileTypes.Atc, service.Current.EncryptionFileType);
+
+            // ON にして保存すると、以後はコンボボックスの選択が設定へ書き戻される
+            vm.UseLastEncryptionFileType = true;
+            vm.SaveCommand.Execute(null);
+            Assert.True(service.Current.UseLastEncryptionFileType);
+
+            ctx = new RunContext { Settings = service.Current, Store = service };
+            ctx.RememberEncryptionFileType(EncryptionFileTypes.Zip);
+            Assert.Equal(EncryptionFileTypes.Zip, service.Current.EncryptionFileType);
+            Assert.Equal(EncryptionFileTypes.Zip,
+                new SettingsService(Path.Combine(directory, "settings.json")).Current.EncryptionFileType);
+        }
+        finally
+        {
+            Directory.Delete(directory, true);
+        }
+    }
+
+    [Fact]
+    public void MultipleFilesMode_IsAThreeWayChoice()
+    {
+        var (vm, service, directory) = Create();
+        try
+        {
+            // 既定は通常（旧版と同じ）
+            Assert.True(vm.IsMultipleFilesNormal);
+            Assert.False(vm.IsMultipleFilesAllPack);
+            Assert.False(vm.IsMultipleFilesOneByOne);
+
+            vm.IsMultipleFilesAllPack = true;
+            Assert.False(vm.IsMultipleFilesNormal);
+            Assert.False(vm.IsMultipleFilesOneByOne);
+
+            vm.IsMultipleFilesOneByOne = true;
+            Assert.False(vm.IsMultipleFilesAllPack);
+            Assert.False(vm.IsMultipleFilesNormal);
+
+            vm.SaveCommand.Execute(null);
+            Assert.False(service.Current.AllFilePack);
+            Assert.True(service.Current.EncryptOneByOne);
+
+            vm.IsMultipleFilesNormal = true;
+            vm.SaveCommand.Execute(null);
+            Assert.False(service.Current.AllFilePack);
+            Assert.False(service.Current.EncryptOneByOne);
+        }
+        finally
+        {
+            Directory.Delete(directory, true);
+        }
+    }
+
+    [Fact]
+    public void FileTypeExe_IsSelectableOnlyOnWindows()
+    {
+        var (vm, service, directory) = Create();
+        try
+        {
+            Assert.False(vm.IsFileTypeExe);
+
+            vm.IsFileTypeExe = true;
+            if (OperatingSystem.IsWindows())
+            {
+                Assert.True(vm.IsFileTypeExe);
+                Assert.False(vm.IsFileTypeAtc);
+                Assert.False(vm.IsFileTypeZip);
+
+                vm.SaveCommand.Execute(null);
+                Assert.Equal(EncryptionFileTypes.Exe, service.Current.EncryptionFileType);
+            }
+            else
+            {
+                // EXE は Windows 専用。他 OS では選べず .atc のまま
+                Assert.False(vm.IsFileTypeExe);
+                Assert.True(vm.IsFileTypeAtc);
+            }
         }
         finally
         {
@@ -311,18 +424,107 @@ public class SettingsViewModelTests
         {
             vm.ExitAfterProcess = true;
             vm.ConfirmOverwrite = false;
-            vm.DeleteMode = DeleteModes.Trash;
+            vm.DecryptConfirmOverwrite = false;
+            vm.IsDeleteMethodTrash = true;
+            vm.DeleteOriginalAfterEncryption = true;
+            vm.EncryptShowDeleteCheckBox = true;
 
             vm.RestoreDefaultsCommand.Execute(null);
 
             Assert.False(vm.ExitAfterProcess);
             Assert.True(vm.ConfirmOverwrite);
-            Assert.Equal(DeleteModes.None, vm.DeleteMode);
+            Assert.True(vm.DecryptConfirmOverwrite);
+            Assert.False(vm.DeleteOriginalAfterEncryption);
+            Assert.False(vm.EncryptShowDeleteCheckBox);
+            Assert.True(vm.IsDeleteMethodNormal);
         }
         finally
         {
             Directory.Delete(directory, true);
         }
+    }
+
+    [Fact]
+    public void DeleteMethod_IsSharedAndRememberedWhileDeletionIsOff()
+    {
+        // 旧版と同じく「削除方法」は暗号化側・復号側で共有。削除 OFF のあいだも方法を覚えていて、
+        // ON に戻したときにその方法で DeleteMode / DeleteEncryptedFileMode が埋まる
+        var (vm, service, directory) = Create();
+        try
+        {
+            vm.IsDeleteMethodWipe = true;
+            vm.DeleteOriginalAfterEncryption = true;
+            vm.DeleteEncryptedFileAfterDecryption = true;
+            vm.SaveCommand.Execute(null);
+
+            Assert.Equal(DeleteModes.Wipe, service.Current.DeleteMode);
+            Assert.Equal(DeleteModes.Wipe, service.Current.DeleteEncryptedFileMode);
+            Assert.Equal(DeleteModes.Wipe, service.Current.DeleteMethod);
+
+            vm.DeleteOriginalAfterEncryption = false;
+            Assert.True(vm.IsDeleteMethodWipe);       // 方法の選択は消えない
+            vm.DeleteOriginalAfterEncryption = true;
+            vm.SaveCommand.Execute(null);
+            Assert.Equal(DeleteModes.Wipe, service.Current.DeleteMode);
+
+            // 方法を変えると ON の側の実際の方法も揃う
+            vm.IsDeleteMethodTrash = true;
+            vm.SaveCommand.Execute(null);
+            Assert.Equal(DeleteModes.Trash, service.Current.DeleteMode);
+            Assert.Equal(DeleteModes.Trash, service.Current.DeleteEncryptedFileMode);
+            Assert.Equal(DeleteModes.Trash, service.Current.DeleteMethod);
+        }
+        finally
+        {
+            Directory.Delete(directory, true);
+        }
+    }
+
+    [Fact]
+    public void DeleteMethod_FallsBackToTheModeSavedBy550()
+    {
+        // 5.5.0 の settings.json には DeleteMethod が無い。ON になっている側の方法を引き継ぐ
+        var old = new AppSettings { DeleteMode = DeleteModes.None, DeleteEncryptedFileMode = DeleteModes.Wipe };
+        Assert.Equal(DeleteModes.Wipe, old.EffectiveDeleteMethod);
+        Assert.Equal(DeleteModes.Wipe, old.ResolveDeleteMode(enabled: true));     // メイン画面のチェックで ON にしたとき
+        Assert.Equal(DeleteModes.None, old.ResolveDeleteMode(enabled: false));
+        Assert.Equal(DeleteModes.Wipe, old.ResolveDeleteEncryptedFileMode(enabled: true));
+        Assert.Equal(DeleteModes.None, old.ResolveDeleteEncryptedFileMode(enabled: false));
+
+        // 何も無ければ通常削除
+        Assert.Equal(DeleteModes.Delete, new AppSettings().EffectiveDeleteMethod);
+        Assert.Equal(DeleteModes.Delete, new AppSettings().ResolveDeleteMode(enabled: true));
+
+        // 実際の削除は各 *Mode が優先（CLI の /del=2 と設定画面の方法が違っていても引数どおり）
+        var mixed = new AppSettings { DeleteMode = DeleteModes.Trash, DeleteMethod = DeleteModes.Wipe };
+        Assert.Equal(DeleteModes.Trash, mixed.ResolveDeleteMode(enabled: true));
+
+        // 1〜3 以外の不正値は有効値へ丸めず、そのまま返して削除処理のガードに任せる（CodeRabbit PR#20）
+        var broken = new AppSettings { DeleteMode = 7, DeleteEncryptedFileMode = 9 };
+        Assert.Equal(7, broken.ResolveDeleteMode(enabled: true));
+        Assert.Equal(9, broken.ResolveDeleteEncryptedFileMode(enabled: true));
+        Assert.Equal(DeleteModes.None, broken.ResolveDeleteMode(enabled: false));
+    }
+
+    [Fact]
+    public void ChkdelAndComfdel_ApplyToBothEncryptionAndDecryption()
+    {
+        // 旧版と同じく /chkdel と /comfdel は暗号化側・復号側の両方に効く
+        var on = CliParser.Parse(["/chkdel=1", "/comfdel=0"]).ApplyTo(new AppSettings());
+        Assert.True(on.EncryptShowDeleteCheckBox);
+        Assert.True(on.DecryptShowDeleteCheckBox);
+        Assert.False(on.ConfirmDelete);
+        Assert.False(on.ConfirmDeleteAfterDecryption);
+
+        var off = CliParser.Parse(["/chkdel=0", "/comfdel"]).ApplyTo(new AppSettings
+        {
+            EncryptShowDeleteCheckBox = true, DecryptShowDeleteCheckBox = true,
+            ConfirmDelete = false, ConfirmDeleteAfterDecryption = false,
+        });
+        Assert.False(off.EncryptShowDeleteCheckBox);
+        Assert.False(off.DecryptShowDeleteCheckBox);
+        Assert.True(off.ConfirmDelete);
+        Assert.True(off.ConfirmDeleteAfterDecryption);
     }
 
     [Fact]

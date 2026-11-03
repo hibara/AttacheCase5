@@ -115,18 +115,73 @@ public class RegistrySettingsMigratorTests : IDisposable
 
         Assert.Equal(DeleteModes.Wipe, s.DeleteMode);
         Assert.Equal(DeleteModes.None, s.DeleteEncryptedFileMode);
+        Assert.Equal(DeleteModes.Wipe, s.DeleteMethod);   // 共有の方法は OFF の側のためにも残す
     }
 
     [WindowsFact]
-    public void 自己実行形式の既定はATCへ倒す()
+    public void 削除のチェックボックス表示と復号側の確認はOptionから読む()
     {
+        using (var option = _root!.CreateSubKey("Option"))
+        {
+            option.SetValue("fEncryptShowDelChkBox", "1");
+            option.SetValue("fDecryptShowDelChkBox", "0");
+            option.SetValue("fConfirmToDeleteAfterEncryption", "1");
+            option.SetValue("fConfirmToDeleteAfterDecryption", "0");
+        }
+
+        var s = RegistrySettingsMigrator.Migrate(_root!);
+        Assert.True(s.EncryptShowDeleteCheckBox);
+        Assert.False(s.DecryptShowDeleteCheckBox);
+        Assert.True(s.ConfirmDelete);
+        Assert.False(s.ConfirmDeleteAfterDecryption);
+    }
+
+    [WindowsFact]
+    public void 自己実行形式はEXEとして引き継ぐ()
+    {
+        // 5.5.1 で設定の「種類」に EXE が復活したので、旧 2（自己実行形式）は ATC へ倒さない
         using (var option = _root!.CreateSubKey("Option"))
         {
             option.SetValue("EncryptionFileType", "2"); // 旧: 自己実行形式
         }
 
         var s = RegistrySettingsMigrator.Migrate(_root!);
+        Assert.Equal(EncryptionFileTypes.Exe, s.EncryptionFileType);
+        Assert.False(s.UseLastEncryptionFileType);
+    }
+
+    [WindowsFact]
+    public void 種類は常に同じ種類が最優先で次に前に使った種類()
+    {
+        // 旧版の優先順: EncryptionSameFileTypeAlways > (fEncryptionSameFileTypeBefore + EncryptionSameFileTypeBefore) > EncryptionFileType
+        using (var option = _root!.CreateSubKey("Option"))
+        {
+            option.SetValue("EncryptionSameFileTypeAlways", "3"); // 常に ZIP
+            option.SetValue("fEncryptionSameFileTypeBefore", "1");
+            option.SetValue("EncryptionSameFileTypeBefore", "2");
+            option.SetValue("EncryptionFileType", "1");
+        }
+
+        var s = RegistrySettingsMigrator.Migrate(_root!);
+        Assert.Equal(EncryptionFileTypes.Zip, s.EncryptionFileType);
+        Assert.True(s.UseLastEncryptionFileType);
+
+        using (var option = _root!.CreateSubKey("Option"))
+        {
+            option.SetValue("EncryptionSameFileTypeAlways", "0"); // 未設定 → 前に使った種類
+        }
+
+        s = RegistrySettingsMigrator.Migrate(_root!);
+        Assert.Equal(EncryptionFileTypes.Exe, s.EncryptionFileType);
+
+        using (var option = _root!.CreateSubKey("Option"))
+        {
+            option.SetValue("fEncryptionSameFileTypeBefore", "0"); // 前に使った種類も使わない → 最後の選択
+        }
+
+        s = RegistrySettingsMigrator.Migrate(_root!);
         Assert.Equal(EncryptionFileTypes.Atc, s.EncryptionFileType);
+        Assert.False(s.UseLastEncryptionFileType);
     }
 
     [WindowsFact]
@@ -163,11 +218,15 @@ public class RegistrySettingsMigratorTests : IDisposable
         {
             myKey.SetValue("fMyEncryptPasswordKeep", "1");
             myKey.SetValue("fMyDecryptPasswordKeep", "0");
+            myKey.SetValue("fMemPasswordExe", "1");
+            myKey.SetValue("fPasswordStrengthMeter", "0");
         }
 
         var s = RegistrySettingsMigrator.Migrate(_root!);
         Assert.True(s.RememberEncryptPassword);
         Assert.False(s.RememberDecryptPassword);
+        Assert.True(s.ExecuteWithRememberedPassword);
+        Assert.False(s.ShowPasswordStrengthMeter);
     }
 
     [WindowsFact]
@@ -231,8 +290,59 @@ public class RegistrySettingsMigratorTests : IDisposable
         var defaults = new AppSettings();
         Assert.Equal(defaults.Language, s.Language);
         Assert.Equal(defaults.ConfirmOverwrite, s.ConfirmOverwrite);
+        Assert.Equal(defaults.DecryptConfirmOverwrite, s.DecryptConfirmOverwrite);
         Assert.Equal(defaults.MissTypeLimits, s.MissTypeLimits);
         Assert.Equal(defaults.DeleteRandomTimes, s.DeleteRandomTimes);
         Assert.True(s.MigratedFromRegistry);
+    }
+
+    [WindowsFact]
+    public void 上書き確認は暗号化と復号で別のフラグから読む()
+    {
+        // 旧版は fEncryptConfirmOverwrite / fDecryptConfirmOverwrite の 2 本立て
+        using (var option = _root!.CreateSubKey("Option"))
+        {
+            option.SetValue("fEncryptConfirmOverwrite", "1");
+            option.SetValue("fDecryptConfirmOverwrite", "0");
+        }
+
+        var s = RegistrySettingsMigrator.Migrate(_root!);
+        Assert.True(s.ConfirmOverwrite);
+        Assert.False(s.DecryptConfirmOverwrite);
+    }
+
+    [WindowsFact]
+    public void タブレットモードで最大化しないフラグはOptionから読む()
+    {
+        using (var option = _root!.CreateSubKey("Option"))
+        {
+            option.SetValue("fNotMaximizedInTabletMode", "1");
+        }
+
+        var s = RegistrySettingsMigrator.Migrate(_root!);
+        Assert.True(s.NoMaximizeInTabletMode);
+    }
+
+    [WindowsFact]
+    public void 複数ファイルの場合は2つのフラグを排他で引き継ぐ()
+    {
+        using (var option = _root!.CreateSubKey("Option"))
+        {
+            option.SetValue("fAllFilePack", "1");
+            option.SetValue("fFilesOneByOne", "1"); // 旧版では起きないが、両方なら「一つにまとめる」が勝つ
+        }
+
+        var s = RegistrySettingsMigrator.Migrate(_root!);
+        Assert.True(s.AllFilePack);
+        Assert.False(s.EncryptOneByOne);
+
+        using (var option = _root!.CreateSubKey("Option"))
+        {
+            option.SetValue("fAllFilePack", "0");
+        }
+
+        s = RegistrySettingsMigrator.Migrate(_root!);
+        Assert.False(s.AllFilePack);
+        Assert.True(s.EncryptOneByOne);
     }
 }

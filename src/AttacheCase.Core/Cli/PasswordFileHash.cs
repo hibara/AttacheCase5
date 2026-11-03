@@ -31,6 +31,13 @@ public static class PasswordFileHash
     }
 
     /// <summary>
+    /// 鍵素材を画面のパスワード欄に見せるときの文字列（大文字 16 進、32 バイトなら 64 文字）。
+    /// 旧版（AttacheCase 4 / 5.0）の BytesToHexString（BitConverter.ToString のハイフン除去）と同じ表記。
+    /// 表示専用で、暗号化・復号は常にバイト列（PasswordBinary）で行う。
+    /// </summary>
+    public static string ToDisplayText(byte[] material) => System.Convert.ToHexString(material);
+
+    /// <summary>
     /// データバージョン 130 未満（アタッシェケース2 系）で使用する旧方式。
     /// SHA-1（20 バイト）＋ ファイルを 255 バイトずつ読み進めた最後のブロックの先頭 12 バイト。
     /// </summary>

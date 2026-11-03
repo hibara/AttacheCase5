@@ -135,12 +135,6 @@ Choose the method below.</value>
   <data name="Encryption_FileCount" xml:space="preserve">
     <value>{0} file(s) selected</value>
   </data>
-  <data name="Encryption_HeaderFormat" xml:space="preserve">
-    <value>Encrypt ATC: </value>
-  </data>
-  <data name="Encryption_HeaderFormatExe" xml:space="preserve">
-    <value>Encrypt as self-executable: </value>
-  </data>
 
   <!-- 復号画面 -->
   <data name="Decryption_Title" xml:space="preserve">
@@ -429,9 +423,6 @@ Do you want to overwrite it?</value>
   <data name="Decryption_PasswordPrompt" xml:space="preserve">
     <value>Please enter a password</value>
   </data>
-  <data name="Decryption_HeaderFormat" xml:space="preserve">
-    <value>Decrypt ATC: </value>
-  </data>
   <data name="Decryption_RsaProcessing" xml:space="preserve">
     <value>RSA Decrypting...</value>
   </data>
@@ -470,7 +461,7 @@ Do you want to overwrite them?
 Do you want to overwrite them?</value>
   </data>
   <data name="PublicKey_InitialDropMessage" xml:space="preserve">
-    <value>Decrypt files that were encrypted with RSA key files in an earlier version.&#xA;&#xA;Drag &amp; drop the encrypted file, or your private key (.atcpvt).&#xA;&#xA;To encrypt a file, use Post-PPAP.</value>
+    <value>Decrypt files that were encrypted with RSA key files in an earlier version.&#xA;&#xA;Drag &amp; drop the encrypted file, or your private key (.atcpvt).</value>
   </data>
   <data name="PublicKey_PublicKeyLoadedMessage" xml:space="preserve">
     <value>Public key loaded. Drag &amp; drop the file or folder you want to encrypt here.</value>
@@ -546,9 +537,6 @@ Private key: {1}</value>
   <data name="Button_CancelWithKey" xml:space="preserve">
     <value>Cancel(_C)</value>
   </data>
-  <data name="ZipEncryption_HeaderFormat" xml:space="preserve">
-    <value>Create Password ZIP: </value>
-  </data>
   <data name="ZipEncryption_PasswordPrompt" xml:space="preserve">
     <value>Please set a password for the ZIP file</value>
   </data>
@@ -558,14 +546,14 @@ Private key: {1}</value>
   <data name="Button_CreateZip" xml:space="preserve">
     <value>Create ZIP</value>
   </data>
-  <data name="ZipDecryption_HeaderFormat" xml:space="preserve">
-    <value>Extract ZIP: </value>
-  </data>
   <data name="ZipDecryption_PasswordPrompt" xml:space="preserve">
     <value>Please enter a password</value>
   </data>
   <data name="ZipDecryption_Processing" xml:space="preserve">
     <value>Extracting...</value>
+  </data>
+  <data name="ZipDecryption_Complete" xml:space="preserve">
+    <value>Extraction Complete</value>
   </data>
   <data name="ZipDecryption_ExtractionFailed" xml:space="preserve">
     <value>Extraction failed</value>
@@ -739,8 +727,14 @@ Update now?</value>
   <data name="Settings_FileTypeAtc" xml:space="preserve">
     <value>Encrypted file (.atc)</value>
   </data>
+  <data name="Settings_FileTypeExe" xml:space="preserve">
+    <value>Self-extracting file (.exe)</value>
+  </data>
   <data name="Settings_FileTypeZip" xml:space="preserve">
     <value>Password ZIP</value>
+  </data>
+  <data name="Settings_UseLastEncryptionFileType" xml:space="preserve">
+    <value>Encrypt with the file type used last time</value>
   </data>
   <data name="Settings_SaveToSameFolder" xml:space="preserve">
     <value>Always save encrypted files to the same folder</value>
@@ -748,11 +742,29 @@ Update now?</value>
   <data name="Settings_ConfirmOverwrite" xml:space="preserve">
     <value>Confirm before overwriting a file with the same name</value>
   </data>
+  <data name="Settings_MultipleFiles" xml:space="preserve">
+    <value>When multiple files are dropped</value>
+  </data>
+  <data name="Settings_MultipleFilesNormal" xml:space="preserve">
+    <value>Normal</value>
+  </data>
+  <data name="Settings_MultipleFilesNormalHint" xml:space="preserve">
+    <value>Each file or folder is encrypted separately. A folder keeps its contents and hierarchy.</value>
+  </data>
+  <data name="Settings_MultipleFilesAllPack" xml:space="preserve">
+    <value>Pack multiple files into one</value>
+  </data>
+  <data name="Settings_MultipleFilesAllPackHint" xml:space="preserve">
+    <value>When several files or folders are dropped, they are packed into a single encrypted file.</value>
+  </data>
   <data name="Settings_EncryptOneByOne" xml:space="preserve">
     <value>Encrypt each file in a folder separately</value>
   </data>
+  <data name="Settings_EncryptOneByOneHint" xml:space="preserve">
+    <value>Every file inside the dropped files or folders is encrypted one by one.</value>
+  </data>
   <data name="Settings_KeepTimeStamp" xml:space="preserve">
-    <value>Keep the timestamp of the original file</value>
+    <value>Keep the timestamp of files and folders</value>
   </data>
   <data name="Settings_IncludeOriginalExtension" xml:space="preserve">
     <value>Keep the original extension (report.xlsx.atc)</value>
@@ -817,14 +829,20 @@ Update now?</value>
   <data name="Settings_Delete" xml:space="preserve">
     <value>Deletion</value>
   </data>
-  <data name="Settings_DeleteMode" xml:space="preserve">
-    <value>Delete the original after a successful encryption</value>
+  <data name="Settings_DeleteOriginalAfterEncryption" xml:space="preserve">
+    <value>Delete the original files or folders after encryption</value>
   </data>
-  <data name="Settings_DeleteEncMode" xml:space="preserve">
-    <value>Delete the encrypted file after a successful decryption</value>
+  <data name="Settings_DeleteEncryptedAfterDecryption" xml:space="preserve">
+    <value>Delete the encrypted file after decryption</value>
   </data>
-  <data name="Settings_DeleteNone" xml:space="preserve">
-    <value>Do not delete</value>
+  <data name="Settings_ShowDeleteCheckBox" xml:space="preserve">
+    <value>Show the delete check box in the main window</value>
+  </data>
+  <data name="Settings_DeleteMethod" xml:space="preserve">
+    <value>Delete method</value>
+  </data>
+  <data name="Settings_DeleteWipeOptions" xml:space="preserve">
+    <value>When wiping</value>
   </data>
   <data name="Settings_DeleteNormal" xml:space="preserve">
     <value>Delete</value>
@@ -836,10 +854,10 @@ Update now?</value>
     <value>Wipe (overwrite, then delete)</value>
   </data>
   <data name="Settings_DeleteRandomTimes" xml:space="preserve">
-    <value>Random-value passes when wiping</value>
+    <value>Random-value passes</value>
   </data>
   <data name="Settings_DeleteZeroTimes" xml:space="preserve">
-    <value>Zero passes when wiping</value>
+    <value>Zero passes</value>
   </data>
   <data name="Settings_ConfirmDelete" xml:space="preserve">
     <value>Confirm before deleting</value>
@@ -874,6 +892,9 @@ Update now?</value>
   <data name="Settings_ShowMenuBarIcon" xml:space="preserve">
     <value>Show an icon in the menu bar</value>
   </data>
+  <data name="Settings_ShowTaskbarIcon" xml:space="preserve">
+    <value>Show an icon in the task tray</value>
+  </data>
   <data name="Settings_MenuBarIconHint" xml:space="preserve">
     <value>Clicking the icon brings the window to the front.</value>
   </data>
@@ -885,6 +906,9 @@ Update now?</value>
   </data>
   <data name="Settings_NoMultipleInstanceHint" xml:space="preserve">
     <value>Takes effect the next time AttacheCase starts.</value>
+  </data>
+  <data name="Settings_NoMaximizeInTabletMode" xml:space="preserve">
+    <value>Do not start maximized when the PC is in tablet mode</value>
   </data>
   <data name="Settings_AutoNameInsert" xml:space="preserve">
     <value>Insert</value>
@@ -927,6 +951,9 @@ Update now?</value>
   </data>
   <data name="Error_OneByOneWithOutFile" xml:space="preserve">
     <value>/oneby cannot be combined with a file name in /out. Specify a folder instead.</value>
+  </data>
+  <data name="Error_OutputEqualsInput" xml:space="preserve">
+    <value>The output file must be different from the input file: {0}</value>
   </data>
   <data name="Error_AutoNameInvalidChar" xml:space="preserve">
     <value>The generated file name contains a character that cannot be used: {0}</value>
@@ -1066,6 +1093,15 @@ Update now?</value>
   <data name="Settings_AssociationIconHint" xml:space="preserve">
     <value>To apply a new icon to files that are already associated, click "Associate" again.</value>
   </data>
+  <data name="Settings_SendToShortcut" xml:space="preserve">
+    <value>Add AttacheCase to the "Send to" menu</value>
+  </data>
+  <data name="Settings_SendToHint" xml:space="preserve">
+    <value>Right-click a file in Explorer and choose "Send to" &gt; "AttacheCase" to encrypt or decrypt it. This check box reflects whether the shortcut exists in your "Send to" folder and takes effect immediately.</value>
+  </data>
+  <data name="Error_SendToShortcut" xml:space="preserve">
+    <value>Could not update the shortcut in the "Send to" folder.</value>
+  </data>
   <data name="Dialog_InfoTitle" xml:space="preserve">
     <value>Information</value>
   </data>
@@ -1150,19 +1186,28 @@ Leave anyway?</value>
     <value>Dark</value>
   </data>
   <data name="Settings_RememberSection" xml:space="preserve">
-    <value>Remembered passwords</value>
-  </data>
-  <data name="Settings_RememberHint" xml:space="preserve">
-    <value>Passwords are stored in an encrypted vault (_AtcVault.json) protected by this computer's key store — never in the settings file. Even if the vault file is copied elsewhere, it cannot be opened without a migration code.</value>
+    <value>Password</value>
   </data>
   <data name="Settings_RememberEncrypt" xml:space="preserve">
-    <value>Remember the encryption password and pre-fill it</value>
+    <value>Remember the encryption password</value>
   </data>
   <data name="Settings_RememberDecrypt" xml:space="preserve">
-    <value>Remember the decryption password and pre-fill it</value>
+    <value>Remember the decryption password</value>
   </data>
   <data name="Settings_RememberClear" xml:space="preserve">
     <value>Erase all remembered data</value>
+  </data>
+  <data name="Settings_ExecuteWithRememberedPassword" xml:space="preserve">
+    <value>Encrypt/decrypt with the remembered password without confirming</value>
+  </data>
+  <data name="Settings_ShowPasswordStrengthMeter" xml:space="preserve">
+    <value>Show the password strength meter</value>
+  </data>
+  <data name="Settings_ConfirmPasswordTip" xml:space="preserve">
+    <value>Confirm this password</value>
+  </data>
+  <data name="Settings_EditPasswordTip" xml:space="preserve">
+    <value>Change the password</value>
   </data>
   <data name="Settings_RememberClearConfirm" xml:space="preserve">
     <value>All remembered passwords will be erased, including registrations of other trusted computers. This cannot be undone. Continue?</value>
@@ -1185,6 +1230,9 @@ Leave anyway?</value>
   <data name="Settings_IssueCode" xml:space="preserve">
     <value>Issue a migration code</value>
   </data>
+  <data name="Settings_PortableVaultHint" xml:space="preserve">
+    <value>Remembered passwords are not written to the settings file; they are kept in an encrypted vault (_AtcVault.json). When you create portable settings, the vault is placed next to _AtcCase.json so it travels with them. On another computer, enter the migration code below once.</value>
+  </data>
   <data name="Settings_IssueCodeHint" xml:space="preserve">
     <value>Use a migration code to open the remembered passwords once on another computer. It is valid for 7 days, becomes invalid after one use, and issuing a new code invalidates the previous one.</value>
   </data>
@@ -1194,11 +1242,18 @@ Leave anyway?</value>
   <data name="Settings_IssuedCodeNotice" xml:space="preserve">
     <value>Write this code down. It cannot be shown again after leaving this screen.</value>
   </data>
+  <!-- 設定画面の左の一覧に出す短い名前（一覧は Windows でだけ並ぶので「（Windows）」は要らない） -->
+  <data name="Settings_AssociationNav" xml:space="preserve">
+    <value>File association</value>
+  </data>
+  <data name="Settings_PortableNav" xml:space="preserve">
+    <value>Portable settings</value>
+  </data>
   <data name="Settings_PortableSection" xml:space="preserve">
     <value>Portable settings (Windows)</value>
   </data>
   <data name="Settings_PortableHint" xml:space="preserve">
-    <value>Write the settings to _AtcCase.json next to AttacheCase.exe, e.g. for carrying it on a USB drive. When that file exists, it is used instead of this computer's settings (takes effect at next launch). Successor to the _AtcCase.ini of previous versions.</value>
+    <value>Write the current settings to _AtcCase.json, e.g. for carrying them on a USB drive. You choose the destination folder (the folder containing the application opens first). When AttacheCase.exe finds this file in its own folder, it uses it instead of this computer's settings (takes effect at next launch). Successor to the _AtcCase.ini of previous versions.</value>
   </data>
   <data name="Settings_PortableStatusNormal" xml:space="preserve">
     <value>Status: using this computer's settings</value>
@@ -1220,6 +1275,13 @@ They take effect at the next launch. Remembered passwords (the vault file) were 
   </data>
   <data name="Settings_PortableCreateFailed" xml:space="preserve">
     <value>Could not create the portable settings file.</value>
+  </data>
+  <data name="Settings_PortableSelectFolder" xml:space="preserve">
+    <value>Select the folder for the portable settings (_AtcCase.json)</value>
+  </data>
+  <data name="Settings_PortableOverwriteConfirm" xml:space="preserve">
+    <value>The selected folder already contains portable settings. Overwrite them with the current settings?
+{0}</value>
   </data>
   <data name="Settings_PortableRemove" xml:space="preserve">
     <value>Remove portable settings</value>
@@ -1364,6 +1426,10 @@ Trust and use this file?</value>
   </data>
   <data name="Error_Crc32Mismatch" xml:space="preserve">
     <value>CRC32 does not match</value>
+  </data>
+  <data name="Error_LeftoverFiles" xml:space="preserve">
+    <value>Partially written files could not be removed. Please delete them manually:
+{0}</value>
   </data>
   <data name="Error_Md5Mismatch" xml:space="preserve">
     <value>MD5 does not match</value>
@@ -1716,5 +1782,8 @@ You can still decrypt files made with an older version by dropping your private 
   </data>
   <data name="Error_RsaKeyFileHybridFile" xml:space="preserve">
     <value>This file was encrypted with Post-PPAP (RSA + ML-KEM). A private key file cannot open it; decrypt it with the Post-PPAP account registered on this computer.</value>
+  </data>
+  <data name="Error_OutputFileExists" xml:space="preserve">
+    <value>The output file already exists (nothing was written): {0}</value>
   </data>
 </root>

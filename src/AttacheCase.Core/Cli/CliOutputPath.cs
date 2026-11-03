@@ -67,7 +67,9 @@ public static class CliOutputPath
             }
             else if (settings.EncryptOneByOne)
             {
-                // 1 ファイルずつ処理するのに出力先が 1 つのファイルに定まるのは矛盾する
+                // 1 ファイルずつ処理するのに出力先が 1 つのファイルに定まるのは矛盾する。
+                // （通常モードで入力が複数のときは、出力ファイル名が 1 つ明示されている＝
+                // 「一つにまとめる」の意図とみなして 1 本にまとめる。旧 5.0 CLI の /list + /out と同じ）
                 throw new InvalidOperationException(
                     LocalizationService.Instance["Error_OneByOneWithOutFile"]);
             }

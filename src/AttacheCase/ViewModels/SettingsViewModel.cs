@@ -17,7 +17,9 @@
 //----------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using AttacheCase.Cli;
@@ -76,12 +78,99 @@ public class SettingsViewModel : ViewModelBase
 
         RegisterDeviceWithCodeCommand = new AsyncRelayCommand(RegisterDeviceWithCodeAsync);
         ClearRememberedPasswordsCommand = new AsyncRelayCommand(ClearRememberedPasswordsAsync);
+        ToggleEncryptPasswordEditCommand = new RelayCommand(ToggleEncryptPasswordEdit);
+        ToggleDecryptPasswordEditCommand = new RelayCommand(ToggleDecryptPasswordEdit);
         IssueMigrationCodeCommand = new AsyncRelayCommand(IssueMigrationCodeAsync);
         CreatePortableCommand = new AsyncRelayCommand(CreatePortableAsync);
         RemovePortableCommand = new AsyncRelayCommand(RemovePortableAsync);
 
         LoadRememberedPasswords();
+
+        Sections = BuildSections();
+        // 前回開いていた区分へ戻す（保存やキャンセルで一度閉じて開き直しても、
+        // 同じ場所から続けられる）。無ければ先頭
+        _selectedSection = Sections.FirstOrDefault(x => x.Key == _lastSectionKey) ?? Sections[0];
     }
+
+    #region 区分（左の一覧）
+
+    /// <summary>
+    /// 設定画面の左に並べる区分。項目が多くスクロールが長かったので、区分ごとに
+    /// 右側の中身を切り替える形にした（2026-10-25、利用者要望）。Windows 専用の区分は
+    /// Windows でだけ並ぶ。Key は XAML 側の IsVisible（ObjectConverters.Equal の
+    /// ConverterParameter）と対で、変えるときは SettingsView.axaml も直す
+    /// </summary>
+    public sealed record SettingsSection(string Key, string Title);
+
+    public const string SectionGeneral = "general";
+    public const string SectionWindow = "window";
+    public const string SectionEncrypt = "encrypt";
+    public const string SectionZip = "zip";
+    public const string SectionDecrypt = "decrypt";
+    public const string SectionDelete = "delete";
+    public const string SectionPasswordFile = "passwordfile";
+    public const string SectionAdvanced = "advanced";
+    public const string SectionAssociation = "association";
+    public const string SectionRemember = "remember";
+    public const string SectionPortable = "portable";
+
+    /// <summary>最後に開いていた区分（画面を作り直しても引き継ぐ）</summary>
+    private static string _lastSectionKey = SectionGeneral;
+
+    private SettingsSection _selectedSection;
+
+    public IReadOnlyList<SettingsSection> Sections { get; }
+
+    public SettingsSection SelectedSection
+    {
+        get => _selectedSection;
+        set
+        {
+            // ListBox は選択解除で null を流してくることがあるので、そのときは動かさない
+            if (value is null) return;
+            if (!SetProperty(ref _selectedSection, value)) return;
+            _lastSectionKey = value.Key;
+            OnPropertyChanged(nameof(SelectedSectionKey));
+            OnPropertyChanged(nameof(SelectedSectionTitle));
+        }
+    }
+
+    /// <summary>XAML の IsVisible 切り替え用（区分ごとの中身が Equal 比較で見る）</summary>
+    public string SelectedSectionKey => _selectedSection.Key;
+
+    /// <summary>右側の見出し</summary>
+    public string SelectedSectionTitle => _selectedSection.Title;
+
+    /// <summary>
+    /// 「コマンドライン引数で指定した値はここには保存されない」注記を出すか。
+    /// 引数で設定を上書きした起動のときだけ（通常起動では出さない）
+    /// </summary>
+    public bool ShowCommandLineNote => _mainViewModel.HasCommandLineSettingOverride;
+
+    private IReadOnlyList<SettingsSection> BuildSections()
+    {
+        // 並び順は利用者指定（2026-10-26）。Windows 専用の 2 区分は末尾
+        var list = new List<SettingsSection>
+        {
+            new(SectionGeneral, _localize.GetString("Settings_General")),
+            new(SectionWindow, _localize.GetString("Settings_Window")),
+            new(SectionRemember, _localize.GetString("Settings_RememberSection")),
+            new(SectionEncrypt, _localize.GetString("Settings_Encrypt")),
+            new(SectionDecrypt, _localize.GetString("Settings_Decrypt")),
+            new(SectionZip, _localize.GetString("Settings_Zip")),
+            new(SectionDelete, _localize.GetString("Settings_Delete")),
+            new(SectionAdvanced, _localize.GetString("Settings_Advanced")),
+            new(SectionPasswordFile, _localize.GetString("Settings_PasswordFile")),
+        };
+        if (IsWindows)
+        {
+            list.Add(new(SectionAssociation, _localize.GetString("Settings_AssociationNav")));
+            list.Add(new(SectionPortable, _localize.GetString("Settings_PortableNav")));
+        }
+        return list;
+    }
+
+    #endregion
 
     #region Commands
 
@@ -124,6 +213,24 @@ public class SettingsViewModel : ViewModelBase
             _rememberedPasswords.GetPassword(RememberedPasswordService.KeyEncryptPassword) ?? string.Empty;
         _rememberedDecryptPassword =
             _rememberedPasswords.GetPassword(RememberedPasswordService.KeyDecryptPassword) ?? string.Empty;
+
+        // 記憶済みなら伏せ字の確定表示から始める（本物は欄に載せない）。未設定なら入力待ち
+        _isEncryptPasswordEditing = _rememberedEncryptPassword.Length == 0;
+        _isDecryptPasswordEditing = _rememberedDecryptPassword.Length == 0;
+        _encryptPasswordEditText = string.Empty;
+        _decryptPasswordEditText = string.Empty;
+    }
+
+    private void NotifyRememberedPasswordFields()
+    {
+        OnPropertyChanged(nameof(IsEncryptPasswordEditing));
+        OnPropertyChanged(nameof(IsDecryptPasswordEditing));
+        OnPropertyChanged(nameof(CanTypeEncryptPassword));
+        OnPropertyChanged(nameof(CanTypeDecryptPassword));
+        OnPropertyChanged(nameof(RememberedEncryptPasswordText));
+        OnPropertyChanged(nameof(RememberedDecryptPasswordText));
+        OnPropertyChanged(nameof(EncryptPasswordButtonTip));
+        OnPropertyChanged(nameof(DecryptPasswordButtonTip));
     }
 
     /// <summary>保管庫はあるが、この端末ではまだ開けない（移行コードが要る）。</summary>
@@ -135,25 +242,156 @@ public class SettingsViewModel : ViewModelBase
     public bool RememberEncryptPassword
     {
         get => _settings.RememberEncryptPassword;
-        set => SetSetting(v => _settings.RememberEncryptPassword = v, _settings.RememberEncryptPassword, value);
+        set
+        {
+            SetSetting(v => _settings.RememberEncryptPassword = v, _settings.RememberEncryptPassword, value);
+            OnPropertyChanged(nameof(CanTypeEncryptPassword));
+            OnPropertyChanged(nameof(HasRememberedPassword));
+        }
     }
 
     public bool RememberDecryptPassword
     {
         get => _settings.RememberDecryptPassword;
-        set => SetSetting(v => _settings.RememberDecryptPassword = v, _settings.RememberDecryptPassword, value);
+        set
+        {
+            SetSetting(v => _settings.RememberDecryptPassword = v, _settings.RememberDecryptPassword, value);
+            OnPropertyChanged(nameof(CanTypeDecryptPassword));
+            OnPropertyChanged(nameof(HasRememberedPassword));
+        }
     }
 
-    public string RememberedEncryptPassword
+    /// <summary>
+    /// 記憶パスワードを使っているか（どちらかの「記憶する」が ON）。
+    /// 「設定の持ち運び」の保管庫・移行コードの案内は、これが true のときだけ出す（利用者指示 2026-10-26:
+    /// 持ち運び目的でない利用者に _AtcVault.json の話を見せると混乱の元）。
+    /// </summary>
+    public bool HasRememberedPassword => RememberEncryptPassword || RememberDecryptPassword;
+
+    /// <summary>記憶パスワードがあれば確認なしに実行する（旧 fMemPasswordExe）</summary>
+    public bool ExecuteWithRememberedPassword
     {
-        get => _rememberedEncryptPassword;
-        set => SetProperty(ref _rememberedEncryptPassword, value);
+        get => _settings.ExecuteWithRememberedPassword;
+        set => SetSetting(v => _settings.ExecuteWithRememberedPassword = v, _settings.ExecuteWithRememberedPassword, value);
     }
 
-    public string RememberedDecryptPassword
+    /// <summary>暗号化画面のパスワード強度メーターを表示する（旧 fPasswordStrengthMeter）</summary>
+    public bool ShowPasswordStrengthMeter
     {
-        get => _rememberedDecryptPassword;
-        set => SetProperty(ref _rememberedDecryptPassword, value);
+        get => _settings.ShowPasswordStrengthMeter;
+        set => SetSetting(v => _settings.ShowPasswordStrengthMeter = v, _settings.ShowPasswordStrengthMeter, value);
+    }
+
+    // ---- 記憶パスワードの入力欄 -------------------------------------------------
+    //   入力 → 確定（✓）で本物は VM の中だけに置き、欄には長さに関係なく 16 文字の
+    //   伏せ字を出す（欄の Text を読む道具で抜かれないため。利用者指示 2026-10-26）。
+    //   変更（✎）で本物を欄に戻して全選択で編集可能にする。
+    //   保存時に入力中のままなら、その欄の内容をそのまま確定として扱う。
+
+    private const string MaskedPasswordPlaceholder = "●●●●●●●●●●●●●●●●";
+
+    private string _encryptPasswordEditText = string.Empty;
+    private string _decryptPasswordEditText = string.Empty;
+    private bool _isEncryptPasswordEditing = true;
+    private bool _isDecryptPasswordEditing = true;
+
+    public ICommand ToggleEncryptPasswordEditCommand { get; }
+    public ICommand ToggleDecryptPasswordEditCommand { get; }
+
+    /// <summary>暗号化パスワード欄が入力中か（false = 確定済みで伏せ字表示・編集不可）</summary>
+    public bool IsEncryptPasswordEditing
+    {
+        get => _isEncryptPasswordEditing;
+        private set
+        {
+            if (!SetProperty(ref _isEncryptPasswordEditing, value)) return;
+            OnPropertyChanged(nameof(CanTypeEncryptPassword));
+            OnPropertyChanged(nameof(RememberedEncryptPasswordText));
+            OnPropertyChanged(nameof(EncryptPasswordButtonTip));
+        }
+    }
+
+    /// <summary>復号パスワード欄が入力中か</summary>
+    public bool IsDecryptPasswordEditing
+    {
+        get => _isDecryptPasswordEditing;
+        private set
+        {
+            if (!SetProperty(ref _isDecryptPasswordEditing, value)) return;
+            OnPropertyChanged(nameof(CanTypeDecryptPassword));
+            OnPropertyChanged(nameof(RememberedDecryptPasswordText));
+            OnPropertyChanged(nameof(DecryptPasswordButtonTip));
+        }
+    }
+
+    public bool CanTypeEncryptPassword => RememberEncryptPassword && IsEncryptPasswordEditing;
+    public bool CanTypeDecryptPassword => RememberDecryptPassword && IsDecryptPasswordEditing;
+
+    public string EncryptPasswordButtonTip =>
+        _localize[IsEncryptPasswordEditing ? "Settings_ConfirmPasswordTip" : "Settings_EditPasswordTip"];
+
+    public string DecryptPasswordButtonTip =>
+        _localize[IsDecryptPasswordEditing ? "Settings_ConfirmPasswordTip" : "Settings_EditPasswordTip"];
+
+    /// <summary>暗号化パスワード欄の文字列。確定済みのときは伏せ字（本物ではない）</summary>
+    public string RememberedEncryptPasswordText
+    {
+        get => _isEncryptPasswordEditing ? _encryptPasswordEditText : MaskedPasswordPlaceholder;
+        set
+        {
+            if (!_isEncryptPasswordEditing) return;
+            SetProperty(ref _encryptPasswordEditText, value ?? string.Empty);
+        }
+    }
+
+    /// <summary>復号パスワード欄の文字列。確定済みのときは伏せ字（本物ではない）</summary>
+    public string RememberedDecryptPasswordText
+    {
+        get => _isDecryptPasswordEditing ? _decryptPasswordEditText : MaskedPasswordPlaceholder;
+        set
+        {
+            if (!_isDecryptPasswordEditing) return;
+            SetProperty(ref _decryptPasswordEditText, value ?? string.Empty);
+        }
+    }
+
+    private void ToggleEncryptPasswordEdit()
+    {
+        if (IsEncryptPasswordEditing)
+        {
+            // 確定: 本物を VM に取り込み、欄は伏せ字へ
+            _rememberedEncryptPassword = _encryptPasswordEditText;
+            _encryptPasswordEditText = string.Empty;
+            IsEncryptPasswordEditing = false;
+        }
+        else
+        {
+            // 変更: 本物を欄に戻す（ビュー側が全選択にする）
+            _encryptPasswordEditText = _rememberedEncryptPassword;
+            IsEncryptPasswordEditing = true;
+        }
+    }
+
+    private void ToggleDecryptPasswordEdit()
+    {
+        if (IsDecryptPasswordEditing)
+        {
+            _rememberedDecryptPassword = _decryptPasswordEditText;
+            _decryptPasswordEditText = string.Empty;
+            IsDecryptPasswordEditing = false;
+        }
+        else
+        {
+            _decryptPasswordEditText = _rememberedDecryptPassword;
+            IsDecryptPasswordEditing = true;
+        }
+    }
+
+    /// <summary>入力中のまま保存されたときは、欄の内容をそのまま確定として扱う</summary>
+    private void CommitPendingPasswordEdits()
+    {
+        if (_isEncryptPasswordEditing) _rememberedEncryptPassword = _encryptPasswordEditText;
+        if (_isDecryptPasswordEditing) _rememberedDecryptPassword = _decryptPasswordEditText;
     }
 
     public string MigrationCodeInput
@@ -184,6 +422,8 @@ public class SettingsViewModel : ViewModelBase
     private void ApplyRememberedPasswords()
     {
         if (IsVaultLocked) return;
+
+        CommitPendingPasswordEdits();
 
         try
         {
@@ -224,8 +464,7 @@ public class SettingsViewModel : ViewModelBase
         LoadRememberedPasswords();
         OnPropertyChanged(nameof(IsVaultLocked));
         OnPropertyChanged(nameof(CanEditRememberedPasswords));
-        OnPropertyChanged(nameof(RememberedEncryptPassword));
-        OnPropertyChanged(nameof(RememberedDecryptPassword));
+        NotifyRememberedPasswordFields();
 
         await DialogHelper.NotifyAsync(
             unattended: false,
@@ -245,8 +484,13 @@ public class SettingsViewModel : ViewModelBase
 
         _rememberedPasswords.DeleteAll();
 
-        RememberedEncryptPassword = string.Empty;
-        RememberedDecryptPassword = string.Empty;
+        _rememberedEncryptPassword = string.Empty;
+        _rememberedDecryptPassword = string.Empty;
+        _encryptPasswordEditText = string.Empty;
+        _decryptPasswordEditText = string.Empty;
+        _isEncryptPasswordEditing = true;
+        _isDecryptPasswordEditing = true;
+        NotifyRememberedPasswordFields();
         RememberEncryptPassword = false;
         RememberDecryptPassword = false;
         IssuedMigrationCode = string.Empty;
@@ -307,12 +551,32 @@ public class SettingsViewModel : ViewModelBase
         }
     }
 
-    /// <summary>現在の設定を _AtcCase.json として実行ファイルの隣へ書き出す。</summary>
+    /// <summary>
+    /// 現在の設定を _AtcCase.json として書き出す。保存先はフォルダー選択で決める
+    /// （初期位置は実行ファイルのフォルダー。インストール版を使いながら ZIP 版を別の場所や
+    /// USB メモリに展開している、という運用では「exe の隣に固定」だと書き出せないため。
+    /// 利用者指示 2026-10-29）。読む側は「起動した AttacheCase.exe と同じフォルダー」の
+    /// _AtcCase.json だけを見るので、別のフォルダーへ書いた分はそこの exe を起動したときに効く。
+    /// </summary>
     private async Task CreatePortableAsync()
     {
         try
         {
-            var path = _settingsService.CreatePortableCopy();
+            var folder = await PickFolderAsync(
+                _localize["Settings_PortableSelectFolder"], AppContext.BaseDirectory);
+            if (folder == null) return;
+
+            var target = Path.Combine(folder, Settings.PortableSettings.FileName);
+            if (File.Exists(target))
+            {
+                var overwrite = await DialogHelper.ConfirmAsync(
+                    unattended: false,
+                    _localize["Dialog_ConfirmTitle"],
+                    _localize.GetString("Settings_PortableOverwriteConfirm", target));
+                if (!overwrite) return;
+            }
+
+            var path = _settingsService.CreatePortableCopy(folder);
             OnPropertyChanged(nameof(PortableStatusText));
 
             await DialogHelper.NotifyAsync(
@@ -363,6 +627,57 @@ public class SettingsViewModel : ViewModelBase
 
     /// <summary>関連付けセクションを表示するか（Windows のみ）</summary>
     public bool IsWindows => OperatingSystem.IsWindows();
+
+    /// <summary>
+    /// 「送る」メニューにアタッシェケースがあるか。設定値ではなく、送るフォルダーに
+    /// ショートカットがあるかどうかの実態そのもの（利用者指示: レジストリや settings.json に
+    /// 持たず、リンクがあれば ON、無ければ OFF）。切り替えるとその場で作成・削除する。
+    /// 失敗したときは通知を出してチェックを実態に戻す。
+    /// </summary>
+    public bool IsSendToShortcutInstalled
+    {
+        get => OperatingSystem.IsWindows() && Platform.WindowsSendToShortcut.Exists();
+        set
+        {
+            if (!OperatingSystem.IsWindows()) return;
+            if (value == Platform.WindowsSendToShortcut.Exists()) return;
+            _ = ApplySendToShortcutAsync(value);
+        }
+    }
+
+    private async Task ApplySendToShortcutAsync(bool install)
+    {
+        if (!OperatingSystem.IsWindows()) return;
+
+        try
+        {
+            if (install)
+            {
+                // 単一ファイル発行では Assembly.Location が空になるので ProcessPath を使う
+                var exePath = Environment.ProcessPath;
+                if (string.IsNullOrEmpty(exePath))
+                {
+                    throw new InvalidOperationException("実行ファイルのパスを取得できません。");
+                }
+
+                Platform.WindowsSendToShortcut.Create(exePath, _localize.IsJapanese);
+            }
+            else
+            {
+                Platform.WindowsSendToShortcut.Remove();
+            }
+        }
+        catch (Exception ex)
+        {
+            await DialogHelper.NotifyAsync(
+                unattended: false,
+                _localize["Dialog_ErrorTitle"],
+                _localize["Error_SendToShortcut"] + Environment.NewLine + ex.Message);
+        }
+
+        // 成否にかかわらず、画面のチェックをフォルダーの実態に合わせ直す
+        OnPropertyChanged(nameof(IsSendToShortcutInstalled));
+    }
 
     /// <summary>関連付けアイコン（.atc）。1〜4 = 同梱の Icons\atc1.ico〜atc4.ico</summary>
     public int AssociationIconIndex
@@ -552,6 +867,13 @@ public class SettingsViewModel : ViewModelBase
         set => SetSetting(v => _settings.ShowMenuBarIcon = v, _settings.ShowMenuBarIcon, value);
     }
 
+    /// <summary>
+    /// 「アイコンを表示する」のラベル。同じ設定（TrayIcon）でも置き場の名前が OS で違うので、
+    /// Windows は「タスクトレイ」、macOS は「メニューバー」と出す（利用者指示 2026-10-26、タスクトレイへ訂正 10-27）。
+    /// </summary>
+    public string ShowMenuBarIconLabel => _localize.GetString(
+        OperatingSystem.IsWindows() ? "Settings_ShowTaskbarIcon" : "Settings_ShowMenuBarIcon");
+
     public bool WindowForeground
     {
         get => _settings.WindowForeground;
@@ -564,20 +886,43 @@ public class SettingsViewModel : ViewModelBase
         set => SetSetting(v => _settings.NoMultipleInstance = v, _settings.NoMultipleInstance, value);
     }
 
+    /// <summary>PC がタブレットモードのとき最大化で起動しない（Windows のみ表示）</summary>
+    public bool NoMaximizeInTabletMode
+    {
+        get => _settings.NoMaximizeInTabletMode;
+        set => SetSetting(v => _settings.NoMaximizeInTabletMode = v, _settings.NoMaximizeInTabletMode, value);
+    }
+
     #endregion
 
     #region 暗号化
 
-    /// <summary>暗号化ファイルの種類。true: .atc</summary>
+    /// <summary>
+    /// 暗号化ファイルの種類。true: .atc。
+    /// EXE は Windows 専用なので、Windows 以外で設定値が EXE のときは .atc として表示する
+    /// （メイン画面の出力種別コンボと同じ扱い）。
+    /// </summary>
     public bool IsFileTypeAtc
     {
-        get => _settings.EncryptionFileType != EncryptionFileTypes.Zip;
+        get => _settings.EncryptionFileType == EncryptionFileTypes.Atc
+               || (_settings.EncryptionFileType == EncryptionFileTypes.Exe && !IsWindows);
         set
         {
             if (!value || IsFileTypeAtc) return;
             _settings.EncryptionFileType = EncryptionFileTypes.Atc;
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(IsFileTypeZip));
+            NotifyFileTypeChanged();
+        }
+    }
+
+    /// <summary>暗号化ファイルの種類。true: 自己実行形式（.exe、Windows 専用）</summary>
+    public bool IsFileTypeExe
+    {
+        get => IsWindows && _settings.EncryptionFileType == EncryptionFileTypes.Exe;
+        set
+        {
+            if (!value || !IsWindows || IsFileTypeExe) return;
+            _settings.EncryptionFileType = EncryptionFileTypes.Exe;
+            NotifyFileTypeChanged();
         }
     }
 
@@ -589,9 +934,25 @@ public class SettingsViewModel : ViewModelBase
         {
             if (!value || IsFileTypeZip) return;
             _settings.EncryptionFileType = EncryptionFileTypes.Zip;
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(IsFileTypeAtc));
+            NotifyFileTypeChanged();
         }
+    }
+
+    private void NotifyFileTypeChanged()
+    {
+        OnPropertyChanged(nameof(IsFileTypeAtc));
+        OnPropertyChanged(nameof(IsFileTypeExe));
+        OnPropertyChanged(nameof(IsFileTypeZip));
+    }
+
+    /// <summary>
+    /// 前に使ったファイルタイプで暗号化する（旧 fEncryptionSameFileTypeBefore）。
+    /// ON のあいだは上の「種類」ラジオは効かない（画面では無効化）。
+    /// </summary>
+    public bool UseLastEncryptionFileType
+    {
+        get => _settings.UseLastEncryptionFileType;
+        set => SetSetting(v => _settings.UseLastEncryptionFileType = v, _settings.UseLastEncryptionFileType, value);
     }
 
     public bool SaveToSameFolder
@@ -612,10 +973,52 @@ public class SettingsViewModel : ViewModelBase
         set => SetSetting(v => _settings.ConfirmOverwrite = v, _settings.ConfirmOverwrite, value);
     }
 
-    public bool EncryptOneByOne
+    // 複数ファイルの場合（旧版と同じ 3 択。AllFilePack / EncryptOneByOne の 2 フラグは排他）
+
+    /// <summary>通常: 入力 1 つにつき 1 つの暗号化ファイル（フォルダーはフォルダー単位）</summary>
+    public bool IsMultipleFilesNormal
     {
-        get => _settings.EncryptOneByOne;
-        set => SetSetting(v => _settings.EncryptOneByOne = v, _settings.EncryptOneByOne, value);
+        get => !_settings.AllFilePack && !_settings.EncryptOneByOne;
+        set
+        {
+            if (!value || IsMultipleFilesNormal) return;
+            _settings.AllFilePack = false;
+            _settings.EncryptOneByOne = false;
+            NotifyMultipleFilesModeChanged();
+        }
+    }
+
+    /// <summary>複数のファイルを一つにまとめる（/allpack）</summary>
+    public bool IsMultipleFilesAllPack
+    {
+        get => _settings.AllFilePack;
+        set
+        {
+            if (!value || IsMultipleFilesAllPack) return;
+            _settings.AllFilePack = true;
+            _settings.EncryptOneByOne = false;
+            NotifyMultipleFilesModeChanged();
+        }
+    }
+
+    /// <summary>フォルダー内のファイルを一つずつ暗号化する（/oneby）</summary>
+    public bool IsMultipleFilesOneByOne
+    {
+        get => !_settings.AllFilePack && _settings.EncryptOneByOne;
+        set
+        {
+            if (!value || IsMultipleFilesOneByOne) return;
+            _settings.AllFilePack = false;
+            _settings.EncryptOneByOne = true;
+            NotifyMultipleFilesModeChanged();
+        }
+    }
+
+    private void NotifyMultipleFilesModeChanged()
+    {
+        OnPropertyChanged(nameof(IsMultipleFilesNormal));
+        OnPropertyChanged(nameof(IsMultipleFilesAllPack));
+        OnPropertyChanged(nameof(IsMultipleFilesOneByOne));
     }
 
     public bool KeepTimeStamp
@@ -795,6 +1198,13 @@ public class SettingsViewModel : ViewModelBase
         set => SetSetting(v => _settings.ContinueOnHashMismatch = v, _settings.ContinueOnHashMismatch, value);
     }
 
+    /// <summary>復号時、同名ファイルがあるとき上書きの確認をする（暗号化側の ConfirmOverwrite とは別の設定）</summary>
+    public bool DecryptConfirmOverwrite
+    {
+        get => _settings.DecryptConfirmOverwrite;
+        set => SetSetting(v => _settings.DecryptConfirmOverwrite = v, _settings.DecryptConfirmOverwrite, value);
+    }
+
     #endregion
 
     #region 高度な設定（パスワードファイル）
@@ -866,16 +1276,94 @@ public class SettingsViewModel : ViewModelBase
 
     #region 削除
 
-    public int DeleteMode
+    // 旧版と同じ構成: 暗号化側・復号側それぞれに「削除する / メインウィンドウにチェックボックス / 確認」、
+    // 削除方法（通常 / ごみ箱 / 完全削除）は両側で共有。保存形式は 5.5.0 のまま
+    // （DeleteMode / DeleteEncryptedFileMode = 0 なら削除しない、1〜3 なら方法）で、
+    // 共有の方法は DeleteMethod に覚えておき、ON にしたときにそれを *Mode へ写す
+
+    /// <summary>暗号化後に元のファイルを削除する（DeleteMode != 0）</summary>
+    public bool DeleteOriginalAfterEncryption
     {
-        get => _settings.DeleteMode;
-        set => SetSetting(v => _settings.DeleteMode = v, _settings.DeleteMode, value);
+        get => _settings.DeleteMode != DeleteModes.None;
+        set
+        {
+            if (value == DeleteOriginalAfterEncryption) return;
+            _settings.DeleteMode = value ? _settings.EffectiveDeleteMethod : DeleteModes.None;
+            OnPropertyChanged();
+            NotifyDeleteOptionsChanged();
+        }
     }
 
-    public int DeleteEncryptedFileMode
+    /// <summary>暗号化画面に削除のチェックボックスを表示する</summary>
+    public bool EncryptShowDeleteCheckBox
     {
-        get => _settings.DeleteEncryptedFileMode;
-        set => SetSetting(v => _settings.DeleteEncryptedFileMode = v, _settings.DeleteEncryptedFileMode, value);
+        get => _settings.EncryptShowDeleteCheckBox;
+        set => SetSetting(v => _settings.EncryptShowDeleteCheckBox = v, _settings.EncryptShowDeleteCheckBox, value);
+    }
+
+    /// <summary>復号後に暗号化ファイルを削除する（DeleteEncryptedFileMode != 0）</summary>
+    public bool DeleteEncryptedFileAfterDecryption
+    {
+        get => _settings.DeleteEncryptedFileMode != DeleteModes.None;
+        set
+        {
+            if (value == DeleteEncryptedFileAfterDecryption) return;
+            _settings.DeleteEncryptedFileMode = value ? _settings.EffectiveDeleteMethod : DeleteModes.None;
+            OnPropertyChanged();
+            NotifyDeleteOptionsChanged();
+        }
+    }
+
+    /// <summary>復号画面に削除のチェックボックスを表示する</summary>
+    public bool DecryptShowDeleteCheckBox
+    {
+        get => _settings.DecryptShowDeleteCheckBox;
+        set => SetSetting(v => _settings.DecryptShowDeleteCheckBox = v, _settings.DecryptShowDeleteCheckBox, value);
+    }
+
+    public bool ConfirmDeleteAfterDecryption
+    {
+        get => _settings.ConfirmDeleteAfterDecryption;
+        set => SetSetting(v => _settings.ConfirmDeleteAfterDecryption = v, _settings.ConfirmDeleteAfterDecryption, value);
+    }
+
+    public bool IsDeleteMethodNormal
+    {
+        get => _settings.EffectiveDeleteMethod == DeleteModes.Delete;
+        set { if (value) SetDeleteMethod(DeleteModes.Delete); }
+    }
+
+    public bool IsDeleteMethodTrash
+    {
+        get => _settings.EffectiveDeleteMethod == DeleteModes.Trash;
+        set { if (value) SetDeleteMethod(DeleteModes.Trash); }
+    }
+
+    public bool IsDeleteMethodWipe
+    {
+        get => _settings.EffectiveDeleteMethod == DeleteModes.Wipe;
+        set { if (value) SetDeleteMethod(DeleteModes.Wipe); }
+    }
+
+    /// <summary>「完全削除の場合」の回数指定が意味を持つか（他の項目は独立。利用者判断 2026-10-29）</summary>
+    public bool IsWipeOptionsEnabled => IsDeleteMethodWipe;
+
+    private void SetDeleteMethod(int method)
+    {
+        if (_settings.EffectiveDeleteMethod == method && _settings.DeleteMethod == method) return;
+        _settings.DeleteMethod = method;
+        // 削除 ON の側は実際に使う方法も揃える
+        if (_settings.DeleteMode != DeleteModes.None) _settings.DeleteMode = method;
+        if (_settings.DeleteEncryptedFileMode != DeleteModes.None) _settings.DeleteEncryptedFileMode = method;
+        NotifyDeleteOptionsChanged();
+    }
+
+    private void NotifyDeleteOptionsChanged()
+    {
+        OnPropertyChanged(nameof(IsDeleteMethodNormal));
+        OnPropertyChanged(nameof(IsDeleteMethodTrash));
+        OnPropertyChanged(nameof(IsDeleteMethodWipe));
+        OnPropertyChanged(nameof(IsWipeOptionsEnabled));
     }
 
     public int DeleteRandomTimes
@@ -940,22 +1428,36 @@ public class SettingsViewModel : ViewModelBase
 
     private async Task BrowseFolderAsync(Action<string> apply)
     {
+        var folder = await PickFolderAsync(_localize["Settings_SelectFolder"]);
+        if (folder != null) apply(folder);
+    }
+
+    /// <summary>
+    /// フォルダー選択ダイアログを出し、選ばれたフォルダーのパスを返す（キャンセルは null）。
+    /// </summary>
+    /// <param name="startFolder">最初に開くフォルダー。無い・開けないときは OS の既定。</param>
+    private static async Task<string?> PickFolderAsync(string title, string? startFolder = null)
+    {
         var window = Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
             ? desktop.MainWindow
             : null;
 
-        if (window == null) return;
+        if (window == null) return null;
+
+        IStorageFolder? start = null;
+        if (!string.IsNullOrEmpty(startFolder) && Directory.Exists(startFolder))
+        {
+            start = await window.StorageProvider.TryGetFolderFromPathAsync(startFolder);
+        }
 
         var folders = await window.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
-            Title = _localize["Settings_SelectFolder"],
+            Title = title,
             AllowMultiple = false,
+            SuggestedStartLocation = start,
         });
 
-        if (folders.Count > 0)
-        {
-            apply(folders[0].Path.LocalPath);
-        }
+        return folders.Count > 0 ? folders[0].Path.LocalPath : null;
     }
 
     /// <summary>

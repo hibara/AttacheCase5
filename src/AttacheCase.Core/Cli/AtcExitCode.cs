@@ -89,6 +89,7 @@ public static class AtcExitCode
     private const int EngineCryptographicException = -115;
     private const int EngineRsaKeyGuidNotMatch = -116;
     private const int EngineIoException = -117;
+    private const int EngineOutputFileExists = -118;
     private const int EnginePasswordFileNotSupported = -120;
 
     /// <summary>
@@ -104,6 +105,9 @@ public static class AtcExitCode
             EngineUserCanceled => Canceled,
             EngineNoDiskSpace => NoDiskSpace,
             EngineOsDeniesAccess => AccessDenied,
+
+            // 復号の保存先に同名ファイル（上書きしない指定）。暗号化側の事前検査と同じ終了コード
+            EngineOutputFileExists => OutputExists,
 
             EngineAtcBrokenData or EngineNotCorrectHashValue or
                 EngineFileIndexNotFound or EngineDataNotFound => BrokenData,

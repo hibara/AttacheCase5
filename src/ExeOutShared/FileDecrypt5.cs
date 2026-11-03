@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
@@ -120,12 +121,13 @@ namespace AttacheCase
     private long _TotalSize;
     private byte[] _keyProtectionBlockRaw;
 
-    // 展開で新しく作ったファイル・フォルダー（失敗時に削除して巻き戻す）
-    private readonly List<string> _createdFiles = new List<string>();
+    // 展開で新しく作ったフォルダー（失敗時に、空のまま残ったものを削除して巻き戻す）
     private readonly List<string> _createdDirs = new List<string>();
 
-    // 既存ファイルへの上書き分。GCM タグ検証の前に FileMode.Create で開くと
-    // その時点で元の内容が失われるため、一時ファイルへ書いて検証後に置き換える
+    // 書き出し中・検証待ちの出力。すべてのファイルは最終パスではなく同じフォルダーの
+    // 一時ファイル（.attmp）へ書き、本体全体の GCM タグ検証を通ってから最終パスへ移す。
+    // 既存ファイルを FileMode.Create で開くとその時点で元の内容が失われ、新規ファイルでも
+    // 認証前の平文が最終名で見えてしまうため
     private readonly List<KeyValuePair<string, string>> _pendingReplacements =
       new List<KeyValuePair<string, string>>(); // Key = 一時, Value = 最終
 
@@ -207,6 +209,12 @@ namespace AttacheCase
 
     /// <summary>エラーメッセージ</summary>
     public string ErrorMessage { get; private set; } = "";
+
+    /// <summary>
+    /// 失敗・中止したときに片付けきれなかった作りかけの出力（検証前の平文を含む一時ファイルや
+    /// この復号で作ったフォルダー）のパス。利用者に知らせて手で消してもらうためのもの。成功時は空。
+    /// </summary>
+    public IReadOnlyList<string> LeftoverPaths { get; private set; } = new string[0];
 
     /// <summary>
     /// 直近に開こうとしている／処理中のファイル・ディレクトリパス。
@@ -508,9 +516,9 @@ namespace AttacheCase
       var swDecrypt = new Stopwatch(); swDecrypt.Start();
       var swProgress = new Stopwatch(); swProgress.Start();
 
-      _createdFiles.Clear();
       _createdDirs.Clear();
       _pendingReplacements.Clear();
+      LeftoverPaths = new string[0];
       // 保存先自身がリンクであることは正当なので、実体パスを基準にする
       _resolvedOutDirPath = PathSafety.GetFinalDirectoryPathOrNull(outDirPath) ?? outDirPath;
 
@@ -645,17 +653,28 @@ namespace AttacheCase
             return false;
           }
 
-          // 既存ファイルの置き換えは、本体全体のタグ検証を通ってから行う
-          //（検証前に上書きすると、破損書庫で元ファイルの内容まで失う）
+          // 一時ファイルを最終パスへ移すのは、本体全体のタグ検証を通ってから。
+          // 既存ファイルの置き換えもここで初めて起きる（検証前に上書きすると、
+          // 破損書庫で元ファイルの内容まで失う）
           foreach (var pair in _pendingReplacements)
           {
-            try
+            if (File.Exists(pair.Value))
             {
-              File.Replace(pair.Key, pair.Value, null, true);
+              try
+              {
+                File.Replace(pair.Key, pair.Value, null, true);
+              }
+              catch (Exception)
+              {
+                // 既存ファイルを先に削除してはいけない（続く移動も失敗すると、元のデータも
+                // 復号結果も残らない。CodeRabbit PR#21）。上書き付きの移動で置き換え、
+                // 失敗したら例外を外へ出して既存ファイルを残す（一時ファイルは外側の
+                // catch の CleanupPartialOutputs が片付ける）
+                MoveWithOverwrite(pair.Key, pair.Value);
+              }
             }
-            catch (Exception)
+            else
             {
-              File.Delete(pair.Value);
               File.Move(pair.Key, pair.Value);
             }
           }
@@ -1029,192 +1048,195 @@ namespace AttacheCase
         FileIndex = 1;
       }
 
-      while (true)
+      try
       {
-        var len = dataStream.Read(byteArray, 0, BUFFER_SIZE);
-
-        if (len == 0)
+        while (true)
         {
-          // 入力の終端。ここで区別すべきものが 2 つある。
-          //
-          //   (a) 末尾に 0 バイトのファイルやフォルダーだけが残っている
-          //       → エントリを作るために内側ループを 1 度だけ回す（従来からの挙動）。
-          //          書き込みバイト数は 0 になるので実データは出ない。
-          //
-          //   (b) 実データを持つエントリがまだ残っている
-          //       → 本体が宣言サイズより短い。ファイルが壊れている。
-          //
-          // 旧実装は無条件に len = 1 としていたため、(b) でも内側ループを回し続け、
-          // byteArray に残った**前回の内容**を 1 バイトずつ書き込んでいた。
-          // 宣言サイズが大きいと大量のゴミをディスクへ書く。
-          // 最終的には GCM の認証で失敗するが、その時点では書き込みが終わっている。
-          if (HasRemainingDataEntries(FileIndex, FileSize, FileDataList))
+          var len = dataStream.Read(byteArray, 0, BUFFER_SIZE);
+
+          if (len == 0)
           {
-            outfs?.Close();
-            ReturnCode = ATC_BROKEN_DATA;
-            ErrorFilePath = string.IsNullOrEmpty(CurrentProcessingFilePath)
-              ? AtcFilePath : CurrentProcessingFilePath;
-            return false;
-          }
-
-          len = 1;
-        }
-
-        var buffer_size = len;
-
-        while (len > 0)
-        {
-          //--------------------------------------------------------------
-          // 書き込み先がない場合は作成
-          //--------------------------------------------------------------
-          if (outfs == null)
-          {
-            if (FileIndex > FileDataList.Count - 1)
-            {
-              ReturnCode = DECRYPT_SUCCEEDED;
-              return true;
-            }
-
-            // ディレクトリ
-            if (FileDataList[FileIndex].FilePath.EndsWith("\\") ||
-                FileDataList[FileIndex].FilePath.EndsWith("/"))
-            {
-              var dirPath = FileDataList[FileIndex].FilePath;
-              if (!HandleDirectoryOverwrite(dirPath, FileIndex, FileDataList, dialog, ref fSkip))
-                return false;
-              var dirExisted = Directory.Exists(dirPath);
-              Directory.CreateDirectory(dirPath);
-              if (!dirExisted) _createdDirs.Add(dirPath);
-              OutputFileList.Add(dirPath);
-              FileSize = 0; FileIndex++; fSkip = false;
-              if (FileIndex > FileDataList.Count - 1) { ReturnCode = DECRYPT_SUCCEEDED; return true; }
-              continue;
-            }
-
-            // ファイル
-            var processPath = FileDataList[FileIndex].FilePath;
-            if (!HandleFileOverwrite(ref processPath, FileIndex, FileDataList, dialog, ref fSkip))
-              return false;
-
-            var updatedFd = FileDataList[FileIndex];
-            updatedFd.FilePath = processPath;
-            FileDataList[FileIndex] = updatedFd;
-
-#if !EXEOUT
-            if (fSalvageToCreateParentFolderOneByOne)
-              Directory.CreateDirectory(Path.GetDirectoryName(processPath));
-#endif
-
-            if (!fSkip)
-            {
-              CurrentProcessingFilePath = processPath;
-
-              // 既存ファイルは直接 FileMode.Create で開かない。開いた時点で元の
-              // 内容が失われ、GCM タグ検証の失敗・切り詰め・キャンセルで
-              // 巻き戻せなくなる。同じフォルダーの一時ファイルへ書き、
-              // 本体全体のタグ検証後に置き換える
-              var existedFile = File.Exists(processPath);
-              currentWritePath = existedFile
-                ? processPath + "." + Guid.NewGuid().ToString("N") + ".attmp"
-                : processPath;
-
-              try
-              {
-                outfs = new FileStream(currentWritePath, FileMode.Create, FileAccess.Write);
-              }
-              catch
-              {
-                var fi = new FileInfo(currentWritePath);
-                if (!fi.Directory.Exists)
-                {
-                  fi.Directory.Create();
-                  _createdDirs.Add(fi.Directory.FullName);
-                }
-                outfs = new FileStream(currentWritePath, FileMode.Create, FileAccess.Write);
-              }
-
-              // 文字列パスの事前検査（ValidateOutputPath）と作成の間に、途中の
-              // ディレクトリをジャンクションへ差し替えられると、保存先の外の
-              // 実体へ書いてしまう（TOCTOU）。開いたハンドルの実体パスで
-              // 最終確認し、競合ごと閉じる
-              if (!PathSafety.IsHandleInsideDirectory(outfs.SafeFileHandle, _resolvedOutDirPath))
-              {
-                outfs.Close(); outfs = null;
-                try { File.Delete(currentWritePath); } catch (Exception) { }
-                ReturnCode = INVALID_FILE_PATH;
-                ErrorFilePath = processPath;
-                return false;
-              }
-
-              if (existedFile)
-              {
-                _pendingReplacements.Add(new KeyValuePair<string, string>(currentWritePath, processPath));
-              }
-              else
-              {
-                _createdFiles.Add(processPath);
-              }
-            }
-
-            OutputFileList.Add(processPath);
-            FileSize = 0;
-          }
-
-          //--------------------------------------------------------------
-          // データ書き込み
-          //--------------------------------------------------------------
-          if (FileSize + len < FileDataList[FileIndex].FileSize)
-          {
-            if (!fSkip && outfs != null) outfs.Write(byteArray, buffer_size - len, len);
-            FileSize += len; _TotalSize += len; len = 0;
-          }
-          else
-          {
-            // ファイル境界を超えた
-            var rest = (int)(FileDataList[FileIndex].FileSize - FileSize);
-            if (!fSkip && outfs != null) outfs.Write(byteArray, buffer_size - len, rest);
-            _TotalSize += rest; len -= rest;
-
-            if (outfs != null) { outfs.Close(); outfs = null; }
-
-            // ファイル属性・タイムスタンプ復元、ハッシュ検証
+            // 入力の終端。ここで区別すべきものが 2 つある。
             //
-            // 旧実装は戻り値を見ておらず、RestoreFileAttributes が
-            // ReturnCode = NOT_CORRECT_HASH_VALUE を立てても、
-            // 後続の DECRYPT_SUCCEEDED で上書きされて利用者に届かなかった。
-            // CRC32 を計算する処理全体が無意味になっていた。
-            if (!fSkip && !RestoreFileAttributes(FileIndex, FileDataList, currentWritePath, cancelCheck, dialog))
+            //   (a) 末尾に 0 バイトのファイルやフォルダーだけが残っている
+            //       → エントリを作るために内側ループを 1 度だけ回す（従来からの挙動）。
+            //          書き込みバイト数は 0 になるので実データは出ない。
+            //
+            //   (b) 実データを持つエントリがまだ残っている
+            //       → 本体が宣言サイズより短い。ファイルが壊れている。
+            //
+            // 旧実装は無条件に len = 1 としていたため、(b) でも内側ループを回し続け、
+            // byteArray に残った**前回の内容**を 1 バイトずつ書き込んでいた。
+            // 宣言サイズが大きいと大量のゴミをディスクへ書く。
+            // 最終的には GCM の認証で失敗するが、その時点では書き込みが終わっている。
+            if (HasRemainingDataEntries(FileIndex, FileSize, FileDataList))
             {
               outfs?.Close();
+              ReturnCode = ATC_BROKEN_DATA;
+              ErrorFilePath = string.IsNullOrEmpty(CurrentProcessingFilePath)
+                ? AtcFilePath : CurrentProcessingFilePath;
               return false;
             }
 
-            FileSize = 0; FileIndex++; fSkip = false;
-            if (FileIndex > FileDataList.Count - 1) { ReturnCode = DECRYPT_SUCCEEDED; return true; }
+            len = 1;
           }
 
-          //--------------------------------------------------------------
-          // 進捗報告
-          //--------------------------------------------------------------
-          if (swProgress.ElapsedMilliseconds > 100)
-          {
-            var idx = Math.Min(FileIndex, FileDataList.Count - 1);
-            var msg = TotalNumberOfFiles > 1
-              ? $"{FileDataList[idx].FilePath} ( {NumberOfFiles}/{TotalNumberOfFiles} files )"
-              : FileDataList[idx].FilePath;
-            this.MessageList = new ArrayList { DECRYPTING, msg };
-            var pct = TotalFileSize > 0 ? (float)_TotalSize / TotalFileSize : 0;
-            worker?.ReportProgress((int)(pct * 10000), this.MessageList);
-            swProgress.Restart();
-          }
+          var buffer_size = len;
 
-          if (cancelCheck())
+          while (len > 0)
           {
-            outfs?.Close();
-            if (e != null) e.Cancel = true;
-            return false;
+            //--------------------------------------------------------------
+            // 書き込み先がない場合は作成
+            //--------------------------------------------------------------
+            if (outfs == null)
+            {
+              if (FileIndex > FileDataList.Count - 1)
+              {
+                ReturnCode = DECRYPT_SUCCEEDED;
+                return true;
+              }
+
+              // ディレクトリ
+              if (FileDataList[FileIndex].FilePath.EndsWith("\\") ||
+                  FileDataList[FileIndex].FilePath.EndsWith("/"))
+              {
+                var dirPath = FileDataList[FileIndex].FilePath;
+                if (!HandleDirectoryOverwrite(dirPath, FileIndex, FileDataList, dialog, ref fSkip))
+                  return false;
+                var dirExisted = Directory.Exists(dirPath);
+                Directory.CreateDirectory(dirPath);
+                if (!dirExisted) _createdDirs.Add(dirPath);
+                OutputFileList.Add(dirPath);
+                FileSize = 0; FileIndex++; fSkip = false;
+                if (FileIndex > FileDataList.Count - 1) { ReturnCode = DECRYPT_SUCCEEDED; return true; }
+                continue;
+              }
+
+              // ファイル
+              var processPath = FileDataList[FileIndex].FilePath;
+              if (!HandleFileOverwrite(ref processPath, FileIndex, FileDataList, dialog, ref fSkip))
+                return false;
+
+              var updatedFd = FileDataList[FileIndex];
+              updatedFd.FilePath = processPath;
+              FileDataList[FileIndex] = updatedFd;
+
+  #if !EXEOUT
+              if (fSalvageToCreateParentFolderOneByOne)
+                Directory.CreateDirectory(Path.GetDirectoryName(processPath));
+  #endif
+
+              if (!fSkip)
+              {
+                CurrentProcessingFilePath = processPath;
+
+                // 最終パスには書かない。既存ファイルを FileMode.Create で開くと
+                // その時点で元の内容が失われ、GCM タグ検証の失敗・切り詰め・
+                // キャンセルで巻き戻せなくなるうえ、新規ファイルでも認証前の平文が
+                // 最終名で見える。同じフォルダーの一時ファイルへ書き、本体全体の
+                // タグ検証後に最終パスへ移す。登録は開く前に行う（書き込み中の
+                // 例外でも片付けの対象から漏れないように）
+                // 名前は最終名から作らず GUID だけにする（最終名に文字を足すと、ファイル名長の
+                // 上限に近い名前で一時ファイルだけが作れなくなる。CodeRabbit PR#21）
+                currentWritePath = Path.Combine(
+                  Path.GetDirectoryName(processPath), Guid.NewGuid().ToString("N") + ".attmp");
+                _pendingReplacements.Add(new KeyValuePair<string, string>(currentWritePath, processPath));
+
+                try
+                {
+                  outfs = new FileStream(currentWritePath, FileMode.Create, FileAccess.Write);
+                }
+                catch
+                {
+                  var fi = new FileInfo(currentWritePath);
+                  if (!fi.Directory.Exists)
+                  {
+                    fi.Directory.Create();
+                    _createdDirs.Add(fi.Directory.FullName);
+                  }
+                  outfs = new FileStream(currentWritePath, FileMode.Create, FileAccess.Write);
+                }
+
+                // 文字列パスの事前検査（ValidateOutputPath）と作成の間に、途中の
+                // ディレクトリをジャンクションへ差し替えられると、保存先の外の
+                // 実体へ書いてしまう（TOCTOU）。開いたハンドルの実体パスで
+                // 最終確認し、競合ごと閉じる
+                if (!PathSafety.IsHandleInsideDirectory(outfs.SafeFileHandle, _resolvedOutDirPath))
+                {
+                  outfs.Close(); outfs = null;
+                  try { File.Delete(currentWritePath); } catch (Exception) { }
+                  ReturnCode = INVALID_FILE_PATH;
+                  ErrorFilePath = processPath;
+                  return false;
+                }
+              }
+
+              OutputFileList.Add(processPath);
+              FileSize = 0;
+            }
+
+            //--------------------------------------------------------------
+            // データ書き込み
+            //--------------------------------------------------------------
+            if (FileSize + len < FileDataList[FileIndex].FileSize)
+            {
+              if (!fSkip && outfs != null) outfs.Write(byteArray, buffer_size - len, len);
+              FileSize += len; _TotalSize += len; len = 0;
+            }
+            else
+            {
+              // ファイル境界を超えた
+              var rest = (int)(FileDataList[FileIndex].FileSize - FileSize);
+              if (!fSkip && outfs != null) outfs.Write(byteArray, buffer_size - len, rest);
+              _TotalSize += rest; len -= rest;
+
+              if (outfs != null) { outfs.Close(); outfs = null; }
+
+              // ファイル属性・タイムスタンプ復元、ハッシュ検証
+              //
+              // 旧実装は戻り値を見ておらず、RestoreFileAttributes が
+              // ReturnCode = NOT_CORRECT_HASH_VALUE を立てても、
+              // 後続の DECRYPT_SUCCEEDED で上書きされて利用者に届かなかった。
+              // CRC32 を計算する処理全体が無意味になっていた。
+              if (!fSkip && !RestoreFileAttributes(FileIndex, FileDataList, currentWritePath, cancelCheck, dialog))
+              {
+                outfs?.Close();
+                return false;
+              }
+
+              FileSize = 0; FileIndex++; fSkip = false;
+              if (FileIndex > FileDataList.Count - 1) { ReturnCode = DECRYPT_SUCCEEDED; return true; }
+            }
+
+            //--------------------------------------------------------------
+            // 進捗報告
+            //--------------------------------------------------------------
+            if (swProgress.ElapsedMilliseconds > 100)
+            {
+              var idx = Math.Min(FileIndex, FileDataList.Count - 1);
+              var msg = TotalNumberOfFiles > 1
+                ? $"{FileDataList[idx].FilePath} ( {NumberOfFiles}/{TotalNumberOfFiles} files )"
+                : FileDataList[idx].FilePath;
+              this.MessageList = new ArrayList { DECRYPTING, msg };
+              var pct = TotalFileSize > 0 ? (float)_TotalSize / TotalFileSize : 0;
+              worker?.ReportProgress((int)(pct * 10000), this.MessageList);
+              swProgress.Restart();
+            }
+
+            if (cancelCheck())
+            {
+              outfs?.Close();
+              if (e != null) e.Cancel = true;
+              return false;
+            }
           }
         }
+      }
+      finally
+      {
+        // 書き込み中の例外（I/O・切り詰め・キャンセル）で開いたまま抜けると、外側の
+        // CleanupPartialOutputs が一時ファイルを消せず、認証前の平文が残る（CodeRabbit PR#21）
+        outfs?.Close();
       }
     }
 
@@ -1365,12 +1387,35 @@ namespace AttacheCase
     //======================================================================
 
     /// <summary>
-    /// 作りかけの出力を片付ける。上書き用の一時ファイルは削除し
-    /// （既存ファイルは無傷のまま残る）、新規に作ったファイルと、
+    /// 一時ファイルを最終パスへ上書き付きで移す（.NET Framework の File.Move には上書き指定が無い）。
+    /// 失敗しても既存の最終ファイルは触らない。
+    /// </summary>
+    private static void MoveWithOverwrite(string tempPath, string finalPath)
+    {
+      if (!MoveFileEx(tempPath, finalPath, MOVEFILE_REPLACE_EXISTING))
+      {
+        var error = Marshal.GetLastWin32Error();
+        throw new IOException(new Win32Exception(error).Message + " (" + finalPath + ")", error);
+      }
+    }
+
+    private const uint MOVEFILE_REPLACE_EXISTING = 0x1;
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool MoveFileEx(string lpExistingFileName, string lpNewFileName, uint dwFlags);
+
+    /// <summary>
+    /// 作りかけの出力を片付ける。検証待ちの一時ファイルを削除し
+    /// （最終パスの既存ファイルは無傷のまま残る）、
     /// 空のまま残った新規フォルダーを削除する。
+    /// 消せなかったもの（この復号が作ったものだけ）は <see cref="LeftoverPaths"/> に残し、
+    /// 黙って置き去りにしない。
     /// </summary>
     private void CleanupPartialOutputs()
     {
+      var leftovers = new List<string>();
+
       foreach (var pair in _pendingReplacements)
       {
         try
@@ -1379,21 +1424,10 @@ namespace AttacheCase
           File.SetAttributes(pair.Key, FileAttributes.Normal); // ReadOnly を写していても消せるように
           File.Delete(pair.Key);
         }
-        catch (Exception) { /* 一時ファイルが残るだけで実データは壊していない */ }
+        catch (Exception) { /* 一時ファイルが残るだけで実データは壊していない。下で残骸として報告 */ }
+        if (File.Exists(pair.Key)) leftovers.Add(pair.Key);
       }
       _pendingReplacements.Clear();
-
-      for (var i = _createdFiles.Count - 1; i >= 0; i--)
-      {
-        try
-        {
-          if (!File.Exists(_createdFiles[i])) continue;
-          File.SetAttributes(_createdFiles[i], FileAttributes.Normal);
-          File.Delete(_createdFiles[i]);
-        }
-        catch (Exception) { /* 消せないものは残す */ }
-      }
-      _createdFiles.Clear();
 
       // 深い階層から消す（中身が空のものだけ）
       for (var i = _createdDirs.Count - 1; i >= 0; i--)
@@ -1404,10 +1438,13 @@ namespace AttacheCase
               Directory.GetFileSystemEntries(_createdDirs[i]).Length == 0)
           {
             Directory.Delete(_createdDirs[i]);
+            if (Directory.Exists(_createdDirs[i])) leftovers.Add(_createdDirs[i]);
           }
         }
-        catch (Exception) { /* 消せないものは残す */ }
+        catch (Exception) { leftovers.Add(_createdDirs[i]); /* 消せないものは残し、報告する */ }
       }
+
+      LeftoverPaths = leftovers;
       _createdDirs.Clear();
     }
 

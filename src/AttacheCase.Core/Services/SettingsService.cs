@@ -185,11 +185,16 @@ public class SettingsService
     ///
     /// 反映は次回起動から（起動時に読む設計のため。旧版の INI と同じ）。
     /// </summary>
-    /// <param name="targetDirectory">省略時は実行ファイルのフォルダー。</param>
+    /// <param name="targetDirectory">
+    /// 書き出すフォルダー。省略時は実行ファイルのフォルダー。GUI はフォルダー選択で渡す
+    /// （別の場所に展開した ZIP 版や USB メモリへ書き出す用途。読む側は起動した exe の
+    /// フォルダーしか見ないので、別フォルダーへ書いた分はそこの exe で効く）。無ければ作る。
+    /// </param>
     /// <returns>書き出したポータブル設定ファイルのパス。</returns>
     public string CreatePortableCopy(string? targetDirectory = null)
     {
         var dir = targetDirectory ?? AppContext.BaseDirectory;
+        Directory.CreateDirectory(dir);
         var portablePath = Path.Combine(dir, Settings.PortableSettings.FileName);
 
         File.WriteAllText(portablePath, JsonSerializer.Serialize(_current, JsonOptions));

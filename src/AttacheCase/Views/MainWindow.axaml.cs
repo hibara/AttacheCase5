@@ -12,13 +12,16 @@
 
 using System;
 using System.Linq;
+using AttacheCase.Cli;
 using AttacheCase.Models;
+using AttacheCase.Platform.Windows;
 using AttacheCase.Services;
 using AttacheCase.ViewModels;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform;
+using Avalonia.Threading;
 
 namespace AttacheCase.Views;
 
@@ -53,9 +56,38 @@ public partial class MainWindow : Window
     SaveLayout();
   }
 
+  /// <summary>
+  /// Esc キー。旧版（5.0 以前の WinForms 版、Form1.KeyPreview）と同じく、どの画面でも Esc で
+  /// アプリを終了する。処理中（進捗バーが動いているとき）だけは終了ではなく「中止」。
+  /// 以前は画面ごとに Esc → 戻る / キャンセルを割り当てていて終了しなかった（利用者指摘 2026-10-25）。
+  /// コンボボックスのドロップダウンやメニューが開いているときは、それらが Esc を処理済みにするので
+  /// ここへは来ない（開いているものを閉じるだけ）
+  /// </summary>
+  protected override void OnKeyDown(KeyEventArgs e)
+  {
+    base.OnKeyDown(e);
+    if (e.Handled || e.Key != Key.Escape) return;
+    if (DataContext is not MainWindowViewModel viewModel) return;
+
+    e.Handled = true;
+    if (viewModel.HandleEscapeKey()) return;
+    Close();
+  }
+
   private void RestoreLayout()
   {
     var s = _layoutService.Load();
+
+    // Windows のタブレットモード（旧 5.0 の Form1_Load と同じ扱い）:
+    // 設定「PC がタブレットモードで動作しているとき、最大化モードで起動しない」が OFF なら
+    // WindowState は触らず OS に任せる（タブレットモードでは OS が全画面にする）。
+    // ON なら保存した状態（ふつうは Normal）で起動し、OS に最大化されていたら一度だけ戻す。
+    var tabletMode = OperatingSystem.IsWindows() && WindowsTabletMode.IsTabletMode();
+    if (tabletMode && !NoMaximizeInTabletMode)
+    {
+      ApplyNormalBounds(s);
+      return;
+    }
 
     if (s.IsMaximized)
     {
@@ -68,20 +100,43 @@ public partial class MainWindow : Window
     else
     {
       WindowState = WindowState.Normal;
-      if (s.Left < 0 || s.Top < 0)
-      {
-        if (Screens.Primary != null)
-        {
-          s.Left = Screens.Primary.Bounds.Width / 2 - s.Width / 2;
-          s.Top = Screens.Primary.Bounds.Height / 2 - s.Height / 2;
-        }
-      }
+      ApplyNormalBounds(s);
 
-      Position = new Avalonia.PixelPoint((int)s.Left, (int)s.Top);
-      Width = s.Width;
-      Height = s.Height;
+      if (tabletMode)
+      {
+        Dispatcher.UIThread.Post(() =>
+        {
+          if (WindowState == WindowState.Maximized) WindowState = WindowState.Normal;
+        }, DispatcherPriority.Background);
+      }
     }
   }
+
+  /// <summary>保存してある位置・サイズを適用する（位置が無ければ主画面の中央）</summary>
+  private void ApplyNormalBounds(WindowLayoutSettings s)
+  {
+    if (s.Left < 0 || s.Top < 0)
+    {
+      if (Screens.Primary != null)
+      {
+        s.Left = Screens.Primary.Bounds.Width / 2 - s.Width / 2;
+        s.Top = Screens.Primary.Bounds.Height / 2 - s.Height / 2;
+      }
+    }
+
+    Position = new Avalonia.PixelPoint((int)s.Left, (int)s.Top);
+    Width = s.Width;
+    Height = s.Height;
+  }
+
+  /// <summary>
+  /// 設定「PC がタブレットモードで動作しているとき、最大化モードで起動しない」。
+  /// 起動引数の /notmaximized は設定を上書きする（保存はしない。CommandLineStartup は
+  /// ウィンドウが開く前に Program.Main が入れている）
+  /// </summary>
+  private static bool NoMaximizeInTabletMode =>
+    CommandLineStartup.Options?.NoMaximizeInTabletMode
+    ?? SettingsService.Instance.Current.NoMaximizeInTabletMode;
 
   private void SaveLayout()
   {

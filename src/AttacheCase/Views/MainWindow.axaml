@@ -9,7 +9,7 @@
         Title="{markup:Localize MainWindow_Title}"
         Width="680"
         Height="500"
-        MinWidth="760"
+        MinWidth="640"
         MinHeight="500"
         DragDrop.AllowDrop="True">
 

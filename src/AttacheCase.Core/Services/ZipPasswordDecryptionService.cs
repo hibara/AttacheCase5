@@ -60,6 +60,21 @@ public sealed class ZipPasswordDecryptionService : IDecryptionService
             var totalEntries = zipFile.Count;
             var processedEntries = 0;
 
+            // 上書きしない指定（Skip / SkipAll ＝ 確認ダイアログを出せない実行での
+            // 「上書きを確認する」）なら、展開を始める前に保存先の同名ファイルを探し、
+            // 1 つでもあれば何も書き出さずに止める（暗号化側・ATC の復号と同じ終了コード 5）
+            if (options.OverwriteOption is OverwriteOption.Skip or OverwriteOption.SkipAll)
+            {
+                var existing = FindExistingOutputFile(zipFile, outputDirectory);
+                if (existing != null)
+                {
+                    return EncryptionResult.CreateError(
+                        ErrorCodes.OUTPUT_FILE_EXISTS,
+                        Localize.GetString("Error_OutputFileExists", existing),
+                        existing);
+                }
+            }
+
             foreach (ZipEntry entry in zipFile)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -137,6 +152,8 @@ public sealed class ZipPasswordDecryptionService : IDecryptionService
                 {
                     Type = ProcessType.Decrypting,
                     ProgressPercentage = (int)(processedEntries * 10000 / totalEntries),
+                    // 画面の進捗パネルがバーの上に出す「処理中ファイルのパス」（ATC の復号と同じ）
+                    CurrentFilePath = fullOutputPath,
                     StatusMessage = Localize.GetString("Progress_Extracting", entryName)
                 });
             }
@@ -208,6 +225,40 @@ public sealed class ZipPasswordDecryptionService : IDecryptionService
     {
       // ZIPはRSAに関係ないので、既存メソッドを呼び出す
       return GetFileListAsync(inputPath, password, cancellationToken);
+    }
+
+    /// <summary>
+    /// 保存先に既にあるファイルのうち、この ZIP の展開で書き換えられる最初のものを返す
+    /// （無ければ null）。パスの検査は展開ループと同じ（保存先の外へ出るエントリは数えない）。
+    /// </summary>
+    private static string? FindExistingOutputFile(ZipFile zipFile, string outputDirectory)
+    {
+        var fullOutputDir = Path.GetFullPath(outputDirectory);
+        if (!fullOutputDir.EndsWith(Path.DirectorySeparatorChar))
+            fullOutputDir += Path.DirectorySeparatorChar;
+        var comparison = OperatingSystem.IsWindows()
+            ? StringComparison.OrdinalIgnoreCase
+            : StringComparison.Ordinal;
+
+        foreach (ZipEntry entry in zipFile)
+        {
+            if (entry.IsDirectory) continue;
+
+            string fullOutputPath;
+            try
+            {
+                fullOutputPath = Path.GetFullPath(Path.Combine(outputDirectory, entry.Name));
+            }
+            catch
+            {
+                continue;
+            }
+
+            if (!fullOutputPath.StartsWith(fullOutputDir, comparison)) continue;
+            if (File.Exists(fullOutputPath)) return fullOutputPath;
+        }
+
+        return null;
     }
 
     /// <summary>

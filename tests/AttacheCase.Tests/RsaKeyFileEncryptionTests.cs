@@ -22,6 +22,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -85,6 +86,58 @@ public class RsaKeyFileEncryptionTests : IDisposable
         var restored = Directory.GetFiles(outDir, "hello.txt", SearchOption.AllDirectories);
         Assert.Single(restored);
         Assert.Equal("secret payload " + bits, await File.ReadAllTextAsync(restored[0]));
+    }
+
+    [Fact]
+    public async Task 公開鍵方式の種類はRSA鍵ファイルと判定されパスワード方式はNone()
+    {
+        var (publicXml, _) = MakeKeyPair(2048);
+        var input = await WriteInputAsync("kind.txt", "kind");
+        var rsaAtc = Path.Combine(_dir, "kind-rsa.atc");
+        var pwAtc = Path.Combine(_dir, "kind-pw.atc");
+
+        var encRsa = await new EncryptionService().EncryptAsync(
+            new[] { input }, rsaAtc, string.Empty,
+            new EncryptionOptions { IsUseRsaEncryption = true, RsaPublicKeyXml = publicXml });
+        Assert.True(encRsa.Success, encRsa.ErrorMessage);
+        var encPw = await new EncryptionService().EncryptAsync(
+            new[] { input }, pwAtc, "password", new EncryptionOptions());
+        Assert.True(encPw.Success, encPw.ErrorMessage);
+
+        // GUI はこの判定で「秘密鍵（.atcpvt）待ちの画面」へ振り分ける。FileTypeDetector では
+        // どちらも 1（ATC）なので、ここが None に戻ると秘密鍵のあとの .atc ドロップが無反応になる
+        Assert.Equal(PublicKeyEncryptionKind.RsaKeyFile, DecryptionService.GetPublicKeyEncryptionKind(rsaAtc));
+        Assert.Equal(PublicKeyEncryptionKind.None, DecryptionService.GetPublicKeyEncryptionKind(pwAtc));
+        Assert.Equal(PublicKeyEncryptionKind.None, DecryptionService.GetPublicKeyEncryptionKind(input));
+        Assert.Equal(PublicKeyEncryptionKind.None, DecryptionService.GetPublicKeyEncryptionKind(Path.Combine(_dir, "missing.atc")));
+
+        // 自己実行形式（先頭が v5 ヘッダーでない）はトークン走査で見つける
+        var rsaBytes = await File.ReadAllBytesAsync(rsaAtc);
+        var sfxLike = Path.Combine(_dir, "kind-sfx.exe");
+        await File.WriteAllBytesAsync(sfxLike, Concat(Encoding.ASCII.GetBytes("MZ"), new byte[4096], rsaBytes));
+        Assert.Equal(PublicKeyEncryptionKind.RsaKeyFile, DecryptionService.GetPublicKeyEncryptionKind(sfxLike));
+
+        // 先頭が旧形式（データ版 150 未満）の ATC ヘッダーなら走査しない（大きな旧形式ファイルを
+        // ドロップしたときに UI スレッドで最大 64MB を読まないため）。走査していればうしろの
+        // v5 ヘッダーを拾って RsaKeyFile になるので、None であることが「走査を省いた」証拠
+        var legacyHead = new byte[24];
+        Encoding.ASCII.GetBytes("_AttacheCaseData").CopyTo(legacyHead, 4);
+        BitConverter.GetBytes(140).CopyTo(legacyHead, 20);
+        var legacyLike = Path.Combine(_dir, "kind-legacy.atc");
+        await File.WriteAllBytesAsync(legacyLike, Concat(legacyHead, new byte[4096], rsaBytes));
+        Assert.Equal(PublicKeyEncryptionKind.None, DecryptionService.GetPublicKeyEncryptionKind(legacyLike));
+    }
+
+    private static byte[] Concat(params byte[][] parts)
+    {
+        var result = new byte[parts.Sum(p => p.Length)];
+        var pos = 0;
+        foreach (var p in parts)
+        {
+            p.CopyTo(result, pos);
+            pos += p.Length;
+        }
+        return result;
     }
 
     [Fact]

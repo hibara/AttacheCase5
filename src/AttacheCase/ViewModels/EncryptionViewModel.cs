@@ -61,11 +61,17 @@ public class EncryptionViewModel : ViewModelBase
     private bool IsUnattendedRun => _ctx.IsUnattended;
 
     // 通常のコンストラクタ
-    public EncryptionViewModel(MainWindowViewModel mainViewModel, string targetPath, IEncryptionService? encryptionService = null)
+    /// <param name="initialFileType">
+    /// コンボボックスの初期選択（<see cref="EncryptionFileTypes"/>）。パスワード ZIP 画面のコンボボックスから
+    /// ATC / EXE へ切り替えて来たときに、その選択を渡す（設定「前に使ったファイルタイプで暗号化する」が
+    /// OFF だと設定には残らないので、ここで引き継ぐ）。null なら保存されている種類
+    /// </param>
+    public EncryptionViewModel(MainWindowViewModel mainViewModel, string[] targetPaths,
+        IEncryptionService? encryptionService = null, int? initialFileType = null)
     {
         _mainViewModel = mainViewModel;
-        _targetPath = targetPath;
-        _targetPaths = [targetPath];
+        _targetPaths = targetPaths;
+        _targetPath = targetPaths.Length > 0 ? targetPaths[0] : string.Empty;
         _encryptionService = encryptionService ?? new EncryptionService();
         _ctx = RunContext.ForGui();
 
@@ -75,24 +81,29 @@ public class EncryptionViewModel : ViewModelBase
         CancelCommand = new RelayCommand(Cancel);
         ClearPasswordFileCommand = new RelayCommand(ClearPasswordFile);
 
-        InitFileTypeSelector();
-        ApplyRememberedPassword();
-        _ = SafeApplyConfiguredPasswordFileAsync();
+        InitFileTypeSelector(initialFileType);
+        // 記憶パスワードで即実行が始まったら、パスワードファイルの自動チェックは要らない
+        if (!ApplyRememberedPassword())
+        {
+            _ = SafeApplyConfiguredPasswordFileAsync();
+        }
     }
 
     /// <summary>
     /// 設定「暗号化パスワードを記憶する」が有効なら、保管庫のパスワードを事前入力する。
-    /// この端末で保管庫を開けない場合（初めての PC）は何もしない。
+    /// さらに「確認なしに記憶パスワードで実行する」（旧 fMemPasswordExe）なら、入力・確認の
+    /// 画面を出さずにそのまま暗号化を始める。この端末で保管庫を開けない場合（初めての PC）は何もしない。
     /// </summary>
-    private void ApplyRememberedPassword()
+    /// <returns>暗号化を始めたら true（呼び出し側はパスワードファイルの自動チェックを省く）</returns>
+    private bool ApplyRememberedPassword()
     {
-        if (!Settings.RememberEncryptPassword) return;
+        if (!Settings.RememberEncryptPassword) return false;
 
         try
         {
             var remembered = RememberedPasswordService.Instance
                 .GetPassword(RememberedPasswordService.KeyEncryptPassword);
-            if (string.IsNullOrEmpty(remembered)) return;
+            if (string.IsNullOrEmpty(remembered)) return false;
 
             Password1 = remembered;
             Password2 = remembered;
@@ -100,7 +111,14 @@ public class EncryptionViewModel : ViewModelBase
         catch (Exception)
         {
             // 保管庫が読めなくても、手入力で先へ進めるようにする
+            return false;
         }
+
+        if (!Settings.ExecuteWithRememberedPassword) return false;
+
+        CurrentStep = 3;
+        _ = SafeExecuteEncryptionAsync();
+        return true;
     }
 
     // RSAモード用コンストラクタを追加
@@ -171,8 +189,11 @@ public class EncryptionViewModel : ViewModelBase
       else
       {
         // 引数でパスワードが渡されていなければ、記憶パスワード → 設定の自動チェックの順
-        ApplyRememberedPassword();
-        _ = SafeApplyConfiguredPasswordFileAsync();
+        // 記憶パスワードで即実行が始まったら、パスワードファイルの自動チェックは要らない
+        if (!ApplyRememberedPassword())
+        {
+            _ = SafeApplyConfiguredPasswordFileAsync();
+        }
       }
     }
 
@@ -203,13 +224,13 @@ public class EncryptionViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// 保存されている種類でコンボボックスの初期選択を決める。
-    /// この画面は ATC / EXE を扱うので、保存値が ZIP（や非 Windows での EXE）なら
+    /// 保存されている種類（または呼び出し元が指定した種類）でコンボボックスの初期選択を決める。
+    /// この画面は ATC / EXE を扱うので、値が ZIP（や非 Windows での EXE）なら
     /// ATC に丸める。ZIP は「パスワード ZIP」の左メニューから入る。
     /// </summary>
-    private void InitFileTypeSelector()
+    private void InitFileTypeSelector(int? initialFileType = null)
     {
-        var saved = Settings.EncryptionFileType;
+        var saved = initialFileType ?? Settings.EncryptionFileType;
         if (saved == EncryptionFileTypes.Exe && !OperatingSystem.IsWindows())
             saved = EncryptionFileTypes.Atc;
 
@@ -238,8 +259,6 @@ public class EncryptionViewModel : ViewModelBase
         }
 
         _createExecutable = type == EncryptionFileTypes.Exe;
-        // ヘッダーの文言（ATC/EXE）を切り替えるため通知する
-        OnPropertyChanged(nameof(HeaderText));
     }
 
     /// <summary>パスワードの代わりにパスワードファイルを使っているか</summary>
@@ -312,6 +331,7 @@ public class EncryptionViewModel : ViewModelBase
             {
                 ((RelayCommand)NextCommand).NotifyCanExecuteChanged();
                 UpdatePasswordStrength();
+                PasswordMismatchMessage = string.Empty;
             }
         }
     }
@@ -329,14 +349,38 @@ public class EncryptionViewModel : ViewModelBase
                 OnPropertyChanged(nameof(IsPasswordMatch));
                 OnPropertyChanged(nameof(ConfirmPasswordBackground));
                 ((AsyncRelayCommand)EncryptCommand).NotifyCanExecuteChanged();
+                PasswordMismatchMessage = string.Empty;
             }
         }
     }
 
     /// <summary>
-    /// パスワードが一致しているか
+    /// 2 つの入力欄が一致しているか。ATC は空欄のパスワードを許す仕様なので、空欄 == 空欄も一致
+    /// （利用者指示 2026-10-27: 1 回目を空欄にしたなら 2 回目も空欄で緑になるべき）
     /// </summary>
-    public bool IsPasswordMatch => !string.IsNullOrEmpty(Password1) && Password1 == Password2;
+    public bool IsPasswordMatch =>
+        string.Equals(Password1 ?? string.Empty, Password2 ?? string.Empty, StringComparison.Ordinal);
+
+    private string _passwordMismatchMessage = string.Empty;
+
+    /// <summary>
+    /// 確認ステップで「暗号化」を押したときにパスワードが一致していなかった場合のエラー文。
+    /// 旧版と同じく、不一致なら暗号化に進まずこの文言を出して入力を待つ。どちらかの欄を
+    /// 打ち直したら消える（空 = 表示なし）
+    /// </summary>
+    public string PasswordMismatchMessage
+    {
+        get => _passwordMismatchMessage;
+        private set
+        {
+            if (SetProperty(ref _passwordMismatchMessage, value))
+            {
+                OnPropertyChanged(nameof(HasPasswordMismatch));
+            }
+        }
+    }
+
+    public bool HasPasswordMismatch => _passwordMismatchMessage.Length > 0;
 
     // =====================================================================
     // パスワード強度メーター（zxcvbn）
@@ -345,6 +389,30 @@ public class EncryptionViewModel : ViewModelBase
     // =====================================================================
 
     private int _passwordStrengthScore = -1; // -1: 空
+
+    /// <summary>強度メーターを出すか（設定「パスワード強度メーターを表示する」。パスワードファイル方式では出さない）</summary>
+    public bool IsPasswordStrengthMeterVisible => Settings.ShowPasswordStrengthMeter && !IsPasswordFileMode;
+
+    /// <summary>「暗号化後に元のファイルを削除する」チェックボックスを出すか（設定「メインウィンドウに削除のチェックボックスを表示する」）</summary>
+    public bool IsDeleteCheckBoxVisible => Settings.EncryptShowDeleteCheckBox;
+
+    private bool? _deleteOriginalAfterEncryption;
+
+    /// <summary>
+    /// 暗号化後に元のファイルを削除するか。初期値は設定（DeleteMode != 0）で、画面のチェックボックスで
+    /// この実行だけ切り替えられる（設定には書き戻さない。旧版と同じ）。
+    /// 入力ステップと確認ステップの 2 つのチェックボックスは同じ値に結ぶ
+    /// </summary>
+    public bool DeleteOriginalAfterEncryption
+    {
+        get => _deleteOriginalAfterEncryption ?? Settings.DeleteMode != DeleteModes.None;
+        set
+        {
+            if (value == DeleteOriginalAfterEncryption) return;
+            _deleteOriginalAfterEncryption = value;
+            OnPropertyChanged();
+        }
+    }
 
     /// <summary>強度スコア（0〜4）。空のときは -1</summary>
     public int PasswordStrengthScore => _passwordStrengthScore;
@@ -401,21 +469,13 @@ public class EncryptionViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// 確認用テキストボックスの背景色
+    /// 確認用テキストボックスの背景色。一致 = 薄緑（旧 Windows 版と同じ #EEFFEB、利用者要望 2026-10-25）、
+    /// 不一致 = 薄いオレンジ。1 回目が空欄なら 2 回目も空欄で一致（緑）。実色は App.axaml のテーマ辞書（ダークは濃いめ）
     /// </summary>
-    public IBrush ConfirmPasswordBackground
-    {
-        get
-        {
-            if (string.IsNullOrEmpty(Password2))
-            {
-                return new SolidColorBrush(Color.FromRgb(255, 228, 196)); // 薄いオレンジ
-            }
-            return IsPasswordMatch
-                ? new SolidColorBrush(Colors.White)
-                : new SolidColorBrush(Color.FromRgb(255, 228, 196));
-        }
-    }
+    public IBrush ConfirmPasswordBackground =>
+        IsPasswordMatch
+            ? ThemeBrushes.Get("AppPasswordMatchBackground", Color.FromRgb(0xEE, 0xFF, 0xEB))
+            : ThemeBrushes.Get("AppPasswordMismatchBackground", Color.FromRgb(255, 228, 196));
 
     /// <summary>パスワードファイルから作った鍵素材（使っていなければ null）</summary>
     private byte[]? _passwordBinary;
@@ -471,11 +531,6 @@ public class EncryptionViewModel : ViewModelBase
         get => _targetPath;
         set => SetProperty(ref _targetPath, value);
     }
-
-    // ヘッダーのラベル。EXE（自己実行形式）選択中は専用の文言にする。
-    // 対象パスはビュー側で TargetPath を別途表示する
-    public string HeaderText => _localize.GetString(
-        _createExecutable ? "Encryption_HeaderFormatExe" : "Encryption_HeaderFormat");
 
     #endregion
 
@@ -572,6 +627,17 @@ public class EncryptionViewModel : ViewModelBase
     }
     private async Task ExecuteEncryptionAsync()
     {
+        // 確認ステップ（2 回目の入力）から来たときは、2 つの入力が一致しなければ暗号化に進まない。
+        // 暗号化に使うのは 1 回目の Password1 で、ここを素通りすると打ち間違えたパスワードの
+        // ファイルができてしまう（利用者報告 2026-10-27）。記憶パスワード・コマンドライン・
+        // パスワードファイル・RSA の各経路は確認ステップを通らないので対象外。
+        // 空欄のパスワードは ATC では許す仕様（「次へ」に空欄の制限は無い）で、IsPasswordMatch も空欄 == 空欄を一致とする
+        if (CurrentStep == 2 && !IsRsaMode && !IsPasswordFileMode && !IsPasswordMatch)
+        {
+            PasswordMismatchMessage = _localize["Encryption_PasswordMismatch"];
+            return;
+        }
+
         // 選んだ出力の種類（ATC / EXE）を覚える。次回も同じ選択肢になる。
         // コンボボックスを使うのは対話的な GUI 操作だけなので、RSA・コマンドライン
         // 経路では保存しない（コマンドラインの /entype や既存設定を上書きしない）
@@ -581,7 +647,21 @@ public class EncryptionViewModel : ViewModelBase
                 _createExecutable ? EncryptionFileTypes.Exe : EncryptionFileTypes.Atc);
         }
 
-        var jobs = BuildJobs();
+        // 実際に暗号化する単位（1 回の EncryptAsync に渡す入力の組と出力先）。設定「複数ファイルの場合」の
+        // 3 択・出力名の一意化・入力の予約は CLI と共通の EncryptionJobPlan（出力先の矛盾や自動命名の
+        // 不正文字は InvalidOperationException）
+        List<EncryptionJob> jobs;
+        try
+        {
+            jobs = EncryptionJobPlan.Build(_targetPaths, _ctx, DetermineOutputPath);
+        }
+        catch (InvalidOperationException ex)
+        {
+            await DialogHelper.NotifyAsync(IsUnattendedRun, _localize["Dialog_ErrorTitle"], ex.Message);
+            _mainViewModel.ReportCommandLineResult(AtcExitCode.UsageError);
+            _mainViewModel.BackToMain();
+            return;
+        }
 
         if (jobs.Count == 0)
         {
@@ -613,59 +693,14 @@ public class EncryptionViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// 実際に暗号化する単位（1 回の EncryptAsync に渡す入力パスの組）を作る。
-    /// </summary>
-    private List<string[]> BuildJobs()
-    {
-        var inputs = _targetPaths.Where(p => File.Exists(p) || Directory.Exists(p)).ToArray();
-        if (inputs.Length == 0) return [];
-
-        // /oneby: フォルダーはサブフォルダーも含めて展開し、ファイル 1 つにつき 1 つの暗号化ファイルを作る
-        if (Settings.EncryptOneByOne)
-        {
-            var jobs = new List<string[]>();
-            foreach (var path in inputs)
-            {
-                if (Directory.Exists(path))
-                {
-                    jobs.AddRange(Directory
-                        .EnumerateFiles(path, "*", SearchOption.AllDirectories)
-                        .Order()
-                        .Select(file => new[] { file }));
-                }
-                else
-                {
-                    jobs.Add([path]);
-                }
-            }
-            return jobs;
-        }
-
-        // 既定（/allpack）: 指定されたすべてを 1 つの暗号化ファイルにまとめる
-        return [inputs];
-    }
-
-    /// <summary>
     /// 1 つの暗号化ファイルを作る。
     /// </summary>
     /// <returns>次の対象へ進んでよければ true、中断・失敗なら false</returns>
-    private async Task<bool> EncryptOneAsync(string[] inputPaths)
+    private async Task<bool> EncryptOneAsync(EncryptionJob job)
     {
+        var inputPaths = job.InputPaths;
+        var outputPath = job.OutputPath;
         TargetPath = inputPaths[0];
-
-        // 出力ファイルパスの決定
-        string outputPath;
-        try
-        {
-            outputPath = DetermineOutputPath(inputPaths);
-        }
-        catch (InvalidOperationException ex)
-        {
-            await DialogHelper.NotifyAsync(IsUnattendedRun, _localize["Dialog_ErrorTitle"], ex.Message);
-            _mainViewModel.ReportCommandLineResult(AtcExitCode.UsageError);
-            _mainViewModel.BackToMain();
-            return false;
-        }
 
         // 上書き確認（/ow=0, /y, /force のときは確認しない）
         // 無人実行では確認できないため、上書きせずに終わる（Windows の CLI と同じ扱い）
@@ -682,6 +717,13 @@ public class EncryptionViewModel : ViewModelBase
                 if (IsRsaMode || _ctx.IsCommandLineRun)
                 {
                     _mainViewModel.BackToMain();
+                }
+                else if (CurrentStep == 3)
+                {
+                    // 記憶パスワードの即実行（確認ステップを飛ばして 3 に入っている）から断られたとき。
+                    // そのままだと処理中画面で止まったままになるので入力画面へ戻す
+                    // （CodeRabbit PR#19 の指摘）。通常経路は確認ステップ（2）のまま止まる
+                    CurrentStep = 1;
                 }
                 return false;
             }
@@ -738,8 +780,8 @@ public class EncryptionViewModel : ViewModelBase
 
             if (result.Success)
             {
-                // 暗号化に成功したときだけ元ファイルを削除する（/del）
-                await PostProcessHelper.DeleteOriginalsAsync(inputPaths, _ctx);
+                // 暗号化に成功したときだけ元ファイルを削除する（/del。画面のチェックボックスで切り替え可）
+                await PostProcessHelper.DeleteOriginalsAsync(inputPaths, _ctx, DeleteOriginalAfterEncryption);
 
                 StatusMessage = _localize["Encryption_Complete"];
                 CurrentFilePath = outputPath;
@@ -836,10 +878,15 @@ public class EncryptionViewModel : ViewModelBase
         _passwordBinary = material.Material;
         _passwordFilePath = material.Path;
 
-        Password1 = string.Empty;
-        Password2 = string.Empty;
+        // 旧版（AttacheCase 4 / 5.0）と同じく、鍵素材（SHA-256）の 16 進表記を 1 回目・確認の両欄に見せる
+        // （利用者依頼 2026-10-29）。欄は無効化されるので表示専用で、暗号化は常に _passwordBinary
+        // （EncryptionOptions.PasswordBinary が文字列より優先）で行う
+        var display = PasswordFileHash.ToDisplayText(material.Material!);
+        Password1 = display;
+        Password2 = display;
 
         OnPropertyChanged(nameof(IsPasswordFileMode));
+        OnPropertyChanged(nameof(IsPasswordStrengthMeterVisible));
         OnPropertyChanged(nameof(PasswordFileLabel));
     }
 
@@ -848,7 +895,12 @@ public class EncryptionViewModel : ViewModelBase
         _passwordBinary = null;
         _passwordFilePath = null;
 
+        // 表示用に入れていた 16 進表記を消し、入力し直せる状態に戻す
+        Password1 = string.Empty;
+        Password2 = string.Empty;
+
         OnPropertyChanged(nameof(IsPasswordFileMode));
+        OnPropertyChanged(nameof(IsPasswordStrengthMeterVisible));
         OnPropertyChanged(nameof(PasswordFileLabel));
     }
 

@@ -21,15 +21,4 @@ public partial class PublicKeyView : UserControl
   {
     InitializeComponent();
   }
-
-  private void OnKeyDown(object? sender, KeyEventArgs e)
-  {
-    if (e.Key == Key.Escape)
-    {
-      if (DataContext is ViewModels.PublicKeyViewModel viewModel)
-      {
-        viewModel.CancelCommand.Execute(null);
-      }
-    }
-  }
 }

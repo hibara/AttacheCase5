@@ -92,17 +92,34 @@ public static class RegistrySettingsMigrator
             s.ShowMenuBarIcon = ReadBool(option, "fTaskTrayIcon", s.ShowMenuBarIcon);
             s.WindowForeground = ReadBool(option, "fWindowForeground", s.WindowForeground);
             s.NoMultipleInstance = ReadBool(option, "fNoMultipleInstance", s.NoMultipleInstance);
+            s.NoMaximizeInTabletMode = ReadBool(option, "fNotMaximizedInTabletMode", s.NoMaximizeInTabletMode);
 
             // ---- 暗号化 ----
             // 旧: 0=未設定, 1=ATC, 2=自己実行形式, 3=ZIP。
-            // 自己実行形式（2）は保存形式の既定としては廃止 → ATC へ倒す
-            var fileType = ReadInt(option, "EncryptionFileType", 0);
-            s.EncryptionFileType = fileType == 3 ? EncryptionFileTypes.Zip : EncryptionFileTypes.Atc;
+            // 旧版の優先順は「常に同じ種類（EncryptionSameFileTypeAlways）> 前に使った種類
+            // （fEncryptionSameFileTypeBefore + EncryptionSameFileTypeBefore）> 最後の選択
+            // （EncryptionFileType）」。5.5 の「種類」ラジオはこの順で決まった値を引き継ぐ。
+            // 自己実行形式（2）は 5.5.1 で設定の種類として復活したのでそのまま EXE へ
+            s.UseLastEncryptionFileType = ReadBool(option, "fEncryptionSameFileTypeBefore", s.UseLastEncryptionFileType);
+            var fileType = ReadInt(option, "EncryptionSameFileTypeAlways", 0);
+            if (fileType is < 1 or > 3 && s.UseLastEncryptionFileType)
+                fileType = ReadInt(option, "EncryptionSameFileTypeBefore", 0);
+            if (fileType is < 1 or > 3)
+                fileType = ReadInt(option, "EncryptionFileType", 0);
+            s.EncryptionFileType = fileType switch
+            {
+                2 => EncryptionFileTypes.Exe,
+                3 => EncryptionFileTypes.Zip,
+                _ => EncryptionFileTypes.Atc,
+            };
 
             s.SaveToSameFolder = ReadBool(option, "fSaveToSameFldr", s.SaveToSameFolder);
             s.SaveToFolderPath = ReadString(option, "SaveToSameFldrPath", s.SaveToFolderPath);
             s.ConfirmOverwrite = ReadBool(option, "fEncryptConfirmOverwrite", s.ConfirmOverwrite);
-            s.EncryptOneByOne = ReadBool(option, "fFilesOneByOne", s.EncryptOneByOne);
+            // 複数ファイルの場合（通常 / 一つにまとめる / 一つずつ）。旧版は 2 つのフラグが排他で、
+            // 両方立っていたら「一つにまとめる」を先に見ていた
+            s.AllFilePack = ReadBool(option, "fAllFilePack", s.AllFilePack);
+            s.EncryptOneByOne = !s.AllFilePack && ReadBool(option, "fFilesOneByOne", s.EncryptOneByOne);
             s.KeepTimeStamp = ReadBool(option, "fKeepTimeStamp", s.KeepTimeStamp);
             s.IncludeOriginalExtension = ReadBool(option, "fExtInAtcFileName", s.IncludeOriginalExtension);
 
@@ -138,6 +155,7 @@ public static class RegistrySettingsMigrator
             s.DecryptSaveToFolderPath = ReadString(option, "DecryptToSameFldrPath",
                 ReadString(option, "DecodeToSameFldrPath", s.DecryptSaveToFolderPath));
             s.NoParentFolder = ReadBool(option, "fNoParentFldr", s.NoParentFolder);
+            s.DecryptConfirmOverwrite = ReadBool(option, "fDecryptConfirmOverwrite", s.DecryptConfirmOverwrite);
             s.SetTimeStampToNow = ReadBool(option, "fSameTimeStamp", s.SetTimeStampToNow);
             s.ContinueOnHashMismatch = ReadBool(option, "fSalvageIgnoreHashCheck", s.ContinueOnHashMismatch);
 
@@ -153,13 +171,17 @@ public static class RegistrySettingsMigrator
             // ---- 削除 ----
             // 旧版は「削除するか」のフラグ 2 つ（元ファイル / 暗号化ファイル）と、
             // 共有の「削除方法」（fCompleteDelFile: 0=しない,1=通常,2=ごみ箱,3=完全削除）
-            // の組み合わせ。新モデルは対象ごとに方法を持つ
+            // の組み合わせ。新モデルは対象ごとに方法を持ち、共有の方法は DeleteMethod に残す
             var deleteMethod = Math.Clamp(ReadInt(option, "fCompleteDelFile", 0), 0, 3);
+            s.DeleteMethod = deleteMethod;
             s.DeleteMode = ReadBool(option, "fDelOrgFile", false) ? deleteMethod : DeleteModes.None;
             s.DeleteEncryptedFileMode = ReadBool(option, "fDelEncFile", false) ? deleteMethod : DeleteModes.None;
+            s.EncryptShowDeleteCheckBox = ReadBool(option, "fEncryptShowDelChkBox", s.EncryptShowDeleteCheckBox);
+            s.DecryptShowDeleteCheckBox = ReadBool(option, "fDecryptShowDelChkBox", s.DecryptShowDeleteCheckBox);
             s.DeleteRandomTimes = Math.Clamp(ReadInt(option, "DelRandNum", s.DeleteRandomTimes), 1, 99);
             s.DeleteZeroTimes = Math.Clamp(ReadInt(option, "DelZeroNum", s.DeleteZeroTimes), 1, 99);
             s.ConfirmDelete = ReadBool(option, "fConfirmToDeleteAfterEncryption", s.ConfirmDelete);
+            s.ConfirmDeleteAfterDecryption = ReadBool(option, "fConfirmToDeleteAfterDecryption", s.ConfirmDeleteAfterDecryption);
 
             // ---- 関連付け ----
             // 旧版の 0 は「本体アイコン」だが、統合版は同梱 .ico（1〜4）だけなので
@@ -179,6 +201,8 @@ public static class RegistrySettingsMigrator
             // RememberedPasswordService.TryMigrateFromLegacyRegistry が別途行う
             s.RememberEncryptPassword = ReadBool(myKey, "fMyEncryptPasswordKeep", s.RememberEncryptPassword);
             s.RememberDecryptPassword = ReadBool(myKey, "fMyDecryptPasswordKeep", s.RememberDecryptPassword);
+            s.ExecuteWithRememberedPassword = ReadBool(myKey, "fMemPasswordExe", s.ExecuteWithRememberedPassword);
+            s.ShowPasswordStrengthMeter = ReadBool(myKey, "fPasswordStrengthMeter", s.ShowPasswordStrengthMeter);
         }
 
         return s;

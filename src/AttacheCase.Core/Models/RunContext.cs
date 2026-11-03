@@ -71,11 +71,15 @@ public sealed class RunContext
     /// <summary>
     /// 暗号化ファイルの種類（ATC / EXE / ZIP）の選択を設定として覚える。
     /// パスワード入力画面のコンボボックスで選び、暗号化を実行したときに呼ぶ。
+    /// 設定「前に使ったファイルタイプで暗号化する」（<see cref="AppSettings.UseLastEncryptionFileType"/>）が
+    /// OFF なら何もしない（設定画面で選んだ種類を常に使う。コンボボックスの選択はその場限り）。
     /// コマンドライン起動時は複製を書き換えるだけで、settings.json には保存しない
     /// （引数 /entype が優先されるべきで、GUI の選択で上書きしないため）。
     /// </summary>
     public void RememberEncryptionFileType(int fileType)
     {
+        if (!Settings.UseLastEncryptionFileType) return;
+
         Settings.EncryptionFileType = fileType;
 
         if (IsCommandLineRun) return;

@@ -203,4 +203,7 @@ Decryption failed.</value>
   <data name="labelInputPassword" xml:space="preserve">
     <value>Input Password:</value>
   </data>
+  <data name="DialogMessageLeftoverFiles" xml:space="preserve">
+    <value>Partially written files could not be removed. Please delete them manually:</value>
+  </data>
 </root>

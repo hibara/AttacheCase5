@@ -94,31 +94,47 @@ public class DecryptionViewModel : ViewModelBase
       }
       else
       {
-        ApplyRememberedPassword();
-        _ = SafeApplyConfiguredPasswordFileAsync();
+        // 記憶パスワードで即実行が始まったら、パスワードファイルの自動チェックは要らない
+        if (!ApplyRememberedPassword())
+        {
+          _ = SafeApplyConfiguredPasswordFileAsync();
+        }
       }
     }
 
     /// <summary>
     /// 設定「復号パスワードを記憶する」が有効なら、保管庫のパスワードを事前入力する。
-    /// この端末で保管庫を開けない場合（初めての PC）は何もしない。
+    /// さらに「確認なしに記憶パスワードで実行する」（旧 fMemPasswordExe）なら、入力を待たずに
+    /// そのまま復号を始める。この端末で保管庫を開けない場合（初めての PC）は何もしない。
     /// </summary>
-    private void ApplyRememberedPassword()
+    /// <returns>復号を始めたら true（呼び出し側はパスワードファイルの自動チェックを省く）</returns>
+    private bool ApplyRememberedPassword()
     {
-      if (!_ctx.Settings.RememberDecryptPassword) return;
+      if (!_ctx.Settings.RememberDecryptPassword) return false;
 
       try
       {
         var remembered = Services.RememberedPasswordService.Instance
             .GetPassword(Services.RememberedPasswordService.KeyDecryptPassword);
-        if (string.IsNullOrEmpty(remembered)) return;
+        if (string.IsNullOrEmpty(remembered)) return false;
 
         Password = remembered;
       }
       catch (Exception)
       {
         // 保管庫が読めなくても、手入力で先へ進めるようにする
+        return false;
       }
+
+      if (!_ctx.Settings.ExecuteWithRememberedPassword) return false;
+
+      // 「回数超過で破壊する」ファイルでは自動実行しない。記憶パスワードと違うパスワードの
+      // ファイルだと、この自動試行が誤入力として数えられ、上限 1 回なら利用者が何もしないうちに
+      // 破壊されてしまう（CodeRabbit PR#19 の指摘）。事前入力にとどめ、実行は利用者に任せる
+      if (_breakFileOnLimit) return false;
+
+      _ = SafeExecuteDecryptionAsync();
+      return true;
     }
 
     // RSAモード用コンストラクタを追加
@@ -182,8 +198,11 @@ public class DecryptionViewModel : ViewModelBase
       }
       else
       {
-        ApplyRememberedPassword();
-        _ = SafeApplyConfiguredPasswordFileAsync();
+        // 記憶パスワードで即実行が始まったら、パスワードファイルの自動チェックは要らない
+        if (!ApplyRememberedPassword())
+        {
+          _ = SafeApplyConfiguredPasswordFileAsync();
+        }
       }
     }
 
@@ -215,6 +234,26 @@ public class DecryptionViewModel : ViewModelBase
 
     public bool IsPasswordInputStep => CurrentStep == 1;
     public bool IsProcessingStep => CurrentStep == 2;
+
+    /// <summary>「復号後に暗号化ファイルを削除する」チェックボックスを出すか（設定「メインウィンドウに削除のチェックボックスを表示する」）</summary>
+    public bool IsDeleteCheckBoxVisible => Settings.DecryptShowDeleteCheckBox;
+
+    private bool? _deleteEncryptedFileAfterDecryption;
+
+    /// <summary>
+    /// 復号後に暗号化ファイルを削除するか。初期値は設定（DeleteEncryptedFileMode != 0）で、画面のチェックボックスで
+    /// この実行だけ切り替えられる（設定には書き戻さない。旧版と同じ）
+    /// </summary>
+    public bool DeleteEncryptedFileAfterDecryption
+    {
+        get => _deleteEncryptedFileAfterDecryption ?? Settings.DeleteEncryptedFileMode != DeleteModes.None;
+        set
+        {
+            if (value == DeleteEncryptedFileAfterDecryption) return;
+            _deleteEncryptedFileAfterDecryption = value;
+            OnPropertyChanged();
+        }
+    }
 
     /// <summary>完了ステップを表示するか（100% のまま止めて利用者の操作を待つ）</summary>
     public bool IsCompletedStep => CurrentStep == 3;
@@ -272,7 +311,6 @@ public class DecryptionViewModel : ViewModelBase
       set => SetProperty(ref _currentFilePath, value);
     }
 
-    public string HeaderText => _localize.GetString("Decryption_HeaderFormat");
 
     public string TargetPath
     {
@@ -461,7 +499,7 @@ public class DecryptionViewModel : ViewModelBase
             }
         }
 
-        if (existingItems.Count > 0 && Settings.ConfirmOverwrite)
+        if (existingItems.Count > 0 && Settings.DecryptConfirmOverwrite)
         {
             string message;
             if (existingItems.Count == 1)
@@ -541,8 +579,8 @@ public class DecryptionViewModel : ViewModelBase
                 // 復号したファイルを関連付けられたアプリで開く（設定「復号後に開く」）
                 PostProcessHelper.OpenDecryptedItems(_ctx, outputDirectory, fileListResult.FilePaths);
 
-                // 復号に成功したときだけ暗号化ファイルを削除する（/delenc）
-                await PostProcessHelper.DeleteEncryptedFileAsync(TargetPath, _ctx);
+                // 復号に成功したときだけ暗号化ファイルを削除する（/delenc。画面のチェックボックスで切り替え可）
+                await PostProcessHelper.DeleteEncryptedFileAsync(TargetPath, _ctx, DeleteEncryptedFileAfterDecryption);
 
                 StatusMessage = _localize["Decryption_Complete"];
                 CurrentFilePath = outputDirectory;
@@ -723,7 +761,9 @@ public class DecryptionViewModel : ViewModelBase
       _passwordBinary = material.Material;
       _passwordFilePath = material.Path;
 
-      Password = string.Empty;
+      // 旧版（AttacheCase 4 / 5.0）と同じく、鍵素材（SHA-256）の 16 進表記を入力欄に見せる
+      // （利用者依頼 2026-10-29）。欄は無効化されるので表示専用で、復号は常に _passwordBinary で行う
+      Password = PasswordFileHash.ToDisplayText(material.Material!);
 
       OnPropertyChanged(nameof(IsPasswordFileMode));
       OnPropertyChanged(nameof(PasswordFileLabel));
@@ -733,6 +773,9 @@ public class DecryptionViewModel : ViewModelBase
     {
       _passwordBinary = null;
       _passwordFilePath = null;
+
+      // 表示用に入れていた 16 進表記を消し、入力し直せる状態に戻す
+      Password = string.Empty;
 
       OnPropertyChanged(nameof(IsPasswordFileMode));
       OnPropertyChanged(nameof(PasswordFileLabel));
@@ -752,7 +795,6 @@ public class DecryptionViewModel : ViewModelBase
       if (_pendingPaths.Count == 0) return false;
 
       TargetPath = _pendingPaths.Dequeue();
-      OnPropertyChanged(nameof(HeaderText));
 
       // 対象ごとにミスタイプ上限と暗号化方式を読み直す
       (_missTypeLimits, _breakFileOnLimit) = DecryptionService.ReadPasswordLimit(TargetPath);

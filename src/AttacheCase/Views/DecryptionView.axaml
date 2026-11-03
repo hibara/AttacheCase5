@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:AttacheCase.ViewModels"
              xmlns:l="using:AttacheCase.Markup"
-             xmlns:conv="using:AttacheCase.Converters"
+             xmlns:controls="using:AttacheCase.Controls"
              x:Class="AttacheCase.Views.DecryptionView"
              x:DataType="vm:DecryptionViewModel">
 
@@ -10,28 +10,17 @@
        入力欄が下へずれる -->
   <Grid>
 
-    <Grid
+    <!-- 対象のパス。左端は見出しの左端、右端は入力欄の右端（戻るボタンの左）に揃える。
+         2 行まで全文、入らなければ PathTextBlock が途中を省略する -->
+    <controls:PathTextBlock
       VerticalAlignment="Top"
       HorizontalAlignment="Stretch"
-      Margin="20,56,20,0"
-      ColumnDefinitions="Auto,*">
-
-      <TextBlock
-        Grid.Column="0"
-        Text="{Binding HeaderText}"
-        FontSize="18"
-        FontWeight="Bold"
-        VerticalAlignment="Center"/>
-
-      <TextBlock
-        Grid.Column="1"
-        Text="{Binding TargetPath, Converter={x:Static conv:PathDisplayConverter.Instance}}"
-        FontSize="18"
-        FontWeight="Bold"
-        VerticalAlignment="Center"
-        TextWrapping="NoWrap"
-        TextTrimming="CharacterEllipsis"/>
-    </Grid>
+      Margin="20,60,54,0"
+      Text="{Binding TargetPath}"
+      FontSize="13"
+      Opacity="0.8"
+      TextWrapping="Wrap"
+      MaxLines="2"/>
 
     <!-- パスワード入力ステップ
 
@@ -46,7 +35,9 @@
                  VerticalAlignment="Bottom"
                  Margin="0,0,0,15"/>
 
-      <Grid Grid.Row="1" Width="400" HorizontalAlignment="Center">
+      <!-- 入力欄は左端を見出しの左端（余白 20）に、右端を暗号化画面の入力欄と同じ位置（右上の
+           戻るボタンぶん 54）にそろえる。コンボボックスが無いぶん左へ伸びる（利用者指示 2026-10-25） -->
+      <Grid Grid.Row="1" Margin="20,0,54,0">
         <TextBox x:Name="PasswordBox"
                  PasswordChar="{Binding PasswordVisibility.PasswordChar}"
                  Text="{Binding Password}"
@@ -56,7 +47,6 @@
                  Classes="password">
           <TextBox.KeyBindings>
             <KeyBinding Gesture="Enter" Command="{Binding DecryptCommand}" />
-            <KeyBinding Gesture="Escape" Command="{Binding CancelCommand}" />
           </TextBox.KeyBindings>
         </TextBox>
         <Button Classes="eye"
@@ -83,13 +73,22 @@
 
       <StackPanel Grid.Row="2"
                   VerticalAlignment="Top"
-                  HorizontalAlignment="Center"
+                  HorizontalAlignment="Stretch"
                   Spacing="15"
                   Margin="0,15,0,0">
 
+        <!-- 復号後に暗号化ファイルを削除する（設定「メインウィンドウに削除のチェックボックスを表示する」が ON のときだけ。
+             入力欄と同じ左右位置） -->
+        <CheckBox Content="{l:Localize Settings_DeleteEncryptedAfterDecryption}"
+                  IsChecked="{Binding DeleteEncryptedFileAfterDecryption}"
+                  IsVisible="{Binding IsDeleteCheckBoxVisible}"
+                  FontSize="12"
+                  Margin="20,0,54,0" />
+
         <StackPanel Orientation="Horizontal"
                     Spacing="8"
-                    HorizontalAlignment="Center"
+                    HorizontalAlignment="Right"
+                    Margin="0,0,54,0"
                     IsVisible="{Binding IsPasswordFileMode}">
           <TextBlock Text="{Binding PasswordFileLabel}"
                      FontSize="12"
@@ -100,8 +99,11 @@
                   Padding="8,2" />
         </StackPanel>
 
+        <!-- ボタン列は中央寄せではなく右寄せ。右端を入力欄の右端（= 右上の戻るボタンの左端、右から 54）に
+             揃える（利用者指示 2026-10-25: 中央寄せはやめる） -->
         <StackPanel Orientation="Horizontal"
-                    HorizontalAlignment="Center"
+                    HorizontalAlignment="Right"
+                    Margin="0,0,54,0"
                     Spacing="10">
           <Button Classes="action Primary" Content="{l:Localize Button_Decrypt}"
                   Command="{Binding DecryptCommand}"/>
@@ -112,11 +114,12 @@
     </Grid>
 
     <!-- 処理中／完了ステップ -->
+    <!-- 幅はウィンドウに追従（左 20、右は戻るボタンぶん 54。EncryptionView と同じ） -->
     <StackPanel IsVisible="{Binding IsProgressVisible}"
                 Spacing="10"
                 VerticalAlignment="Center"
-                HorizontalAlignment="Center"
-                Width="500">
+                HorizontalAlignment="Stretch"
+                Margin="20,0,54,0">
 
       <TextBlock Text="{Binding StatusMessage}"
                  FontSize="14"
@@ -125,7 +128,8 @@
 
       <!-- 処理中ファイルのフルパス（プログレスバー左上、長いパスは右側を…で省略） -->
       <TextBlock Text="{Binding CurrentFilePath}"
-                 FontSize="11"
+                 FontSize="12"
+                 Margin="4,0,0,0"
                  Opacity="0.75"
                  HorizontalAlignment="Left"
                  TextWrapping="NoWrap"
@@ -143,7 +147,7 @@
 
       <Button Classes="action" Content="{Binding ProgressButtonText}"
               Command="{Binding CancelCommand}"
-              HorizontalAlignment="Center"
+              HorizontalAlignment="Right"
               Margin="0,10,0,0"/>
     </StackPanel>
 

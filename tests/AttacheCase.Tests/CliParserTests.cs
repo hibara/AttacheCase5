@@ -203,6 +203,27 @@ public class CliParserTests
     }
 
     [Fact]
+    public void PasswordOptions_AreParsedInsteadOfBeingIgnored()
+    {
+        // 旧版の /mempexe（記憶パスワードで確認なしに実行）と /psm（強度メーター）は
+        // 5.5 で設定として復活した。無視一覧に戻すと設定画面の項目に引数が効かなくなる
+        Assert.True(CliParser.Parse(["/mempexe=1"]).ExecuteWithRememberedPassword);
+        Assert.True(CliParser.Parse(["/mempexe"]).ExecuteWithRememberedPassword);
+        Assert.False(CliParser.Parse(["/psm=0"]).ShowPasswordStrengthMeter);
+        Assert.Empty(CliParser.Parse(["/mempexe", "/psm=0"]).IgnoredOptions);
+
+        var effective = CliParser.Parse(["/mempexe=1", "/psm=0"])
+            .ApplyTo(new AttacheCase.Models.AppSettings());
+        Assert.True(effective.ExecuteWithRememberedPassword);
+        Assert.False(effective.ShowPasswordStrengthMeter);
+
+        // 既定: 確認なし実行は OFF、強度メーターは ON（旧版と同じ）
+        var defaults = new AttacheCase.Models.AppSettings();
+        Assert.False(defaults.ExecuteWithRememberedPassword);
+        Assert.True(defaults.ShowPasswordStrengthMeter);
+    }
+
+    [Fact]
     public void WindowOptions_AreParsed()
     {
         Assert.True(CliParser.Parse(["/tsktr=1"]).ShowMenuBarIcon);
@@ -356,5 +377,83 @@ public class CliParserTests
         {
             Directory.Delete(directory, true);
         }
+    }
+
+    [Fact]
+    public void NotMaximizedOption_IsParsedInsteadOfBeingIgnored()
+    {
+        // 旧版の /notmaximized（PC がタブレットモードのとき最大化で起動しない）は 5.5.1 で設定として復活。
+        // 無視一覧に戻すと設定画面の項目に引数が効かなくなる
+        Assert.True(CliParser.Parse(["/notmaximized=1"]).NoMaximizeInTabletMode);
+        Assert.True(CliParser.Parse(["/notmaximized"]).NoMaximizeInTabletMode);
+        Assert.False(CliParser.Parse(["/notmaximized=0"]).NoMaximizeInTabletMode);
+        Assert.Empty(CliParser.Parse(["/notmaximized"]).IgnoredOptions);
+        Assert.Contains("/notmaximized", CliParser.Parse(["/notmaximized"]).GuiOnlyOptionsGiven());
+
+        var effective = CliParser.Parse(["/notmaximized=1"]).ApplyTo(new AttacheCase.Models.AppSettings());
+        Assert.True(effective.NoMaximizeInTabletMode);
+
+        // 既定は OFF（旧版と同じ）
+        Assert.False(new AttacheCase.Models.AppSettings().NoMaximizeInTabletMode);
+    }
+
+    [Fact]
+    public void ChkdelOption_IsParsedInsteadOfBeingIgnored()
+    {
+        // 旧版の /chkdel（メインウィンドウに削除のチェックボックスを表示する）は 5.5.1 で設定として復活
+        Assert.True(CliParser.Parse(["/chkdel=1"]).ShowDeleteCheckBox);
+        Assert.True(CliParser.Parse(["/chkdel"]).ShowDeleteCheckBox);
+        Assert.False(CliParser.Parse(["/chkdel=0"]).ShowDeleteCheckBox);
+        Assert.Empty(CliParser.Parse(["/chkdel"]).IgnoredOptions);
+        Assert.Contains("/chkdel", CliParser.Parse(["/chkdel"]).GuiOnlyOptionsGiven());
+        Assert.True(CliParser.Parse(["/chkdel=1"]).HasSettingOverride);
+    }
+
+    [Fact]
+    public void BeforeTypeOption_IsParsedInsteadOfBeingIgnored()
+    {
+        // 旧版の /beforetype（前に使ったファイルタイプで暗号化する）は 5.5.1 で設定として復活。
+        // 旧版は値に「前回の種類」1〜3 を取ったので、0 以外は ON
+        Assert.True(CliParser.Parse(["/beforetype=1"]).UseLastEncryptionFileType);
+        Assert.True(CliParser.Parse(["/beforetype=2"]).UseLastEncryptionFileType);
+        Assert.True(CliParser.Parse(["/beforetype"]).UseLastEncryptionFileType);
+        Assert.False(CliParser.Parse(["/beforetype=0"]).UseLastEncryptionFileType);
+        Assert.Empty(CliParser.Parse(["/beforetype"]).IgnoredOptions);
+        Assert.Contains("/beforetype", CliParser.Parse(["/beforetype"]).GuiOnlyOptionsGiven());
+
+        var effective = CliParser.Parse(["/beforetype=1"]).ApplyTo(new AttacheCase.Models.AppSettings());
+        Assert.True(effective.UseLastEncryptionFileType);
+
+        // 既定は OFF（旧版と同じ。設定画面で選んだ種類を常に使う）
+        Assert.False(new AttacheCase.Models.AppSettings().UseLastEncryptionFileType);
+    }
+
+    [Fact]
+    public void AllPackAndOneBy_AreExclusiveAndRestoreNormal()
+    {
+        // 「複数ファイルの場合」は旧版と同じ 3 択（通常 / 一つにまとめる / 一つずつ）。既定は通常
+        var defaults = new AttacheCase.Models.AppSettings();
+        Assert.False(defaults.AllFilePack);
+        Assert.False(defaults.EncryptOneByOne);
+
+        var packed = CliParser.Parse(["/allpack=1"]).ApplyTo(new AttacheCase.Models.AppSettings { EncryptOneByOne = true });
+        Assert.True(packed.AllFilePack);
+        Assert.False(packed.EncryptOneByOne);
+
+        var oneBy = CliParser.Parse(["/oneby=1"]).ApplyTo(new AttacheCase.Models.AppSettings { AllFilePack = true });
+        Assert.False(oneBy.AllFilePack);
+        Assert.True(oneBy.EncryptOneByOne);
+
+        // /allpack=0 と /oneby=0 は「通常」へ戻す
+        var normal = CliParser.Parse(["/allpack=0"]).ApplyTo(new AttacheCase.Models.AppSettings { AllFilePack = true });
+        Assert.False(normal.AllFilePack);
+        Assert.False(normal.EncryptOneByOne);
+        normal = CliParser.Parse(["/oneby=0"]).ApplyTo(new AttacheCase.Models.AppSettings { EncryptOneByOne = true });
+        Assert.False(normal.EncryptOneByOne);
+
+        // 両方指定されたら後のものが勝つ
+        var last = CliParser.Parse(["/allpack=1", "/oneby=1"]).ApplyTo(new AttacheCase.Models.AppSettings());
+        Assert.True(last.EncryptOneByOne);
+        Assert.False(last.AllFilePack);
     }
 }

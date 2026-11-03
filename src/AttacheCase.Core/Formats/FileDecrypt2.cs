@@ -63,6 +63,8 @@ namespace AttacheCase
     private const int CRYPTOGRAPHIC_EXCEPTION = -115;
     private const int RSA_KEY_GUID_NOT_MATCH = -116;
     private const int IO_EXCEPTION = -117;
+    // 保存先に同名ファイル（上書きしない指定）。何も書き出さずに止める（終了コード 5）
+    private const int OUTPUT_FILE_EXISTS = -118;
 
     // Overwrite Option
     //private const int USER_CANCELED = -1;
@@ -951,6 +953,27 @@ namespace AttacheCase
           {
             // Delete the storage size at the end of the file
             fs.SetLength(fs.Length - sizeof(Int64));
+          }
+        }
+
+        //----------------------------------------------------------------------
+        // 上書きしない指定（SKIP_ALL ＝ 確認ダイアログを出せない実行での
+        // 「上書きを確認する」）のとき、保存先に同名ファイルが 1 つでもあれば、
+        // 何も書き出さずに止める。黙って飛ばすと「復号成功」に見えてしまう
+        // （暗号化側と同じ終了コード 5。v4 / v5 の DecryptionService と同じ規則）
+        //----------------------------------------------------------------------
+        if (_TempOverWriteOption == SKIP_ALL && _fSalvageIntoSameDirectory == false)
+        {
+          foreach (FileListData item in dic.Values)
+          {
+            if (item.FilePath.EndsWith("\\") == true) continue;
+            string existingPath = Path.Combine(OutDirPath, item.FilePath);
+            if (File.Exists(existingPath) == true)
+            {
+              _ReturnCode = OUTPUT_FILE_EXISTS;
+              _ErrorFilePath = existingPath;
+              return (false);
+            }
           }
         }
 

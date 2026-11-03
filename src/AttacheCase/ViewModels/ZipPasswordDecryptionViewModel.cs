@@ -32,6 +32,7 @@ public class ZipPasswordDecryptionViewModel : ViewModelBase
     private int _progress;
     private bool _isProcessing;
     private string _statusMessage = string.Empty;
+    private string _currentFilePath = string.Empty;
     private CancellationTokenSource? _cancellationTokenSource;
     private readonly LocalizationService _localize = LocalizationService.Instance;
 
@@ -119,6 +120,16 @@ public class ZipPasswordDecryptionViewModel : ViewModelBase
         set => SetProperty(ref _progress, value);
     }
 
+    /// <summary>
+    /// 現在処理中のファイルのフルパス（進捗バーの上に出す。完了後は展開先フォルダー）。
+    /// ATC の復号画面と同じ表示（利用者要望 2026-10-25。以前は ZIP 側だけ無かった）
+    /// </summary>
+    public string CurrentFilePath
+    {
+        get => _currentFilePath;
+        set => SetProperty(ref _currentFilePath, value);
+    }
+
     public bool IsProcessing
     {
         get => _isProcessing;
@@ -139,8 +150,6 @@ public class ZipPasswordDecryptionViewModel : ViewModelBase
         get => _targetPath;
         set => SetProperty(ref _targetPath, value);
     }
-
-    public string HeaderText => _localize.GetString("ZipDecryption_HeaderFormat");
 
     #endregion
 
@@ -214,7 +223,7 @@ public class ZipPasswordDecryptionViewModel : ViewModelBase
                 }
             }
 
-            if (existingItems.Count > 0 && _ctx.Settings.ConfirmOverwrite)
+            if (existingItems.Count > 0 && _ctx.Settings.DecryptConfirmOverwrite)
             {
                 string message;
                 if (existingItems.Count == 1)
@@ -270,11 +279,18 @@ public class ZipPasswordDecryptionViewModel : ViewModelBase
                 NoParentFolder = _ctx.Settings.NoParentFolder,
             };
 
+            // 進捗通知は UI スレッドへ後回しで届く。小さなファイルだと処理が同期的に終わって
+            // 先に「完了」を表示したあとで最後の「処理中: …」が届き、完了表示を上書きしていた
+            //（2026-10-25 実測）。終わったあとに届いた通知は捨てる
+            var finished = false;
             var progressReporter = new Progress<EncryptionProgress>(p =>
             {
+                if (finished) return;
                 Progress = p.ProgressPercentage / 100;
                 WindowBehaviorService.Instance.ReportProgress(Progress);
                 StatusMessage = p.StatusMessage;
+                if (!string.IsNullOrEmpty(p.CurrentFilePath))
+                    CurrentFilePath = p.CurrentFilePath;
             });
 
             var decryptResult = await _decryptionService.DecryptAsync(
@@ -284,6 +300,7 @@ public class ZipPasswordDecryptionViewModel : ViewModelBase
                 options,
                 progressReporter,
                 _cancellationTokenSource.Token);
+            finished = true;
 
             if (decryptResult.Success)
             {
@@ -293,7 +310,9 @@ public class ZipPasswordDecryptionViewModel : ViewModelBase
                 // 復号に成功したときだけ暗号化ファイルを削除する（設定「削除」）
                 await PostProcessHelper.DeleteEncryptedFileAsync(_targetPath, _ctx);
 
-                StatusMessage = _localize["Decryption_Complete"];
+                // ZIP は「復号」ではなく「解凍」と呼ぶ（ZipDecryption_Processing「解凍中...」と対）
+                StatusMessage = _localize["ZipDecryption_Complete"];
+                CurrentFilePath = outputDirectory;
                 Progress = 100;
 
                 // 設定「処理後に終了する」のときは従来どおり終わらせる。

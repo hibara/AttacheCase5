@@ -90,6 +90,7 @@ public static class CliHelpText
 
         出力ファイル名
           /entype=1|3             1=暗号化ファイル（.atc）、3=パスワード ZIP
+          /beforetype=0|1         前に使ったファイルタイプで暗号化する（画面専用）
           /zipalgo=0|1|2          ZIP の暗号方式（0=ZipCrypto、1=AES-128、2=AES-256）
           /withext=0|1            元の拡張子を残す（report.xlsx → report.xlsx.atc）
           /camoext=.jpg           暗号化ファイルの拡張子を偽装する
@@ -97,11 +98,11 @@ public static class CliHelpText
                                   <filename> <ext> <date:yyyyMMdd> <num:3> <random:8>
 
         まとめ方・圧縮
-          /allpack=1              指定されたすべてを 1 つにまとめる（既定）
+          /allpack=0|1            複数のファイルを 1 つにまとめる（0=通常: 入力 1 つにつき 1 つ）
           /oneby=0|1              フォルダー内のファイルを 1 つずつ個別に暗号化する
           /complv=0|1|2           0=無圧縮、1=速度優先、2=サイズ優先
           /comprate=0〜9          圧縮率（0=無圧縮、1〜5=速度優先、6 以上=サイズ優先）
-          /orgdt=0|1              暗号化ファイルのタイムスタンプを元ファイルに合わせる
+          /orgdt=0|1              ファイルとフォルダーのタイムスタンプを保持する（既定 1）
           /now=0|1                復号したファイルのタイムスタンプを復号日時にする
           /nopfldr=0|1            復号時に親フォルダーを作らない
 
@@ -109,10 +110,15 @@ public static class CliHelpText
           /opf=0|1                復号したファイルを関連付けられたアプリで開く
           /nohide=0|1             パスワードを隠さずに入力する
 
+        パスワード
+          /mempexe=0|1            暗号化/復号時に確認なしに記憶パスワードで実行する
+          /psm=0|1                パスワード強度メーターを表示する
+
         ウィンドウ
-          /tsktr=0|1              メニューバーにアイコンを表示する
+          /tsktr=0|1              タスクトレイ / メニューバーにアイコンを表示する
           /front=0|1              ウィンドウを最前面に表示する
           /nomulti=0|1            アタッシェケースを複数起動しない
+          /notmaximized=0|1       PC がタブレットモードのとき最大化モードで起動しない（Windows）
 
         削除
           /del=1|2|3              暗号化成功後に元ファイルを削除
@@ -121,6 +127,7 @@ public static class CliHelpText
           /delrand=回数           完全削除でランダム値を書き込む回数（既定 1）
           /delnull=回数           完全削除でゼロを書き込む回数（既定 1）
           /comfdel=0|1            削除の前に確認する
+          /chkdel=0|1             メインウィンドウに削除のチェックボックスを表示する
 
         その他
           /exit=0|1               処理が終わったらアプリを終了する
@@ -140,9 +147,9 @@ public static class CliHelpText
           /exeout, /entype=2      自己実行形式（.exe）の出力は Windows 専用です
           /slvgfolder, /slvgsame  サルベージモードは未実装です
 
-        Windows 版 GUI 専用の設定オプション（/theme /askende /imeon /psm など）は、
+        Windows 版 GUI 専用の設定オプション（/theme /askende /imeon など）は、
         既存のバッチをそのまま流用できるよう受理しますが、効果はありません。
-        画面にしか意味の無い項目（/exit /opf /nohide /tsktr /front /nomulti /pf /comfdel）は、
+        画面にしか意味の無い項目（/exit /opf /nohide /mempexe /psm /tsktr /front /nomulti /notmaximized /beforetype /pf /comfdel /chkdel）は、
         AttacheCase.Cli では受理するだけで効果がありません。
 
         終了コード (EXIT CODES):
@@ -219,6 +226,7 @@ public static class CliHelpText
 
         Output file name
           /entype=1|3             1 = encrypted file (.atc), 3 = password ZIP
+          /beforetype=0|1         Encrypt with the file type used last time (app window only)
           /zipalgo=0|1|2          ZIP cipher (0 = ZipCrypto, 1 = AES-128, 2 = AES-256)
           /withext=0|1            Keep the original extension (report.xlsx.atc)
           /camoext=.jpg           Camouflage the extension of the encrypted file
@@ -226,11 +234,11 @@ public static class CliHelpText
                                   <filename> <ext> <date:yyyyMMdd> <num:3> <random:8>
 
         Packing and compression
-          /allpack=1              Pack everything into one encrypted file (default)
+          /allpack=0|1            Pack everything into one encrypted file (0 = normal: one per input)
           /oneby=0|1              Encrypt each file in a folder separately
           /complv=0|1|2           0 = none, 1 = fastest, 2 = optimal
           /comprate=0-9           Compression rate (0 none, 1-5 fastest, 6+ optimal)
-          /orgdt=0|1              Keep the timestamp of the original file
+          /orgdt=0|1              Keep the timestamp of files and folders (default 1)
           /now=0|1                Set decrypted timestamps to the current time
           /nopfldr=0|1            Do not create a parent folder when decrypting
 
@@ -238,10 +246,15 @@ public static class CliHelpText
           /opf=0|1                Open decrypted files with the associated application
           /nohide=0|1             Show the password instead of masking it
 
+        Password
+          /mempexe=0|1            Encrypt/decrypt with the remembered password without confirming
+          /psm=0|1                Show the password strength meter
+
         Window
-          /tsktr=0|1              Show an icon in the menu bar
+          /tsktr=0|1              Show an icon in the task tray / menu bar
           /front=0|1              Keep the window in front of other windows
           /nomulti=0|1            Do not start more than one AttacheCase
+          /notmaximized=0|1       Do not start maximized when the PC is in tablet mode (Windows)
 
         Deletion
           /del=1|2|3              Delete originals after a successful encryption
@@ -250,6 +263,7 @@ public static class CliHelpText
           /delrand=N              Random-value passes when wiping (default 1)
           /delnull=N              Zero passes when wiping (default 1)
           /comfdel=0|1            Confirm before deleting
+          /chkdel=0|1             Show the delete check box in the main window
 
         Others
           /exit=0|1               Quit the app when the work is finished
@@ -269,9 +283,9 @@ public static class CliHelpText
           /exeout, /entype=2      The self-executable (.exe) output is Windows-only
           /slvgfolder, /slvgsame  Salvage mode is not implemented
 
-        GUI-only preference options (/theme /askende /imeon /psm) are accepted so
+        GUI-only preference options (/theme /askende /imeon) are accepted so
         that existing batch files keep working, but have no effect. Items that only
-        matter in the app window (/exit /opf /nohide /tsktr /front /nomulti /pf /comfdel)
+        matter in the app window (/exit /opf /nohide /mempexe /psm /tsktr /front /nomulti /notmaximized /beforetype /pf /comfdel /chkdel)
         are accepted by AttacheCase.Cli but have no effect there either.
 
         EXIT CODES:

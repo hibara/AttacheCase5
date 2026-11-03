@@ -486,6 +486,14 @@ public sealed class HeadlessRunner
 
             if (!succeeded)
             {
+                // 保存先の同名ファイル（上書きしない指定）。旧エンジンはメッセージを持たないので
+                // 暗号化側の事前検査と同じ文面にする（終了コードも同じ OutputExists）
+                if (engineReturnCode == ErrorCodes.OUTPUT_FILE_EXISTS)
+                {
+                    return Fail(result, AtcExitCode.OutputExists,
+                        "Output file already exists: " + errorFilePath, errorFilePath);
+                }
+
                 return Fail(result,
                     AtcExitCode.FromEngineReturnCode(engineReturnCode),
                     string.IsNullOrEmpty(errorMessage)

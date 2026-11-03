@@ -313,5 +313,14 @@ namespace Exeout.Properties {
                 return ResourceManager.GetString("labelInputPassword", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Partially written files could not be removed. Please delete them manually: に類似しているローカライズされた文字列を検索します。
+        /// </summary>
+        internal static string DialogMessageLeftoverFiles {
+            get {
+                return ResourceManager.GetString("DialogMessageLeftoverFiles", resourceCulture);
+            }
+        }
     }
 }

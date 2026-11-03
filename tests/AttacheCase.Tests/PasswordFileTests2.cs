@@ -85,6 +85,21 @@ public class PasswordFileSettingTests
     }
 
     [Fact]
+    public void TheDisplayTextIsTheUppercaseHexOfTheKeyMaterial()
+    {
+        // 旧版（AttacheCase 4 / 5.0）の BytesToHexString と同じ表記（大文字、区切りなし）。
+        // パスワード欄に見せる文字列で、暗号化・復号には使わない
+        var material = new byte[32];
+        for (var i = 0; i < material.Length; i++) material[i] = (byte)(i * 8 + 3);
+
+        var text = PasswordFileHash.ToDisplayText(material);
+
+        Assert.Equal(64, text.Length);
+        Assert.StartsWith("030B131B", text);
+        Assert.Equal(BitConverter.ToString(material).Replace("-", string.Empty), text);
+    }
+
+    [Fact]
     public async Task TheEncryptAndDecryptPathsAreSeparate()
     {
         var directory = Directory.CreateTempSubdirectory("atc-pf").FullName;
