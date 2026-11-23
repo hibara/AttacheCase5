@@ -1040,10 +1040,11 @@ Update now?</value>
     <value>Remove license</value>
   </data>
   <data name="LicenseReg_Success" xml:space="preserve">
-    <value>The license has been registered. Thank you!</value>
+    <value>Thank you for your purchase.
+The registration code is valid.</value>
   </data>
   <data name="LicenseReg_Invalid" xml:space="preserve">
-    <value>The registration code is not valid.</value>
+    <value>This registration code is not valid.</value>
   </data>
   <data name="LicenseReg_Deleted" xml:space="preserve">
     <value>The license has been removed.</value>

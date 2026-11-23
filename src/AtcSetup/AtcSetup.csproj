@@ -20,9 +20,9 @@
         <Nullable>disable</Nullable>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <ApplicationIcon>main_icon.ico</ApplicationIcon>
-        <Version>5.5.2.0</Version>
-        <AssemblyVersion>5.5.2.0</AssemblyVersion>
-        <FileVersion>5.5.2.0</FileVersion>
+        <Version>5.5.3.0</Version>
+        <AssemblyVersion>5.5.3.0</AssemblyVersion>
+        <FileVersion>5.5.3.0</FileVersion>
         <Company>HiBARA Software, LLC</Company>
         <Product>AtcSetup</Product>
         <Copyright>Copyright © 2002-2026 HiBARA Software, LLC</Copyright>

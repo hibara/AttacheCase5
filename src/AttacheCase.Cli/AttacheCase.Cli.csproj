@@ -5,10 +5,10 @@
         <Nullable>enable</Nullable>
         <RootNamespace>AttacheCase.CliApp</RootNamespace>
         <AssemblyName>AttacheCase.Cli</AssemblyName>
-        <AssemblyVersion>5.5.2.0</AssemblyVersion>
-        <FileVersion>5.5.2.0</FileVersion>
+        <AssemblyVersion>5.5.3.0</AssemblyVersion>
+        <FileVersion>5.5.3.0</FileVersion>
         <Company>HiBARA Software, LLC</Company>
-        <Version>5.5.2.0</Version>
+        <Version>5.5.3.0</Version>
         <Product>AttacheCase</Product>
         <Copyright>Copyright © 2002-2026 HiBARA Software, LLC</Copyright>
 

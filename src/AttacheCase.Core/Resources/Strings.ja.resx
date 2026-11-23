@@ -1038,10 +1038,11 @@ https://hibara.jp/software/attachecase/</value>
     <value>ライセンスを削除</value>
   </data>
   <data name="LicenseReg_Success" xml:space="preserve">
-    <value>ライセンスを登録しました。ありがとうございます！</value>
+    <value>ご購入ありがとうございます。
+レジストレーションコードは有効です。</value>
   </data>
   <data name="LicenseReg_Invalid" xml:space="preserve">
-    <value>レジストレーションコードが正しくありません。</value>
+    <value>このレジストレーションコードは無効です。</value>
   </data>
   <data name="LicenseReg_Deleted" xml:space="preserve">
     <value>ライセンスを削除しました。</value>

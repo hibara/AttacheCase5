@@ -312,6 +312,82 @@ public class DecryptionService : IDecryptionService
   }
 
   /// <summary>
+  /// 旧形式（v105 / v130）の書庫に入っている項目の一覧を、何も書き出さずに取る。
+  /// エンジンの fListOnly を立てて、ヘッダーの復号と検証（パスワード照合・
+  /// 壊れた行・ディレクトリトラバーサル）までを通す。
+  /// </summary>
+  private static FileListResult GetFileListLegacy(
+      string inputPath, string password, byte[]? passwordBinary, int dataFileVersion)
+  {
+    using var worker = new System.ComponentModel.BackgroundWorker
+    {
+      WorkerReportsProgress = true,
+      WorkerSupportsCancellation = true,
+    };
+    var doWorkArgs = new System.ComponentModel.DoWorkEventArgs(null);
+    // エンジンは項目のパスを「保存先の下の絶対パス」で持つ。一覧だけなので実在しない
+    // 仮の保存先を渡し（何も作られない）、あとでその部分を外して相対パスに戻す
+    var listRoot = Path.Combine(Path.GetTempPath(), "atc-list-" + Guid.NewGuid().ToString("N"));
+    var unusedOutputDirectory = listRoot;
+
+    static void NoInteractiveDialog(int type, string path, IReadOnlyList<string> hashes) { }
+    static void NoInteractiveInvalidChar(string path) { }
+
+    bool succeeded;
+    int engineReturnCode;
+    string errorMessage;
+    List<string> listed;
+
+    if (dataFileVersion < 130)
+    {
+      var decryption = new FileDecrypt2(inputPath) { fListOnly = true };
+      succeeded = decryption.Decrypt(
+        worker, doWorkArgs, inputPath, unusedOutputDirectory, password, passwordBinary,
+        NoInteractiveDialog, NoInteractiveInvalidChar);
+      engineReturnCode = decryption.ReturnCode;
+      errorMessage = decryption.ErrorMessage;
+      listed = decryption.ListedFilePaths;
+    }
+    else
+    {
+      var decryption = new FileDecrypt3(inputPath) { fListOnly = true };
+      succeeded = decryption.Decrypt(
+        worker, doWorkArgs, inputPath, unusedOutputDirectory, password, passwordBinary,
+        NoInteractiveDialog);
+      engineReturnCode = decryption.ReturnCode;
+      errorMessage = decryption.ErrorMessage;
+      listed = decryption.ListedFilePaths;
+    }
+
+    if (!succeeded)
+    {
+      return FileListResult.CreateError(
+        engineReturnCode,
+        string.IsNullOrEmpty(errorMessage)
+          ? Localize["Error_WrongPasswordOrBroken"]
+          : errorMessage);
+    }
+
+    var prefix = EnsureTrailingSeparator(Path.GetFullPath(listRoot));
+    var relativePaths = new List<string>();
+    foreach (var path in listed)
+    {
+      if (string.IsNullOrEmpty(path)) continue;
+      var relative = path.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
+        ? path[prefix.Length..]
+        : path;
+      // 保存先そのもの（空）は一覧に載せない。載せると「保存先がすでにある」と誤判定される
+      if (relative.Length == 0 || Path.IsPathRooted(relative)) continue;
+      // ここでは区切り文字を変換しない。旧形式エンジンが項目名の「\」を実行 OS の区切りに
+      // 直したうえで（PathSafety.ToNativeSeparators）パスを組み立てているので、一覧は
+      // エンジンが実際に書き出す場所とすでに同じになっている
+      relativePaths.Add(relative);
+    }
+
+    return FileListResult.CreateSuccess(relativePaths);
+  }
+
+  /// <summary>
   /// v4 (DATA_FILE_VERSION = 140) の鍵導出。
   /// Windows 版と同じ PBKDF2-HMAC-SHA1 / 1000 回で、先頭 32 バイトを鍵、続く 16 バイトを IV とする。
   /// </summary>
@@ -2043,6 +2119,13 @@ public class DecryptionService : IDecryptionService
               return GetFileListV5(inputPath, password);
           }
 
+          // v105 / v130（AttacheCase 2 / 3）は移植したエンジンで一覧だけを読む
+          if (detectedVersion > 0 && detectedVersion < DATA_FILE_VERSION)
+          {
+              return await Task.Run(() => GetFileListLegacy(
+                  inputPath, password, null, detectedVersion), cancellationToken);
+          }
+
           var passwordBinary = Encoding.UTF8.GetBytes(password);
 
           await using var fs = new FileStream(inputPath, FileMode.Open, FileAccess.Read, FileShare.Read);
@@ -2138,6 +2221,15 @@ public class DecryptionService : IDecryptionService
         {
             return GetFileListV5(inputPath, password, options.PasswordBinary,
                 options.IsUseRsaEncryption ? options.RsaPrivateKeyXml : null);
+        }
+
+        // v105 / v130（AttacheCase 2 / 3）は移植したエンジンで一覧だけを読む。
+        // これが無いと下の v140 用の読み取りに落ち、正しいパスワードでも
+        // 「パスワード違い」になって GUI から復号できない
+        if (detectedVersion > 0 && detectedVersion < DATA_FILE_VERSION)
+        {
+            return await Task.Run(() => GetFileListLegacy(
+                inputPath, password, options.PasswordBinary, detectedVersion), cancellationToken);
         }
 
         byte[] passwordBinary;

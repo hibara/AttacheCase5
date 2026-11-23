@@ -37,7 +37,19 @@ public partial class LicenseRegistrationWindow : Window
         Opened += (_, _) => Platform.Windows.WindowsDialogChrome.MakeCloseOnly(this);
 
         var registerButton = this.FindControl<Button>("RegisterButton");
-        if (registerButton != null) registerButton.Click += OnRegisterClick;
+        if (registerButton != null)
+        {
+            registerButton.Click += OnRegisterClick;
+            // 有効なコードが入るまでは押せない
+            registerButton.IsEnabled = false;
+        }
+
+        // 貼り付けた（打ち替えた）時点で有効・無効を判定して表示する
+        var codeTextBox = this.FindControl<TextBox>("CodeTextBox");
+        if (codeTextBox != null)
+        {
+            codeTextBox.TextChanged += (_, _) => ValidateCode();
+        }
 
         var closeButton = this.FindControl<Button>("CloseButton");
         if (closeButton != null) closeButton.Click += (_, _) => Close();
@@ -58,32 +70,61 @@ public partial class LicenseRegistrationWindow : Window
             : Localize["LicenseReg_StatusNotRegistered"];
     }
 
-    private void OnRegisterClick(object? sender, RoutedEventArgs e)
+    /// <summary>
+    /// 入力欄のコードを（保存せずに）検証し、結果を表示する。
+    /// 有効なら緑字のお礼、無効なら赤字、空欄なら何も出さない。
+    /// 「登録」ボタンは有効なコードのときだけ押せる。
+    /// </summary>
+    private bool ValidateCode()
     {
         var codeTextBox = this.FindControl<TextBox>("CodeTextBox");
         var resultText = this.FindControl<TextBlock>("ResultText");
-        if (codeTextBox == null || resultText == null) return;
+        var registerButton = this.FindControl<Button>("RegisterButton");
+        if (codeTextBox == null || resultText == null) return false;
 
         var code = codeTextBox.Text?.Trim() ?? "";
-        var license = new LicenseRegister(code);
 
-        if (!string.IsNullOrEmpty(code) && license.Decrypt(fRegister: true))
+        // 空欄で Decrypt を呼ぶと保存済みのコードを読みに行くので、先に弾く
+        var isValid = code.Length > 0 && new LicenseRegister(code).Decrypt(fRegister: false);
+
+        if (code.Length == 0)
+        {
+            resultText.Text = "";
+        }
+        else if (isValid)
         {
             resultText.Text = Localize["LicenseReg_Success"];
-            resultText.Foreground = Brushes.Green;
-            codeTextBox.Text = "";
-
-            // 登録完了。もう一度押せると空欄のまま「コードが正しくありません」に
-            // なってしまうので、入力欄ごと無効化する（あとは閉じるだけ）
-            codeTextBox.IsEnabled = false;
-            if (sender is Button registerButton) registerButton.IsEnabled = false;
-
-            RefreshStatus();
+            resultText.Foreground = ThemeBrush("AppSuccessForeground", Brushes.Green);
         }
         else
         {
             resultText.Text = Localize["LicenseReg_Invalid"];
-            resultText.Foreground = Brushes.Red;
+            resultText.Foreground = ThemeBrush("AppErrorForeground", Brushes.Red);
+        }
+
+        if (registerButton != null) registerButton.IsEnabled = isValid;
+        return isValid;
+    }
+
+    /// <summary>App.axaml のテーマ辞書（ライト／ダーク）から色を引く。</summary>
+    private IBrush ThemeBrush(string key, IBrush fallback)
+    {
+        return this.TryFindResource(key, ActualThemeVariant, out var value) && value is IBrush brush
+            ? brush
+            : fallback;
+    }
+
+    private void OnRegisterClick(object? sender, RoutedEventArgs e)
+    {
+        var codeTextBox = this.FindControl<TextBox>("CodeTextBox");
+        if (codeTextBox == null || !ValidateCode()) return;
+
+        var code = codeTextBox.Text?.Trim() ?? "";
+        if (new LicenseRegister(code).Decrypt(fRegister: true))
+        {
+            // 登録できたら、そのままバージョン情報へ戻る
+            // （App.OnAboutMenuClick がこの画面を閉じたあとに開き直す。登録済み表示になる）
+            Close();
         }
     }
 

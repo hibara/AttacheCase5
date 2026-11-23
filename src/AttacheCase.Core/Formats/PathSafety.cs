@@ -43,6 +43,26 @@ namespace AttacheCase
   internal static class PathSafety
   {
     /// <summary>
+    /// 旧形式（v105 / v130）の書庫に入っている項目名を、実行 OS の区切り文字に直す。
+    /// </summary>
+    /// <remarks>
+    /// 旧形式は Windows 版しか書かないので、項目名の区切りは常に「\」で、フォルダーの項目は
+    /// 末尾が「\」になる。Windows 以外では「\」は区切りではなく名前の一部なので、そのまま
+    /// 保存先に結合すると、階層ではなく「dir\child.txt」という名前のファイルができてしまう。
+    /// Windows では何も変えない。保存先の内側かどうかの検査（<see cref="IsInsideDirectory"/>）より
+    /// 前に通すこと（変換後の「..」も検査の対象にするため）。
+    /// </remarks>
+    public static string ToNativeSeparators(string entryName)
+    {
+      if (string.IsNullOrEmpty(entryName) || Path.DirectorySeparatorChar == '\\')
+      {
+        return entryName;
+      }
+
+      return entryName.Replace('\\', Path.DirectorySeparatorChar);
+    }
+
+    /// <summary>
     /// パスを正規化する。失敗した場合は <c>null</c> を返す。
     /// </summary>
     /// <remarks>

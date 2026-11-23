@@ -12,6 +12,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.IO;
 using System.Security.Cryptography;
@@ -152,6 +153,20 @@ namespace AttacheCase
     public char MissTypeLimits
     {
       get { return this._MissTypeLimits; }
+    }
+
+    // 復号せず、書庫に入っている項目の一覧（保存先からの相対パス）だけを取る
+    private bool _fListOnly = false;
+    public bool fListOnly
+    {
+      get { return this._fListOnly; }
+      set { this._fListOnly = value; }
+    }
+
+    private readonly List<string> _ListedFilePaths = new List<string>();
+    public List<string> ListedFilePaths
+    {
+      get { return _ListedFilePaths; }
     }
 
     //  一つずつ親フォルダーを確認、生成しながら復号する（サルベージモード）
@@ -781,11 +796,13 @@ namespace AttacheCase
           string OutFilePath = "";
           if (_fSalvageIntoSameDirectory == true) // Salvage mode
           {
-            OutFilePath = Path.Combine(OutDirPath, Path.GetFileName(FilePathSplits[1]));
+            OutFilePath = Path.Combine(OutDirPath, Path.GetFileName(PathSafety.ToNativeSeparators(FilePathSplits[1])));
           }
           else
           {
-            OutFilePath = Path.Combine(OutDirPath, FilePathSplits[1]);
+            // 項目名の区切り「\」を実行 OS の区切りに直してから結合する
+            // （Windows 以外でサブフォルダーが「dir\child.txt」という名前のファイルになるのを防ぐ）
+            OutFilePath = Path.Combine(OutDirPath, PathSafety.ToNativeSeparators(FilePathSplits[1]));
           }
 
           //-----------------------------------
@@ -936,6 +953,21 @@ namespace AttacheCase
         } // end foreach (var OutputLine in FileList);
 
         //----------------------------------------------------------------------
+        // 一覧だけを求められているときは、ここで返す（何も書き出さない）。
+        // GUI が復号の前に上書き確認用の一覧を取るのに使う
+        //----------------------------------------------------------------------
+        if (_fListOnly == true)
+        {
+          _ListedFilePaths.Clear();
+          foreach (int FileNum in dic.Keys.OrderBy(k => k))
+          {
+            _ListedFilePaths.Add(dic[FileNum].FilePath);
+          }
+          _ReturnCode = DECRYPT_SUCCEEDED;
+          return (true);
+        }
+
+        //----------------------------------------------------------------------
         // Generate a temporary file in the case of self-executable file.
         if (_fExecutableType == true)
         {
@@ -966,7 +998,7 @@ namespace AttacheCase
         {
           foreach (FileListData item in dic.Values)
           {
-            if (item.FilePath.EndsWith("\\") == true) continue;
+            if (item.FilePath.EndsWith(Path.DirectorySeparatorChar) == true) continue;
             string existingPath = Path.Combine(OutDirPath, item.FilePath);
             if (File.Exists(existingPath) == true)
             {
@@ -1089,7 +1121,7 @@ namespace AttacheCase
                     _ReturnCode = FILE_INDEX_NOT_FOUND;
                     return (false);
                   }
-                  if (dic[0].FilePath.EndsWith("\\") == true)
+                  if (dic[0].FilePath.EndsWith(Path.DirectorySeparatorChar) == true)
                   {
                     FileIndex = 1;  // Ignore parent folder.
                   }
@@ -1130,7 +1162,7 @@ namespace AttacheCase
                         //-----------------------------------
                         // Create directory
                         //-----------------------------------
-                        if (dic[FileIndex].FilePath.EndsWith("\\") == true)
+                        if (dic[FileIndex].FilePath.EndsWith(Path.DirectorySeparatorChar) == true)
                         {
                           string path = Path.Combine(OutDirPath, dic[FileIndex].FilePath);
                           //path = cleanPath(path, dialogInvalidChar);
